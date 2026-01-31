@@ -118,6 +118,14 @@ body.dark-mode #theme-switcher svg:last-child {
     letter-spacing: 1px;
 }
 
+.brand-text:hover,
+.brand-text:active,
+.brand-text:visited,
+.brand-text:focus{
+    color: var(--color-2);
+}
+
+
 .brand-text span {
     color: var(--main-color);
 }
@@ -182,8 +190,8 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .signin-link:hover{
-    background-color: var(--color-2);
-    color: var(--color-1);
+    background-color: var(--color-1);
+    color: var(--color-2);
 }
 
 .navbar-toggler {
@@ -210,7 +218,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher:hover {
-    color: var(--color-2); 
+    color: var(--color-1); 
     transform: rotate(180deg);
     transition: color 0.5s ease, transform 0.5s ease;
 }
@@ -222,6 +230,8 @@ body.dark-mode #theme-switcher svg:last-child {
 #nav-buttons #theme-switcher {
     display: none;
 }
+
+
 
 
 /* ==========================================================================
@@ -239,10 +249,6 @@ body.dark-mode #theme-switcher svg:last-child {
 @media (max-width: 991px) {
     .navbar {
         border-radius: 20px;
-    }
-
-    .brand-text {
-        margin-left: 65px;
     }
 
     .logo-circle {
