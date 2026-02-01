@@ -253,6 +253,129 @@ body.dark-mode #theme-switcher svg:last-child {
     background-color: var(--nav-link-switch-1);
     color: var(--nav-link-switch-2);
 }
+/* ==========================================================================
+   Bejelentkezes/Regisztracio ablakok
+   ========================================================================== */
+
+.login-card {
+    border-radius: 24px;
+    padding: 40px;
+    border: none;
+    position: relative;
+    background-color: var(--color-1);
+    color: var(--color-2);
+    box-shadow: 0 4px 20px var(--nav-shadow-1);
+}
+
+.btn-close-custom {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--nav-link-1);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.btn-close-custom:hover {
+    color: var(--color-2);
+}
+
+.modal-title span{
+    color: var(--main-color);
+}
+
+.login-input-field {
+    text-align: left;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.login-input-field label{
+    margin-bottom: 2px;
+}
+
+.modal-content .modal-title, .modal-content .subtitle, .modal-content .extra-options label, .modal-content .footer-text, .login-input-field label{
+    margin-left: 3px;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 8px 15px;
+    background: var(--color-1);
+}
+
+.input-wrapper input {
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    background: var(--color-1);
+    color: var(--color-2);
+}
+
+.login-btn, .account-create-btn{
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: var(--main-color);
+    color: white;
+    font-weight: 600;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    box-shadow: 0 4px 15px rgba(93, 95, 239, 0.3);
+}
+
+.extra-options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin: 15px 0;
+}
+
+.eye-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-2);
+}
+
+.eye-btn:hover {
+    color: var(--main-color);
+}
+
+.extra-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.extra-options input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.eye-open{
+    display: block;
+}
+
+.eye-closed{
+    display: none;
+}
+
 
 
 
