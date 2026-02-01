@@ -11,7 +11,8 @@
     --theme-switcher-light: #d4d4d4;
     --theme-switcher-dark: #4d4d4d;
     --main-color: #5d5fef;
-    /* --sun-color: #d8a50b; */
+    --main-color-light: #a7a8e6;
+    --main-color-dark: #2f3068;
 
 
 
@@ -19,14 +20,14 @@
     --color-2: var(--color-dark);
 
     --nav-link-1: var(--nav-link-light);
+    --nav-link-2: var(--nav-link-dark);
 
     --nav-shadow-1: var(--nav-shadow-light);
     --nav-shadow-2: var(--nav-shadow-dark);
 
     --theme-switcher-1: var(--theme-switcher-light);
 
-    /* --theme-switcher-icon-1: var(--main-color);
-    --theme-switcher-icon-2: var(--sun-color) */
+    --main-color-1: var(--main-color-light);
 }
 
 
@@ -43,9 +44,11 @@ body.dark-mode {
     --color-1: var(--color-dark);
     --color-2: var(--color-light);
     --nav-link-1: var(--nav-link-dark);
+    --nav-link-2: var(--nav-link-light);
     --nav-shadow-1: var(--nav-shadow-dark);
     --nav-shadow-2: var(--nav-shadow-light);
     --theme-switcher-1: var(--theme-switcher-dark);
+    --main-color-1: var(--main-color-dark);
     /* --theme-switcher-icon-1: var(--sun-color);
     --theme-switcher-icon-2: var(--main-color); */
 }
@@ -118,16 +121,16 @@ body.dark-mode #theme-switcher svg:last-child {
     letter-spacing: 1px;
 }
 
-.brand-text:hover,
-.brand-text:active,
-.brand-text:visited,
-.brand-text:focus{
-    color: var(--color-2);
+.brand-text:hover{
+    color: var(--theme-switcher-1);
 }
-
 
 .brand-text span {
     color: var(--main-color);
+}
+
+.brand-text span:hover, .brand-text:hover span{
+    color: var(--main-color-1);
 }
 
 .nav-link {
@@ -190,8 +193,8 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .signin-link:hover{
-    background-color: var(--color-1);
-    color: var(--color-2);
+    background-color: var(--color-2);
+    color: var(--color-1);
 }
 
 .navbar-toggler {
@@ -218,7 +221,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher:hover {
-    color: var(--color-1); 
+    color: var(--color-2); 
     transform: rotate(180deg);
     transition: color 0.5s ease, transform 0.5s ease;
 }
@@ -249,6 +252,10 @@ body.dark-mode #theme-switcher svg:last-child {
 @media (max-width: 991px) {
     .navbar {
         border-radius: 20px;
+    }
+
+    .brand-text {
+        margin-left: 65px;
     }
 
     .logo-circle {
