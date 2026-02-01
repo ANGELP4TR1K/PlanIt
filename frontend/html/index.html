@@ -20,7 +20,7 @@
 
     <div class="fixed-top">
         <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
+            <div class="container-fluid navbar-container">
                 <div class="logo-container">
                     <div class="logo-circle">
                         <!-- Logo img vagy svg -->
@@ -45,23 +45,32 @@
                         </svg></button>
                 </div>
 
-                <!-- Navbar kozepso gombjai -->
+                <!-- Navbar gombjai -->
                 <div class="collapse navbar-collapse" id="planitNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="#explore">Explore</a>
+                            <a class="nav-link" href="#explore">Felfedezés</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#events">Events</a>
+                            <a class="nav-link" href="#events">Események</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#map">Map</a>
+                            <a class="nav-link" href="#map">Térkép</a>
                         </li>
                     </ul>
 
-                    <div class="signin-login-div">
-                        <a href="#" class="nav-link signin-link" data-bs-toggle="modal" data-bs-target="#registerModal">Sign up</a>
-                        <a href="#" class="nav-link login-link" data-bs-toggle="modal" data-bs-target="#loginModal">Log in</a>
+                    <div class="dropdown">
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <li>
+                                <button class="dropdown-item login-item" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Bejelentkezés</button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item register-item" data-bs-toggle="modal"
+                                    data-bs-target="#registerModal">Regisztráció</button>
+                            </li>
+                        </ul>
                     </div>
 
                     <!-- Téma váltó desktop nézethez -->
@@ -81,7 +90,7 @@
     </div>
     <div class="container-fluid">
         <div class="row text-center">
-            
+
         </div>
     </div>
 </body>

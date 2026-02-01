@@ -13,6 +13,7 @@
     --main-color: #5d5fef;
     --main-color-light: #a7a8e6;
     --main-color-dark: #2f3068;
+    --hover: #eeefff;
 
 
 
@@ -28,6 +29,9 @@
     --theme-switcher-1: var(--theme-switcher-light);
 
     --main-color-1: var(--main-color-light);
+
+    --nav-link-switch-1: var(--main-color);
+    --nav-link-switch-2: var(--hover);
 }
 
 
@@ -49,8 +53,8 @@ body.dark-mode {
     --nav-shadow-2: var(--nav-shadow-light);
     --theme-switcher-1: var(--theme-switcher-dark);
     --main-color-1: var(--main-color-dark);
-    /* --theme-switcher-icon-1: var(--sun-color);
-    --theme-switcher-icon-2: var(--main-color); */
+    --nav-link-switch-1: var(--hover);
+    --nav-link-switch-2: var(--main-color);
 }
 
 
@@ -121,7 +125,7 @@ body.dark-mode #theme-switcher svg:last-child {
     letter-spacing: 1px;
 }
 
-.brand-text:hover{
+.brand-text:hover {
     color: var(--theme-switcher-1);
 }
 
@@ -129,7 +133,8 @@ body.dark-mode #theme-switcher svg:last-child {
     color: var(--main-color);
 }
 
-.brand-text span:hover, .brand-text:hover span{
+.brand-text span:hover,
+.brand-text:hover span {
     color: var(--main-color-1);
 }
 
@@ -139,69 +144,31 @@ body.dark-mode #theme-switcher svg:last-child {
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem !important;
-}
-
-.navbar-nav.mx-auto .nav-item {
-    margin: 0 2px;
-    background: transparent;
-}
-
-.navbar-nav.mx-auto .nav-link {
-    font-weight: 600;
-    color: var(--nav-link-1);
     border-radius: 12px;
     transition: all 0.2s ease-in-out;
 }
 
-.navbar-nav.mx-auto .nav-item.active .nav-link {
-    background-color: #eeefff;
-    color: var(--main-color);
+.nav-item {
+    margin: 0 2px;
+    background: transparent;
 }
 
-.navbar-nav.mx-auto .nav-item.active .nav-link:hover,
-.navbar-nav.mx-auto .nav-link:hover {
-    background-color: var(--main-color);
-    color: white;
+.nav-item.active .nav-link {
+    background-color: var(--nav-link-switch-2);
+    color: var(--nav-link-switch-1);
 }
 
-.signin-login-div{
-    display: flex;
-    gap: 5px;
-}
-
-.login-link {
-    background-color: var(--color-2);
-    color: var(--color-1);
-    border-radius: 12px;
-    padding: 8px 24px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.login-link:hover {
-    background-color: var(--theme-switcher-1);
-    color: var(--nav-link-1);
-}
-
-.signin-link{
-    background-color: var(--theme-switcher-1);
-    color: var(--nav-link-1);
-    border-radius: 12px;
-    padding: 8px 24px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.signin-link:hover{
-    background-color: var(--color-2);
-    color: var(--color-1);
+.nav-item.active .nav-link:hover,
+.nav-link:hover {
+    background-color: var(--nav-link-switch-1);
+    color: var(--nav-link-switch-2);
 }
 
 .navbar-toggler {
-    background-color: #eeefff;
+    background-color: var(--main-color-light);
 }
 
-.container-fluid {
+.container-fluid.navbar-container {
     padding: 0;
 }
 
@@ -221,7 +188,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher:hover {
-    color: var(--color-2); 
+    color: var(--color-2);
     transform: rotate(180deg);
     transition: color 0.5s ease, transform 0.5s ease;
 }
@@ -234,6 +201,58 @@ body.dark-mode #theme-switcher svg:last-child {
     display: none;
 }
 
+/* Profil gomb es a dropdown menujenek stilusai */
+.account-btn {
+    background-color: var(--nav-link-switch-2);
+    color: var(--nav-link-switch-1);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.account-btn:hover,
+.account-btn.show {
+    background-color: var(--nav-link-switch-1);
+    color: var(--nav-link-switch-2);
+}
+
+.account-dropdown-card {
+    background: var(--color-1);
+    color: var(--color-2);
+    min-width: 240px;
+    padding: 15px;
+    margin-top: 20px !important;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px var(--nav-shadow-1);
+
+    /* Ez azert kell mert a gombhoz kepest nem kozepen jelenik meg a dropdown menu */
+    left: 50% !important;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.login-item {
+    margin-bottom: 10px;
+}
+
+.login-item,
+.register-item {
+    background: var(--nav-link-switch-2);
+    color: var(--nav-link-switch-1);
+    font-weight: 600;
+    border-radius: 12px;
+    text-align: center;
+    padding: 10px;
+}
+
+.login-item:hover,
+.register-item:hover {
+    background-color: var(--nav-link-switch-1);
+    color: var(--nav-link-switch-2);
+}
 
 
 
@@ -271,16 +290,12 @@ body.dark-mode #theme-switcher svg:last-child {
     }
 
     .navbar-collapse {
-        padding: 20px 0;
+        padding: 20px 0 5px 0;
     }
 
 
     .navbar-nav {
         gap: 5px;
-    }
-
-    .signin-link, .login-link{
-        width: 100%;
     }
 
     #theme-switcher {
@@ -291,14 +306,16 @@ body.dark-mode #theme-switcher svg:last-child {
         display: flex;
     }
 
-    .signin-login-div{
-        flex-direction: column;
-        align-items: start;
-        width: 88px;
+    .account-btn {
         margin-top: 5px;
-        gap: 5px;
     }
 
+    .account-dropdown-card {
+        margin-top: 20px !important;
+        left: -25px !important;
+        right: 0;
+        transform: none;
+    }
 
 }
 
