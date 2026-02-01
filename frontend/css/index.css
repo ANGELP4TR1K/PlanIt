@@ -165,7 +165,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .navbar-toggler {
-    background-color: var(--main-color-light);
+    background-color: var(--nav-link-switch-2);
 }
 
 .container-fluid.navbar-container {
