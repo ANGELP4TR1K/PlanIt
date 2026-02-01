@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     navActive();
     darkMode();
+    showPassword();
 });
 
 
@@ -25,6 +26,22 @@ function darkMode() {
     switchers.forEach(btn => {
         btn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
+        });
+    });
+}
+
+function showPassword() {
+    document.querySelectorAll('.eye-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            let input = this.parentElement.querySelector('input');
+            let eyeOpen = this.querySelector('.eye-open');
+            let eyeClosed = this.querySelector('.eye-closed');
+
+            let isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            eyeOpen.style.display = isPassword ? 'none' : 'block';
+            eyeClosed.style.display = isPassword ? 'block' : 'none';
         });
     });
 }
