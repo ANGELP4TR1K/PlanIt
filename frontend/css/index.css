@@ -349,11 +349,11 @@ body.dark-mode #theme-switcher svg:last-child {
     cursor: pointer;
 }
 
-.eye-open{
+#eye-open{
     display: block;
 }
 
-.eye-closed{
+#eye-closed{
     display: none;
 }
 
