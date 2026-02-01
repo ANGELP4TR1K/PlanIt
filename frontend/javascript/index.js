@@ -33,9 +33,9 @@ function darkMode() {
 function showPassword() {
     document.querySelectorAll('.eye-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            let input = document.getElementById('password');
-            let eyeOpen = document.getElementById('eye-open');
-            let eyeClosed = document.getElementById('eye-closed');
+            let input = this.parentElement.querySelector('input');
+            let eyeOpen = this.querySelector('.eye-open');
+            let eyeClosed = this.querySelector('.eye-closed');
 
             let isPassword = input.type === 'password';
             input.type = isPassword ? 'text' : 'password';
