@@ -100,7 +100,7 @@ body.dark-mode #theme-switcher svg:last-child {
     width: 50%;
     border-radius: 15px;
     padding: 0.5rem 1.5rem;
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    box-shadow: 0 4px 20px var(--nav-shadow);
     border: none;
     backdrop-filter: blur(10px);
 }
