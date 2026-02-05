@@ -1,56 +1,73 @@
-/* Alapszínek megadása későbbi könnyebb módosításhoz és a mód választó könnyebb kezeléséhez */
+/* Color variables for theme management */
 :root {
-    /* *-light elsodleges szin */
-    /* *-dark masodlagos szin */
-    --color-light: white;
-    --color-dark: #000000;
-    --nav-link-dark: #eeeeee;
-    --nav-link-light: #555;
-    --nav-shadow-light: rgba(0, 0, 0, 0.15);
-    --nav-shadow-dark: rgba(255, 255, 255, 0.15);
-    --theme-switcher-light: #d4d4d4;
-    --theme-switcher-dark: #4d4d4d;
-    --main-color: #5d5fef;
-    --main-color-light: #a7a8e6;
-    --main-color-dark: #2f3068;
+    /* Base colors */
+    --white: white;
+    --black: #000000;
+    
+    /* Navigation colors */
+    --nav-text-light-mode: #555;
+    --nav-text-dark-mode: #eeeeee;
+    --nav-shadow-light-mode: rgba(0, 0, 0, 0.15);
+    --nav-shadow-dark-mode: rgba(255, 255, 255, 0.15);
+    
+    /* Theme switcher button */
+    --theme-btn-light-mode: #d4d4d4;
+    --theme-btn-dark-mode: #4d4d4d;
+    
+    /* Primary brand color */
+    --primary-purple: #5d5fef;
+    --primary-purple-light: #a7a8e6;
+    --primary-purple-dark: #2f3068;
+    --primary-hover: #eeefff;
+    
+    /* Input and filter elements */
+    --input-bg-light-mode: #f5f5f5;
+    --input-bg-dark-mode: #2a2a2a;
+    --input-border-light-mode: #e0e0e0;
+    --input-border-dark-mode: #4a4a4a;
+    --card-bg-light-mode: white;
+    --card-bg-dark-mode: #1a1a1a;
 
-
-
-    --color-1: var(--color-light);
-    --color-2: var(--color-dark);
-
-    --nav-link-1: var(--nav-link-light);
-    --nav-link-2: var(--nav-link-dark);
-
-    --nav-shadow-1: var(--nav-shadow-light);
-    --nav-shadow-2: var(--nav-shadow-dark);
-
-    --theme-switcher-1: var(--theme-switcher-light);
-
-    --main-color-1: var(--main-color-light);
+    /* Active theme variables (change based on mode) */
+    --bg-color: var(--white);
+    --text-color: var(--black);
+    --nav-text: var(--nav-text-light-mode);
+    --nav-text-secondary: var(--nav-text-dark-mode);
+    --nav-shadow: var(--nav-shadow-light-mode);
+    --nav-shadow-secondary: var(--nav-shadow-dark-mode);
+    --theme-btn-bg: var(--theme-btn-light-mode);
+    --accent-color: var(--primary-purple-light);
+    --nav-active-bg: var(--primary-purple);
+    --nav-active-hover: var(--primary-hover);
+    --input-background: var(--input-bg-light-mode);
+    --input-border-color: var(--input-border-light-mode);
+    --card-background: var(--card-bg-light-mode);
 }
 
 
 body {
-    background-color: var(--color-1);
-    color: var(--color-2);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     padding-top: 50px;
     margin: 0;
 }
 
 
-/* Sötét és világos mód színváltások és a mód választó ikon változtatása */
+/* Dark mode theme variable switches */
 body.dark-mode {
-    --color-1: var(--color-dark);
-    --color-2: var(--color-light);
-    --nav-link-1: var(--nav-link-dark);
-    --nav-link-2: var(--nav-link-light);
-    --nav-shadow-1: var(--nav-shadow-dark);
-    --nav-shadow-2: var(--nav-shadow-light);
-    --theme-switcher-1: var(--theme-switcher-dark);
-    --main-color-1: var(--main-color-dark);
-    /* --theme-switcher-icon-1: var(--sun-color);
-    --theme-switcher-icon-2: var(--main-color); */
+    --bg-color: var(--black);
+    --text-color: var(--white);
+    --nav-text: var(--nav-text-dark-mode);
+    --nav-text-secondary: var(--nav-text-light-mode);
+    --nav-shadow: var(--nav-shadow-dark-mode);
+    --nav-shadow-secondary: var(--nav-shadow-light-mode);
+    --theme-btn-bg: var(--theme-btn-dark-mode);
+    --accent-color: var(--primary-purple-dark);
+    --nav-active-bg: var(--primary-hover);
+    --nav-active-hover: var(--primary-purple);
+    --input-background: var(--input-bg-dark-mode);
+    --input-border-color: var(--input-border-dark-mode);
+    --card-background: var(--card-bg-dark-mode);
 }
 
 
@@ -83,7 +100,7 @@ body.dark-mode #theme-switcher svg:last-child {
     width: 50%;
     border-radius: 15px;
     padding: 0.5rem 1.5rem;
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    box-shadow: 0 4px 20px var(--nav-shadow);
     border: none;
     backdrop-filter: blur(10px);
 }
@@ -94,18 +111,18 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .logo-circle {
-    background-color: var(--main-color);
+    background-color: var(--primary-purple);
     width: 65px;
     height: 65px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 5px solid var(--color-1);
+    border: 5px solid var(--bg-color);
     position: absolute;
     top: -15px;
     transform: translateY(10px);
-    box-shadow: 0 4px 12px var(--nav-shadow-1);
+    box-shadow: 0 4px 12px var(--nav-shadow);
 }
 
 .logo-circle img {
@@ -117,97 +134,60 @@ body.dark-mode #theme-switcher svg:last-child {
     margin-left: 75px;
     font-weight: 800;
     font-size: 1.25rem;
-    color: var(--color-2);
+    color: var(--text-color);
     letter-spacing: 1px;
 }
 
-.brand-text:hover{
-    color: var(--theme-switcher-1);
+.brand-text:hover {
+    color: var(--theme-btn-bg);
 }
 
 .brand-text span {
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
-.brand-text span:hover, .brand-text:hover span{
-    color: var(--main-color-1);
+.brand-text span:hover,
+.brand-text:hover span {
+    color: var(--accent-color);
 }
 
 .nav-link {
     font-weight: 600;
-    color: var(--nav-link-1);
+    color: var(--nav-text);
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem !important;
-}
-
-.navbar-nav.mx-auto .nav-item {
-    margin: 0 2px;
-    background: transparent;
-}
-
-.navbar-nav.mx-auto .nav-link {
-    font-weight: 600;
-    color: var(--nav-link-1);
     border-radius: 12px;
     transition: all 0.2s ease-in-out;
 }
 
-.navbar-nav.mx-auto .nav-item.active .nav-link {
-    background-color: #eeefff;
-    color: var(--main-color);
+.nav-item {
+    margin: 0 2px;
+    background: transparent;
 }
 
-.navbar-nav.mx-auto .nav-item.active .nav-link:hover,
-.navbar-nav.mx-auto .nav-link:hover {
-    background-color: var(--main-color);
-    color: white;
+.nav-item.active .nav-link {
+    background-color: var(--nav-active-hover);
+    color: var(--nav-active-bg);
 }
 
-.signin-login-div{
-    display: flex;
-    gap: 5px;
-}
-
-.login-link {
-    background-color: var(--color-2);
-    color: var(--color-1);
-    border-radius: 12px;
-    padding: 8px 24px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.login-link:hover {
-    background-color: var(--theme-switcher-1);
-    color: var(--nav-link-1);
-}
-
-.signin-link{
-    background-color: var(--theme-switcher-1);
-    color: var(--nav-link-1);
-    border-radius: 12px;
-    padding: 8px 24px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.signin-link:hover{
-    background-color: var(--color-2);
-    color: var(--color-1);
+.nav-item.active .nav-link:hover,
+.nav-link:hover {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
 }
 
 .navbar-toggler {
-    background-color: #eeefff;
+    background-color: var(--nav-active-hover);
 }
 
-.container-fluid {
+.container-fluid.navbar-container {
     padding: 0;
 }
 
 #theme-switcher {
-    background-color: var(--theme-switcher-1);
-    color: var(--color-1);
+    background-color: var(--theme-btn-bg);
+    color: var(--bg-color);
     border-radius: 50%;
     border: 0;
     padding: 0;
@@ -221,7 +201,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher:hover {
-    color: var(--color-2); 
+    color: var(--text-color);
     transform: rotate(180deg);
     transition: color 0.5s ease, transform 0.5s ease;
 }
@@ -234,6 +214,58 @@ body.dark-mode #theme-switcher svg:last-child {
     display: none;
 }
 
+/* Profil gomb es a dropdown menujenek stilusai */
+.account-btn {
+    background-color: var(--nav-active-hover);
+    color: var(--nav-active-bg);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.account-btn:hover,
+.account-btn.show {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
+}
+
+.account-dropdown-card {
+    background: var(--bg-color);
+    color: var(--text-color);
+    min-width: 240px;
+    padding: 15px;
+    margin-top: 20px !important;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px var(--nav-shadow);
+
+    /* Ez azert kell mert a gombhoz kepest nem kozepen jelenik meg a dropdown menu */
+    left: 50% !important;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.login-item {
+    margin-bottom: 10px;
+}
+
+.login-item,
+.register-item {
+    background: var(--nav-active-hover);
+    color: var(--nav-active-bg);
+    font-weight: 600;
+    border-radius: 12px;
+    text-align: center;
+    padding: 10px;
+}
+
+.login-item:hover,
+.register-item:hover {
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
+}
 /* ==========================================================================
    Bejelentkezes/Regisztracio ablakok
    ========================================================================== */
@@ -243,9 +275,9 @@ body.dark-mode #theme-switcher svg:last-child {
     padding: 40px;
     border: none;
     position: relative;
-    background-color: var(--color-1);
-    color: var(--color-2);
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 4px 20px var(--nav-shadow);
 }
 
 .btn-close-custom {
@@ -255,18 +287,18 @@ body.dark-mode #theme-switcher svg:last-child {
     background: none;
     border: none;
     font-size: 24px;
-    color: var(--nav-link-1);
+    color: var(--nav-text);
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s;
 }
 
 .btn-close-custom:hover {
-    color: var(--color-2);
+    color: var(--text-color);
 }
 
 .modal-title span{
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
 .login-input-field {
@@ -286,10 +318,10 @@ body.dark-mode #theme-switcher svg:last-child {
 .input-wrapper {
     display: flex;
     align-items: center;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--input-border-color);
     border-radius: 12px;
     padding: 8px 15px;
-    background: var(--color-1);
+    background: var(--bg-color);
 }
 
 .input-wrapper input {
@@ -298,8 +330,8 @@ body.dark-mode #theme-switcher svg:last-child {
     width: 100%;
     padding: 8px;
     font-size: 14px;
-    background: var(--color-1);
-    color: var(--color-2);
+    background: var(--bg-color);
+    color: var(--text-color);
 }
 
 .login-btn, .account-create-btn{
@@ -307,7 +339,7 @@ body.dark-mode #theme-switcher svg:last-child {
     padding: 12px;
     border: none;
     border-radius: 12px;
-    background: var(--main-color);
+    background: var(--primary-purple);
     color: white;
     font-weight: 600;
     margin-top: 10px;
@@ -331,11 +363,11 @@ body.dark-mode #theme-switcher svg:last-child {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--color-2);
+    color: var(--text-color);
 }
 
 .eye-btn:hover {
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
 .extra-options label {
@@ -349,13 +381,40 @@ body.dark-mode #theme-switcher svg:last-child {
     cursor: pointer;
 }
 
-#eye-open{
+.eye-open{
     display: block;
 }
 
-#eye-closed{
+.eye-closed{
     display: none;
 }
+
+.footer-text a,
+.extra-options a,
+.forgot-link {
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-text a:hover,
+.extra-options a:hover,
+.forgot-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+
+
+
 
 
 /* ==========================================================================
@@ -392,16 +451,12 @@ body.dark-mode #theme-switcher svg:last-child {
     }
 
     .navbar-collapse {
-        padding: 20px 0;
+        padding: 20px 0 5px 0;
     }
 
 
     .navbar-nav {
         gap: 5px;
-    }
-
-    .signin-link, .login-link{
-        width: 100%;
     }
 
     #theme-switcher {
@@ -412,14 +467,16 @@ body.dark-mode #theme-switcher svg:last-child {
         display: flex;
     }
 
-    .signin-login-div{
-        flex-direction: column;
-        align-items: start;
-        width: 88px;
+    .account-btn {
         margin-top: 5px;
-        gap: 5px;
     }
 
+    .account-dropdown-card {
+        margin-top: 20px !important;
+        left: -25px !important;
+        right: 0;
+        transform: none;
+    }
 
 }
 
