@@ -23,9 +23,21 @@ function navActive() {
 
 function darkMode() {
     let switchers = document.querySelectorAll('#theme-switcher');
+    
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+
     switchers.forEach(btn => {
         btn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
+
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
         });
     });
 }
@@ -33,9 +45,9 @@ function darkMode() {
 function showPassword() {
     document.querySelectorAll('.eye-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            let input = document.getElementById('password');
-            let eyeOpen = document.getElementById('eye-open');
-            let eyeClosed = document.getElementById('eye-closed');
+            let input = this.parentElement.querySelector('input');
+            let eyeOpen = this.querySelector('.eye-open');
+            let eyeClosed = this.querySelector('.eye-closed');
 
             let isPassword = input.type === 'password';
             input.type = isPassword ? 'text' : 'password';
