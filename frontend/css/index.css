@@ -1,60 +1,73 @@
-/* Alapszínek megadása későbbi könnyebb módosításhoz és a mód választó könnyebb kezeléséhez */
+/* Color variables for theme management */
 :root {
-    /* *-light elsodleges szin */
-    /* *-dark masodlagos szin */
-    --color-light: white;
-    --color-dark: #000000;
-    --nav-link-dark: #eeeeee;
-    --nav-link-light: #555;
-    --nav-shadow-light: rgba(0, 0, 0, 0.15);
-    --nav-shadow-dark: rgba(255, 255, 255, 0.15);
-    --theme-switcher-light: #d4d4d4;
-    --theme-switcher-dark: #4d4d4d;
-    --main-color: #5d5fef;
-    --main-color-light: #a7a8e6;
-    --main-color-dark: #2f3068;
-    --hover: #eeefff;
+    /* Base colors */
+    --white: white;
+    --black: #000000;
+    
+    /* Navigation colors */
+    --nav-text-light-mode: #555;
+    --nav-text-dark-mode: #eeeeee;
+    --nav-shadow-light-mode: rgba(0, 0, 0, 0.15);
+    --nav-shadow-dark-mode: rgba(255, 255, 255, 0.15);
+    
+    /* Theme switcher button */
+    --theme-btn-light-mode: #d4d4d4;
+    --theme-btn-dark-mode: #4d4d4d;
+    
+    /* Primary brand color */
+    --primary-purple: #5d5fef;
+    --primary-purple-light: #a7a8e6;
+    --primary-purple-dark: #2f3068;
+    --primary-hover: #eeefff;
+    
+    /* Input and filter elements */
+    --input-bg-light-mode: #f5f5f5;
+    --input-bg-dark-mode: #2a2a2a;
+    --input-border-light-mode: #e0e0e0;
+    --input-border-dark-mode: #4a4a4a;
+    --card-bg-light-mode: white;
+    --card-bg-dark-mode: #1a1a1a;
 
-
-
-    --color-1: var(--color-light);
-    --color-2: var(--color-dark);
-
-    --nav-link-1: var(--nav-link-light);
-    --nav-link-2: var(--nav-link-dark);
-
-    --nav-shadow-1: var(--nav-shadow-light);
-    --nav-shadow-2: var(--nav-shadow-dark);
-
-    --theme-switcher-1: var(--theme-switcher-light);
-
-    --main-color-1: var(--main-color-light);
-
-    --nav-link-switch-1: var(--main-color);
-    --nav-link-switch-2: var(--hover);
+    /* Active theme variables (change based on mode) */
+    --bg-color: var(--white);
+    --text-color: var(--black);
+    --nav-text: var(--nav-text-light-mode);
+    --nav-text-secondary: var(--nav-text-dark-mode);
+    --nav-shadow: var(--nav-shadow-light-mode);
+    --nav-shadow-secondary: var(--nav-shadow-dark-mode);
+    --theme-btn-bg: var(--theme-btn-light-mode);
+    --accent-color: var(--primary-purple-light);
+    --nav-active-bg: var(--primary-purple);
+    --nav-active-hover: var(--primary-hover);
+    --input-background: var(--input-bg-light-mode);
+    --input-border-color: var(--input-border-light-mode);
+    --card-background: var(--card-bg-light-mode);
 }
 
 
 body {
-    background-color: var(--color-1);
-    color: var(--color-2);
+    background-color: var(--bg-color);
+    color: var(--text-color);
     padding-top: 50px;
     margin: 0;
 }
 
 
-/* Sötét és világos mód színváltások és a mód választó ikon változtatása */
+/* Dark mode theme variable switches */
 body.dark-mode {
-    --color-1: var(--color-dark);
-    --color-2: var(--color-light);
-    --nav-link-1: var(--nav-link-dark);
-    --nav-link-2: var(--nav-link-light);
-    --nav-shadow-1: var(--nav-shadow-dark);
-    --nav-shadow-2: var(--nav-shadow-light);
-    --theme-switcher-1: var(--theme-switcher-dark);
-    --main-color-1: var(--main-color-dark);
-    --nav-link-switch-1: var(--hover);
-    --nav-link-switch-2: var(--main-color);
+    --bg-color: var(--black);
+    --text-color: var(--white);
+    --nav-text: var(--nav-text-dark-mode);
+    --nav-text-secondary: var(--nav-text-light-mode);
+    --nav-shadow: var(--nav-shadow-dark-mode);
+    --nav-shadow-secondary: var(--nav-shadow-light-mode);
+    --theme-btn-bg: var(--theme-btn-dark-mode);
+    --accent-color: var(--primary-purple-dark);
+    --nav-active-bg: var(--primary-hover);
+    --nav-active-hover: var(--primary-purple);
+    --input-background: var(--input-bg-dark-mode);
+    --input-border-color: var(--input-border-dark-mode);
+    --card-background: var(--card-bg-dark-mode);
 }
 
 
@@ -87,7 +100,7 @@ body.dark-mode #theme-switcher svg:last-child {
     width: 50%;
     border-radius: 15px;
     padding: 0.5rem 1.5rem;
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    box-shadow: 0 4px 20px var(--nav-shadow);
     border: none;
     backdrop-filter: blur(10px);
 }
@@ -98,18 +111,18 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .logo-circle {
-    background-color: var(--main-color);
+    background-color: var(--primary-purple);
     width: 65px;
     height: 65px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 5px solid var(--color-1);
+    border: 5px solid var(--bg-color);
     position: absolute;
     top: -15px;
     transform: translateY(10px);
-    box-shadow: 0 4px 12px var(--nav-shadow-1);
+    box-shadow: 0 4px 12px var(--nav-shadow);
 }
 
 .logo-circle img {
@@ -121,29 +134,29 @@ body.dark-mode #theme-switcher svg:last-child {
     margin-left: 75px;
     font-weight: 800;
     font-size: 1.25rem;
-    color: var(--color-2);
+    color: var(--text-color);
     letter-spacing: 1px;
 }
 
 .brand-text:hover {
-    color: var(--theme-switcher-1);
+    color: var(--theme-btn-bg);
 }
 
 .brand-text span {
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
 .brand-text span:hover,
 .brand-text:hover span {
-    color: var(--main-color-1);
+    color: var(--accent-color);
 }
 
 .nav-link {
     font-weight: 600;
-    color: var(--nav-link-1);
+    color: var(--nav-text);
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem !important;
+    padding: 0.5rem 1rem ;
     border-radius: 12px;
     transition: all 0.2s ease-in-out;
 }
@@ -154,18 +167,18 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 .nav-item.active .nav-link {
-    background-color: var(--nav-link-switch-2);
-    color: var(--nav-link-switch-1);
+    background-color: var(--nav-active-hover);
+    color: var(--nav-active-bg);
 }
 
 .nav-item.active .nav-link:hover,
 .nav-link:hover {
-    background-color: var(--nav-link-switch-1);
-    color: var(--nav-link-switch-2);
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
 }
 
 .navbar-toggler {
-    background-color: var(--nav-link-switch-2);
+    background-color: var(--nav-active-hover);
 }
 
 .container-fluid.navbar-container {
@@ -173,8 +186,8 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher {
-    background-color: var(--theme-switcher-1);
-    color: var(--color-1);
+    background-color: var(--theme-btn-bg);
+    color: var(--bg-color);
     border-radius: 50%;
     border: 0;
     padding: 0;
@@ -188,7 +201,7 @@ body.dark-mode #theme-switcher svg:last-child {
 }
 
 #theme-switcher:hover {
-    color: var(--color-2);
+    color: var(--text-color);
     transform: rotate(180deg);
     transition: color 0.5s ease, transform 0.5s ease;
 }
@@ -203,8 +216,8 @@ body.dark-mode #theme-switcher svg:last-child {
 
 /* Profil gomb es a dropdown menujenek stilusai */
 .account-btn {
-    background-color: var(--nav-link-switch-2);
-    color: var(--nav-link-switch-1);
+    background-color: var(--nav-active-hover);
+    color: var(--nav-active-bg);
     border: none;
     padding: 8px 20px;
     border-radius: 12px;
@@ -214,19 +227,19 @@ body.dark-mode #theme-switcher svg:last-child {
 
 .account-btn:hover,
 .account-btn.show {
-    background-color: var(--nav-link-switch-1);
-    color: var(--nav-link-switch-2);
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
 }
 
 .account-dropdown-card {
-    background: var(--color-1);
-    color: var(--color-2);
+    background: var(--bg-color);
+    color: var(--text-color);
     min-width: 240px;
     padding: 15px;
     margin-top: 20px !important;
     border: none;
     border-radius: 20px;
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    box-shadow: 0 4px 20px var(--nav-shadow);
 
     /* Ez azert kell mert a gombhoz kepest nem kozepen jelenik meg a dropdown menu */
     left: 50% !important;
@@ -240,8 +253,8 @@ body.dark-mode #theme-switcher svg:last-child {
 
 .login-item,
 .register-item {
-    background: var(--nav-link-switch-2);
-    color: var(--nav-link-switch-1);
+    background: var(--nav-active-hover);
+    color: var(--nav-active-bg);
     font-weight: 600;
     border-radius: 12px;
     text-align: center;
@@ -250,21 +263,19 @@ body.dark-mode #theme-switcher svg:last-child {
 
 .login-item:hover,
 .register-item:hover {
-    background-color: var(--nav-link-switch-1);
-    color: var(--nav-link-switch-2);
+    background-color: var(--nav-active-bg);
+    color: var(--nav-active-hover);
 }
-/* ==========================================================================
-   Bejelentkezes/Regisztracio ablakok
-   ========================================================================== */
+
 
 .login-card {
     border-radius: 24px;
     padding: 40px;
     border: none;
     position: relative;
-    background-color: var(--color-1);
-    color: var(--color-2);
-    box-shadow: 0 4px 20px var(--nav-shadow-1);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 4px 20px var(--nav-shadow);
 }
 
 .btn-close-custom {
@@ -274,18 +285,18 @@ body.dark-mode #theme-switcher svg:last-child {
     background: none;
     border: none;
     font-size: 24px;
-    color: var(--nav-link-1);
+    color: var(--nav-text);
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s;
 }
 
 .btn-close-custom:hover {
-    color: var(--color-2);
+    color: var(--text-color);
 }
 
 .modal-title span{
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
 .login-input-field {
@@ -305,10 +316,10 @@ body.dark-mode #theme-switcher svg:last-child {
 .input-wrapper {
     display: flex;
     align-items: center;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--input-border-color);
     border-radius: 12px;
     padding: 8px 15px;
-    background: var(--color-1);
+    background: var(--bg-color);
 }
 
 .input-wrapper input {
@@ -317,8 +328,8 @@ body.dark-mode #theme-switcher svg:last-child {
     width: 100%;
     padding: 8px;
     font-size: 14px;
-    background: var(--color-1);
-    color: var(--color-2);
+    background: var(--bg-color);
+    color: var(--text-color);
 }
 
 .login-btn, .account-create-btn{
@@ -326,7 +337,7 @@ body.dark-mode #theme-switcher svg:last-child {
     padding: 12px;
     border: none;
     border-radius: 12px;
-    background: var(--main-color);
+    background: var(--primary-purple);
     color: white;
     font-weight: 600;
     margin-top: 10px;
@@ -350,11 +361,11 @@ body.dark-mode #theme-switcher svg:last-child {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--color-2);
+    color: var(--text-color);
 }
 
 .eye-btn:hover {
-    color: var(--main-color);
+    color: var(--primary-purple);
 }
 
 .extra-options label {
@@ -376,17 +387,492 @@ body.dark-mode #theme-switcher svg:last-child {
     display: none;
 }
 
+.footer-text a,
+.extra-options a,
+.forgot-link {
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-text a:hover,
+.extra-options a:hover,
+.forgot-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+}
 
 
+/* ==========================================================================
+   Terkep es kereso
+   ========================================================================== */
+
+.map-section {
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+.map-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.map-controls {
+    background: var(--card-background);
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px var(--nav-shadow);
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid var(--input-border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    background: var(--input-background);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+}
+
+.search-btn {
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+.filter-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+    margin-left: 4px;
+}
+
+.filter-select {
+    padding: 12px 16px;
+    border: 2px solid var(--input-border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    background: var(--input-background);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+}
+
+.reset-btn {
+    padding: 12px 24px;
+    background: var(--theme-btn-bg);
+    color: var(--text-color);
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-end;
+}
+
+.reset-btn:hover {
+    background: var(--text-color);
+    color: var(--bg-color);
+    transform: translateY(-2px);
+}
+
+.map-display {
+    width: 100%;
+    height: 600px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px var(--nav-shadow);
+}
+
+
+body.dark-mode .gm-style .gm-style-iw-c,
+body.dark-mode .gm-style .gm-style-iw-d,
+body.dark-mode .gm-style .gm-style-iw,
+body.dark-mode .gm-style .gm-style-iw-t::after,
+body.dark-mode .gm-style-iw-tc::after {
+    background-color: var(--card-bg-dark-mode) ;
+    color: var(--white) ;
+}
+
+
+body.dark-mode .gm-style .gm-style-iw-c {
+    box-shadow: 0 2px 7px 1px rgba(255, 255, 255, 0.1) ;
+}
+
+body.dark-mode .gm-style .gm-style-iw-t::after {
+    box-shadow: -2px 2px 2px 0 rgba(255, 255, 255, 0.1) ;
+}
+
+body.dark-mode .gm-style-iw-tc {
+    filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.4));
+}
+
+
+.category-checkboxes {
+    flex: 2;
+    min-width: 300px;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--input-background);
+    border: 2px solid var(--input-border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.checkbox-label:hover {
+    border-color: var(--primary-purple);
+    background: var(--card-background);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-purple);
+}
+
+.checkbox-label input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: var(--primary-purple);
+}
+
+
+/* ==========================================================================
+   Terkep felugro ablak
+   ========================================================================== */
+.map-popup-content {
+    padding: 20px 15px 15px 15px;
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    padding-right: 20px;
+    color: var(--primary-purple);
+    line-height: 1.3;
+}
+
+.popup-details {
+    margin-bottom: 15px;
+}
+
+.popup-details p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.popup-details svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.popup-date,
+.popup-type,
+.popup-category {
+    font-weight: 600;
+}
+
+.popup-description {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--input-border-color);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--nav-text);
+}
+
+.popup-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.popup-btn:hover {
+    background: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+
+/* ==========================================================================
+   Esemeny modal
+   ========================================================================== */
+.event-modal-card {
+    border-radius: 24px;
+    padding: 0;
+    border: none;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 10px 40px var(--nav-shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.event-modal-content {
+    padding: 50px 40px 30px 40px;
+}
+
+.event-modal-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 30px 0;
+    color: var(--primary-purple);
+    line-height: 1.2;
+}
+
+.event-modal-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--input-background);
+    border-radius: 16px;
+}
+
+.event-detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.event-detail-row svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--primary-purple);
+}
+
+.event-detail-row div {
+    flex: 1;
+}
+
+.event-detail-row strong {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--nav-text);
+    margin-bottom: 4px;
+}
+
+.event-detail-row p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.event-modal-description {
+    margin-bottom: 30px;
+}
+
+.event-modal-description h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+}
+
+.event-modal-description p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--nav-text);
+    margin: 0;
+}
+
+.event-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.event-action-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-btn {
+    background: var(--primary-purple);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+.secondary-btn {
+    background: var(--theme-btn-bg);
+    color: var(--text-color);
+}
+
+.secondary-btn:hover {
+    background: var(--input-border-color);
+}
 
 /* ==========================================================================
    Mobil nézet
    ========================================================================== */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .navbar {
         width: 75%;
     }
+
+    .filter-container {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .reset-btn {
+        width: 100%;
+        align-self: stretch;
+    }
+    
+    .map-display {
+        height: 400px;
+    }
+
+    .checkbox-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .event-modal-content {
+        padding: 40px 25px 25px 25px;
+    }
+    
+    .event-modal-title {
+        font-size: 24px;
+    }
+    
+    .event-modal-details {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .event-modal-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .event-action-btn {
+        width: 100%;
+    }
 }
+
+@media (max-width: 480px) {
+    .map-section {
+        padding: 20px 10px;
+    }
+    
+    .map-controls {
+        padding: 15px;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .checkbox-group {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 /* ==========================================================================
    Tabletes nézet

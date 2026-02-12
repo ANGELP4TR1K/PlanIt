@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', function () {
     navActive();
     darkMode();
     showPassword();
+    if (typeof initMap === "function") {
+        initMap();
+        fetchEvents();
+        setupMapFilters();
+    }
 });
 
 
@@ -23,7 +28,7 @@ function navActive() {
 
 function darkMode() {
     let switchers = document.querySelectorAll('#theme-switcher');
-    
+
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -35,8 +40,14 @@ function darkMode() {
 
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
+                if (window.mapFunctions && typeof window.mapFunctions.updateMapTheme === "function") {
+                    window.mapFunctions.updateMapTheme();
+                }
             } else {
                 localStorage.setItem('theme', 'light');
+                if (window.mapFunctions && typeof window.mapFunctions.updateMapTheme === "function") {
+                    window.mapFunctions.updateMapTheme();
+                }
             }
         });
     });
