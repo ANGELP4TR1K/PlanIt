@@ -41,7 +41,9 @@ router.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/index.html'));
 });
 
-
+router.get('/felfedezes', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));
+});
 
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {
