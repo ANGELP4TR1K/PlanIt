@@ -15,6 +15,9 @@ const port = 3000;
 app.use(express.json()); //?Middleware JSON
 app.set('trust proxy', 1); //?Middleware Proxy
 
+//!Statikus képek route
+app.use('/api/images', express.static(path.join(__dirname, 'eventImg')));
+
 //!Session beállítása:
 app.use(
     session({
@@ -38,7 +41,7 @@ app.use(
 //!Routing
 //?Főoldal:
 router.get('/', (request, response) => {
-    response.sendFile(path.join(__dirname, '../frontend/html/index.html'));
+    response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 });
 
 
