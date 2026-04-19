@@ -87,7 +87,6 @@ async function updateUserById(id, username, email, password, role, full_name) {
     return rows;
 }
 
-
 //Regisztráció
 async function register(username, email, password, full_name) {
     const query = 'INSERT INTO users (username, email, password, role, full_name) VALUES (?, ?, ?, "user", ?);';

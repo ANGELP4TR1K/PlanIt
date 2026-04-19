@@ -31,7 +31,7 @@ router.get('/test', (request, response) => {
 //?GET /api/testsql
 router.get('/testsql', async (request, response) => {
     try {
-        const selectall = await database.selectall();
+        const selectall = await database.selectallUser();
         response.status(200).json({
             message: 'Ez a végpont működik.',
             results: selectall
@@ -43,6 +43,7 @@ router.get('/testsql', async (request, response) => {
     }
 });
 
+//?POST /api/login
 router.post('/login', async (request, response) => {
     const { email, password } = request.body;
     if (!email || !password) {
@@ -115,6 +116,5 @@ router.post('/register', async (request, response) => {
         return response.status(500).json({ message: 'Regisztráció sikertelen.' });
     }
 });
-
 
 module.exports = router;
