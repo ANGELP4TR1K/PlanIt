@@ -39,5 +39,5 @@ INSERT INTO events (type, description, category, title, date, capacity, location
 ('concert', 'proba proba proba', 'music', 'Proba probaja', '2026-05-02', 100, 1);
 
 INSERT INTO users (username, email, password, role, full_name) VALUES
-('admin', 'admin@gmail.com', 'admin123', 'admin', 'Admin User'),
-('Proba Peter', 'proba@gmail.com', 'proba123', 'user', 'Proba Peter');
+('admin', 'admin@gmail.com', '$2b$10$D1HKMzMp5mCOOItebqrLHuygqoh09y73T9bbhtZuoK8QnFBIQh0jW', 'admin', 'Admin User'),
+('Proba Peter', 'proba@gmail.com', '$2b$10$ZuE1osyQD3lFoXT.C0xoE..5kOYOLshEg1JwwyzvO.jdR.7Uj5N36', 'user', 'Proba Peter');
