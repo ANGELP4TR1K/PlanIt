@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt'); //?npm install bcrypt
 const router = express.Router();
 const database = require('../sql/database.js');
 const fs = require('fs/promises');
@@ -17,6 +18,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+const saltRounds = 10;
 
 //!Endpoints:
 //?GET /api/test
@@ -49,19 +51,24 @@ router.post('/login', async (request, response) => {
     }
 
     try {
-        const rows = await database.login(email, password);
+
+        const rows = await database.selectUser(email);
         if (!rows || rows.length === 0) {
             return response.status(401).json({ message: 'Hibás adatok!' });
         }
 
-        const user = rows[0];
-        request.session.user = {
-            id: user.id,
-            email: user.email,
-            role: user.role
-        };
+        if (await bcrypt.compare(password, rows[0].password)) {
+            request.session.user = {
+                id: rows[0].id,
+                email: rows[0].email,
+                username: rows[0].username
+            }
+            return response.status(200).json({ message: 'Bejelentkezve', user: request.session.user });
+        }
+        else{
+            return response.status(401).json({ message: 'Hibás adatok!' });
+        }
 
-        return response.status(200).json({ message: 'Bejelentkezve', user: request.session.user });
     } catch (error) {
         return response.status(500).json({ message: 'Sikertelen bejelentkezés.' });
     }
@@ -94,7 +101,8 @@ router.post('/register', async (request, response) => {
         const usernameExists = await database.checkUsernameExists(username);
         if (usernameExists) return response.status(409).json({ message: 'Felhasználónév már foglalt.' });
 
-        const result = await database.register(username, email, password, full_name || null);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await database.register(username, email, hashedPassword, full_name || null);
         const userId = result && result.insertId ? result.insertId : null;
 
         request.session.user = {

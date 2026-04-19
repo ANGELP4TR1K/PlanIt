@@ -87,13 +87,6 @@ async function updateUserById(id, username, email, password, role, full_name) {
     return rows;
 }
 
-//Login
-async function login(email, password) {
-    const query = 'SELECT * FROM users WHERE email = ? AND password = ?;';
-    const [rows] = await pool.execute(query, [email, password]);
-    return rows;
-}
-
 //Regisztráció
 async function register(username, email, password, full_name) {
     const query = 'INSERT INTO users (username, email, password, role, full_name) VALUES (?, ?, ?, "user", ?);';
@@ -146,7 +139,6 @@ module.exports = {
     updateEventById,
     updateLocationById,
     updateUserById,
-    login,
     register,
     checkEmailExists,
     checkUsernameExists,
