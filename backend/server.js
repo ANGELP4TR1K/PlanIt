@@ -3,7 +3,7 @@ const express = require('express'); //?npm install express
 const session = require('express-session'); //?npm install express-session
 const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
 const path = require('path');
-require('dotenv').config(); //?npm install dotenv
+require('dotenv').config({ path: path.join(__dirname, '.env') }); //?npm install dotenv
 
 //!Beállítások
 const app = express();
@@ -45,8 +45,12 @@ router.get('/', (request, response) => {
 
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        console.warn('Warning: GOOGLE_MAPS_API_KEY not set in environment variables');
+    }
     res.json({
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+        googleMapsApiKey: apiKey
     });
 });
 

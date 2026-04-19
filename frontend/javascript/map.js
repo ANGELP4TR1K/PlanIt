@@ -187,29 +187,41 @@ function displayMarkers(eventsToShow) {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Search button
-    document.getElementById('searchBtn').addEventListener('click', performSearch);
-    
-    // Real-time search as user types
-    document.getElementById('searchInput').addEventListener('input', performSearch);
-    
-    // Search on Enter key
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const resetFiltersBtn = document.getElementById('resetFilters');
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+    }
+
+    if (searchInput) {
+        // Real-time search as user types
+        searchInput.addEventListener('input', performSearch);
+
+        // Search on Enter key
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
 
     // Filter changes
-    document.getElementById('typeFilter').addEventListener('change', applyFilters);
-    
+    if (typeFilter) {
+        typeFilter.addEventListener('change', applyFilters);
+    }
+
     // Category checkboxes
     document.querySelectorAll('.category-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', applyFilters);
     });
 
     // Reset filters
-    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', resetFilters);
+    }
 }
 
 // Perform search
