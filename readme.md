@@ -84,6 +84,7 @@ Nyisd meg a böngésződben a **http://localhost:3000** címet.
 `express-session`<br>
 `multer`<br>
 `mysql2`<br>
+`express-mysql-session`<br>
 `bcrypt`<br>
 
 ## nodemon.json felépítése:<br>

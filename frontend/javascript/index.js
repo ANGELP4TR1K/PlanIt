@@ -11,6 +11,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         registerModal();
         showPassword();
     }
+    if (typeof initMap === "function") {
+        initMap();
+        fetchEvents();
+        setupMapFilters();
+    }
+
+    
 
 });
 
@@ -56,8 +63,14 @@ function darkMode() {
 
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
+                if (window.mapFunctions && typeof window.mapFunctions.updateMapTheme === "function") {
+                    window.mapFunctions.updateMapTheme();
+                }
             } else {
                 localStorage.setItem('theme', 'light');
+                if (window.mapFunctions && typeof window.mapFunctions.updateMapTheme === "function") {
+                    window.mapFunctions.updateMapTheme();
+                }
             }
         });
     });
