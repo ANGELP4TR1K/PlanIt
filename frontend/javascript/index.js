@@ -16,9 +16,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         fetchEvents();
         setupMapFilters();
     }
-
-    
-
 });
 
 async function userSessionCheck()
