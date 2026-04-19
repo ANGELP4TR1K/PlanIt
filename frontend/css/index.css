@@ -253,8 +253,7 @@ body.dark-mode #theme-switcher svg:last-child {
     margin-bottom: 10px;
 }
 
-.login-item,
-.register-item {
+.dropdown-item {
     background: var(--nav-active-hover);
     color: var(--nav-active-bg);
     font-weight: 600;

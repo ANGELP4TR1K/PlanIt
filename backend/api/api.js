@@ -43,6 +43,16 @@ router.get('/testsql', async (request, response) => {
     }
 });
 
+//?GET /api/userSession
+router.get('/userSession', (request, response) => {
+    if (request.session && request.session.user) {
+        return response.status(200).json({ session: true});
+    } else {
+        return response.status(200).json({ session: false });
+    }
+});
+
+
 //?POST /api/login
 router.post('/login', async (request, response) => {
     const { email, password } = request.body;
@@ -52,30 +62,28 @@ router.post('/login', async (request, response) => {
 
     try {
 
-        const rows = await database.selectUser(email);
-        if (!rows || rows.length === 0) {
-            return response.status(401).json({ message: 'Hibás adatok!' });
-        }
-
-        if (await bcrypt.compare(password, rows[0].password)) {
-            request.session.user = {
-                id: rows[0].id,
-                email: rows[0].email,
-                username: rows[0].username
-            }
-            return response.status(200).json({ message: 'Bejelentkezve', user: request.session.user });
+        const rows = await database.login(email, password);
+        if (!rows) {
+            return response.status(401).json({ message: 'Hibás felhasználónév vagy jelszó.' });
         }
         else{
-            return response.status(401).json({ message: 'Hibás adatok!' });
+            request.session.user = {
+                id: rows.id,
+                email: rows.email,
+                username: rows.username,
+                role: rows.role
+            }
+            console.log('Bejelentkezett:', request.session.user);
+            return response.status(200).json({ message: 'Bejelentkezve', user: request.session.user });
         }
 
     } catch (error) {
-        return response.status(500).json({ message: 'Sikertelen bejelentkezés.' });
+        return response.status(500).json({ message: 'Hibás felhasználónév vagy jelszó.' });
     }
 });
 
-//?POST /api/logout
-router.post('/logout', (request, response) => {
+//?GET /api/logout
+router.get('/logout', (request, response) => {
     if (request.session) {
         request.session.destroy(err => {
             if (err) return response.status(500).json({ message: 'Sikertelen kijelentkezés.' });
@@ -96,19 +104,18 @@ router.post('/register', async (request, response) => {
 
     try {
         const emailExists = await database.checkEmailExists(email);
-        if (emailExists) return response.status(409).json({ message: 'E-mail már használatban.' });
+        if (emailExists) return response.status(400).json({ message: 'Az e-mail már használatban.' });
 
         const usernameExists = await database.checkUsernameExists(username);
-        if (usernameExists) return response.status(409).json({ message: 'Felhasználónév már foglalt.' });
-
+        if (usernameExists) return response.status(400).json({ message: 'A felhasználónév már foglalt.' });
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await database.register(username, email, hashedPassword, full_name || null);
         const userId = result && result.insertId ? result.insertId : null;
-
         request.session.user = {
             id: userId,
             email,
-            username
+            username, 
+            role: 'user'
         };
 
         return response.status(201).json({ message: 'Sikeres regisztráció', user: request.session.user });
