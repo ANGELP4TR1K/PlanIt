@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -87,6 +88,13 @@ async function updateUserById(id, username, email, password, role, full_name) {
     return rows;
 }
 
+//Login
+async function login(email, password) {
+    const query = 'SELECT * FROM users WHERE email = ?;';
+    const [rows] = await pool.execute(query, [email]);
+    return await bcrypt.compare(password, rows[0].password) ? rows[0] : null;
+}
+
 
 //Regisztráció
 async function register(username, email, password, full_name) {
@@ -141,6 +149,7 @@ module.exports = {
     updateLocationById,
     updateUserById,
     register,
+    login,
     checkEmailExists,
     checkUsernameExists,
     checkLocationExists,

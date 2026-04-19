@@ -13,7 +13,7 @@
     <!--!CSS-->
     <link rel="stylesheet" href="../css/index.css" />
     <!--!JavaScript-->
-    <script src="../javascript/index.js"></script>
+    <script src="../javascript/index.js" defer></script>
 </head>
 
 <body>
@@ -61,8 +61,9 @@
 
                     <div class="dropdown">
                         <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
-                        <ul class="dropdown-menu dropdown-menu-start account-dropdown-card">
-                            <li>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
                                 <button class="dropdown-item login-item" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">Bejelentkezés</button>
                             </li>
@@ -70,6 +71,9 @@
                                 <button class="dropdown-item register-item" data-bs-toggle="modal"
                                     data-bs-target="#registerModal">Regisztráció</button>
                             </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
                         </ul>
                     </div>
 
@@ -108,7 +112,7 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Bejelentkezés</p>
 
-                    <form>
+                    <form id="loginForm">
                         <div class="login-input-field">
                             <label for="email">E-mail</label>
                             <div class="input-wrapper">
@@ -138,11 +142,11 @@
                         </div>
 
                         <div class="extra-options">
-                            <label><input type="checkbox"> Bejelentkezve maradok</label>
                             <a href="#" class="forgot-link">Elfelejtetted a jelszavad?</a>
                         </div>
 
                         <button type="submit" class="login-btn">Bejelentkezés</button>
+                        <div id="loginError"></div>
                     </form>
 
                     <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal"
@@ -168,11 +172,19 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Regisztráció</p>
 
-                    <form>
+                    <form id="registerForm">
                         <div class="login-input-field">
                             <label for="regName">Teljes név</label>
                             <div class="input-wrapper">
                                 <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="userName">Felhasználónév</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username"
                                     required>
                             </div>
                         </div>
@@ -212,6 +224,7 @@
                         </div>
 
                         <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                        <div id="registerError"></div>
                     </form>
 
                     <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal"
