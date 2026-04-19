@@ -69,8 +69,6 @@ router.post('/login', async (request, response) => {
         else{
             request.session.user = {
                 id: rows.id,
-                email: rows.email,
-                username: rows.username,
                 role: rows.role
             }
             console.log('Bejelentkezett:', request.session.user);
@@ -113,8 +111,6 @@ router.post('/register', async (request, response) => {
         const userId = result && result.insertId ? result.insertId : null;
         request.session.user = {
             id: userId,
-            email,
-            username, 
             role: 'user'
         };
 
