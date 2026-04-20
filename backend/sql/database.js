@@ -41,6 +41,7 @@ async function selectAllEvents() {
 async function selectUser(id) {
     const query = 'SELECT * FROM users WHERE id = ?;';
     const [rows] = await pool.execute(query, [id]);
+    return rows;
 }
 
 async function selectEventById(id) {

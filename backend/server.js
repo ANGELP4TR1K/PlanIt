@@ -46,6 +46,7 @@ router.get('/', (request, response) => {
 
 router.get('/profile', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
+});
   
 router.get('/felfedezes', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));

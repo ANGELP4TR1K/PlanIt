@@ -127,9 +127,11 @@ router.get('/events', async (request, response) => {
         response.status(200).json(events);
     } catch (error) {
         response.status(500).json({ message: 'Nem sikerült lekérni az eseményeket.' });
+    }
+});
 router.get('/profile', async (request, response) =>{
     if(request.session && request.session.user)
-    {
+    {   
         const data = await database.selectUser(request.session.user.id);
         if (data && data.length > 0) {
             response.status(200).json({
