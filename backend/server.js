@@ -14,12 +14,9 @@ const port = 3000;
 app.use(express.json()); //?Middleware JSON
 app.set('trust proxy', 1); //?Middleware Proxy
 
-<<<<<<< Updated upstream
-=======
 //!Statikus képek route
 app.use('/api/images', express.static(path.join(__dirname, '../frontend/images')));
 
->>>>>>> Stashed changes
 //!Session beállítása:
 app.use(
     session({
