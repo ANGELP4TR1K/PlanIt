@@ -1,95 +1,62 @@
+async function fetchEvents() { //Eventek betöltése
+    try {
+        const response = await fetch('/api/events');
+        const data = await response.json();
+        allEvents = data.map(normalizeEvent);
+        renderCards(allEvents);
+        displayMarkers(allEvents);
+    } catch (error) {
+        console.error('Nem sikerült betölteni az eseményeket:', error); 
+    }
+}
+
+function normalizeEvent(e) { //DB-ből kódra alakítás/convertálás
+    return {
+        id: e.id,
+        name: e.title,
+        lat: parseFloat(e.latitude),
+        lng: parseFloat(e.longitude),
+        type: e.type,
+        category: e.category,
+        description: e.description,
+        date: formatDate(e.date)
+    };
+}
+
+function formatDate(dateStr) {
+    return dateStr.split('T')[0].replace('-', '. ').replace('-', '. ') + '.'; //T előtti rész a dátum, utána 2 kötőjel cseréje
+}
+
+function renderCards(eventsToRender) {
+    const container = document.getElementById('discoverevents');
+    container.innerHTML = '';
+    eventsToRender.forEach(event => {
+        const card = document.createElement('div');
+        card.className = 'card event-card';
+        card.innerHTML = `
+            <img src="/api/images/${event.id}.jpg" alt="${event.name}" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title">${event.name}</h5>
+                <p class="card-text text-muted">${event.description} – ${event.date}</p>
+                <a href="#" class="btn btn-primary btn-sm" onclick="openEventModal(${event.id}); return false;">Részletek</a>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     await loadGoogleMapsAPI();
     initializeMap();
     setupEventListeners();
+    fetchEvents();
 });
 
 let map;
 let markers = [];
 let infoWindow;
 
-const events = [
-    {
-        id: 1,
-        name: "Budapesti Tavaszi Fesztivál",
-        lat: 47.5029,
-        lng: 19.0584,
-        type: "hivatalos",
-        category: "koncert",
-        description: "Nemzetközi művészeti fesztivál klasszikus zenével",
-        date: "2026.03.15"
-    },
-    {
-        id: 2,
-        name: "Parkfutás a Városligetben",
-        lat: 47.5138,
-        lng: 19.0832,
-        type: "kozossegi",
-        category: "sport",
-        description: "Közösségi futóesemény minden szintű futó számára",
-        date: "2026.02.10"
-    },
-    {
-        id: 3,
-        name: "Modern Magyar Művészet",
-        lat: 47.5175,
-        lng: 19.0763,
-        type: "hivatalos",
-        category: "kiallitas",
-        description: "Kortárs magyar művészek gyűjteményes kiállítása",
-        date: "2026.02.05 - 04.20"
-    },
-    {
-        id: 4,
-        name: "Közösségi Kézműves Vásár",
-        lat: 47.5082,
-        lng: 19.0702,
-        type: "kozossegi",
-        category: "vasar",
-        description: "Helyi kézműves termékek és design tárgyak",
-        date: "2026.02.08"
-    },
-    {
-        id: 5,
-        name: "Shakespeare: Hamlet",
-        lat: 47.5147,
-        lng: 19.0822,
-        type: "hivatalos",
-        category: "szinhaz",
-        description: "Klasszikus dráma modern rendezésben",
-        date: "2026.02.12"
-    },
-    {
-        id: 6,
-        name: "Fotózási Workshop",
-        lat: 47.4979,
-        lng: 19.0402,
-        type: "kozossegi",
-        category: "workshop",
-        description: "Kezdő fotósoknak szóló gyakorlati workshop",
-        date: "2026.02.15"
-    },
-    {
-        id: 7,
-        name: "Rock Koncert a Parkban",
-        lat: 47.5200,
-        lng: 19.0900,
-        type: "kozossegi",
-        category: "koncert",
-        description: "Helyi zenekarok szabadtéri koncertje",
-        date: "2026.03.01"
-    },
-    {
-        id: 8,
-        name: "Kosárlabda Bajnokság",
-        lat: 47.4850,
-        lng: 19.0550,
-        type: "hivatalos",
-        category: "sport",
-        description: "Nemzeti kosárlabda bajnokság döntője",
-        date: "2026.02.20"
-    }
-];
+let allEvents = [];
 
 async function loadGoogleMapsAPI() {
     try {
@@ -120,11 +87,7 @@ function initializeMap() {
         styles: document.body.classList.contains('dark-mode') ? getDarkModeStyles() : getHidePOIStyles()
     });
 
-    // Create info window
     infoWindow = new google.maps.InfoWindow();
-
-    // Add all markers
-    displayMarkers(events);
 }
 
 // Display markers on map
@@ -221,13 +184,14 @@ function performSearch() {
         return;
     }
 
-    const filteredEvents = events.filter(evt => 
+    const filteredEvents = allEvents.filter(evt =>
         evt.name.toLowerCase().includes(searchTerm) ||
         evt.description.toLowerCase().includes(searchTerm) ||
         getTypeLabel(evt.type).toLowerCase().includes(searchTerm) ||
         getCategoryLabel(evt.category).toLowerCase().includes(searchTerm)
     );
 
+    renderCards(filteredEvents);
     displayMarkers(filteredEvents);
 }
 
@@ -240,29 +204,26 @@ function applyFilters() {
     const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
         .map(cb => cb.value);
 
-    let filteredEvents = events;
+    let filteredEvents = allEvents;
 
-    // Apply type filter
     if (typeFilter !== 'all') {
         filteredEvents = filteredEvents.filter(evt => evt.type === typeFilter);
     }
 
-    // Apply category filter - only show events with checked categories
     if (checkedCategories.length > 0) {
         filteredEvents = filteredEvents.filter(evt => checkedCategories.includes(evt.category));
     } else {
-        // If no categories are checked, show nothing
         filteredEvents = [];
     }
 
-    // Apply search term if exists
     if (searchTerm) {
-        filteredEvents = filteredEvents.filter(evt => 
+        filteredEvents = filteredEvents.filter(evt =>
             evt.name.toLowerCase().includes(searchTerm) ||
             evt.description.toLowerCase().includes(searchTerm)
         );
     }
 
+    renderCards(filteredEvents);
     displayMarkers(filteredEvents);
 }
 
@@ -276,7 +237,8 @@ function resetFilters() {
         cb.checked = true;
     });
     
-    displayMarkers(events);
+    renderCards(allEvents);
+    displayMarkers(allEvents);
     map.setCenter({ lat: 47.4979, lng: 19.0402 });
     map.setZoom(13);
 }
@@ -480,7 +442,7 @@ window.mapFunctions = {
 
 // Open event details modal
 window.openEventModal = function(eventId) {
-    const event = events.find(e => e.id === eventId);
+    const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
 
     // Populate modal content

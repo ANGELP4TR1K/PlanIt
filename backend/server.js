@@ -16,7 +16,7 @@ app.use(express.json()); //?Middleware JSON
 app.set('trust proxy', 1); //?Middleware Proxy
 
 //!Statikus képek route
-app.use('/api/images', express.static(path.join(__dirname, 'eventImg')));
+app.use('/api/images', express.static(path.join(__dirname, '../frontend/images')));
 
 //!Session beállítása:
 app.use(
