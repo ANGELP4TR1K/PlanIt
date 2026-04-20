@@ -25,7 +25,11 @@ app.use(
 //!Routing
 //?Főoldal:
 router.get('/', (request, response) => {
-    response.sendFile(path.join(__dirname, '../frontend/html/index.html'));
+    response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
+});
+
+router.get('/profile', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
 });
 
 //!API endpoints
