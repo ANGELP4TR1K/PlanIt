@@ -849,7 +849,7 @@ body.dark-mode .gm-style-iw-tc {
 
 #discoverevents{
     background-color: var(--bg-color);
-    height: 400px;
+    height: 675px;
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-color: var(--text-color) var(--card-background);
