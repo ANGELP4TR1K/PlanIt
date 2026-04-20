@@ -31,6 +31,12 @@ async function insertEvents(type, description, category, title, date, capacity, 
 }
 
 //Selectek
+async function selectAllEvents() {
+    const query = 'SELECT events.*, locations.name AS helyszin, locations.latitude, locations.longitude FROM events JOIN locations ON events.location_id = locations.id;';
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
 async function selectUser(email) {
     const query = 'SELECT * FROM users WHERE email = ?;';
     const [rows] = await pool.execute(query, [email]);
@@ -135,6 +141,7 @@ async function checkIfUserIsAdmin(email) {
 //!Export
 module.exports = {
     selectallUser,
+    selectAllEvents,
     insertLocation,
     insertEvents,
     selectUser,

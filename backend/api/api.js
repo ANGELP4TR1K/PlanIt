@@ -109,4 +109,14 @@ router.post('/register', async (request, response) => {
     }
 });
 
+//?GET /api/events
+router.get('/events', async (request, response) => {
+    try {
+        const events = await database.selectAllEvents();
+        response.status(200).json(events);
+    } catch (error) {
+        response.status(500).json({ message: 'Nem sikerült lekérni az eseményeket.' });
+    }
+});
+
 module.exports = router;
