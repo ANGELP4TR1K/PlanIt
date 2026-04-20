@@ -25,7 +25,7 @@
                     <div class="logo-circle">
                         <!-- Logo img vagy svg -->
                     </div>
-                    <a class="navbar-brand brand-text" href="#">PLAN<span>IT</span></a>
+                    <a class="navbar-brand brand-text" href="/">PLAN<span>IT</span></a>
                 </div>
                 <div id="nav-buttons">
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
@@ -49,21 +49,24 @@
                 <div class="collapse navbar-collapse" id="planitNav">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item active">
-                            <a class="nav-link" href="#explore">Felfedezés</a>
+                            <a class="nav-link" href="/">Főoldal</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#events">Események</a>
+                            <a class="nav-link" href="/felfedezes">Felfedezés</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#map">Térkép</a>
+                            <a class="nav-link" href="/esemenyeim">Eseményeim</a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="/rolunk">Rólunk</a>
                         </li>
                     </ul>
 
                     <div class="dropdown">
-                        <button class="account-btn dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">Profil</button>
-                        <ul class="dropdown-menu dropdown-menu-start account-dropdown-card">
-                            <li>
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
                                 <button class="dropdown-item login-item" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">Bejelentkezés</button>
                             </li>
@@ -71,6 +74,9 @@
                                 <button class="dropdown-item register-item" data-bs-toggle="modal"
                                     data-bs-target="#registerModal">Regisztráció</button>
                             </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
                         </ul>
                     </div>
 
