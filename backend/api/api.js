@@ -106,7 +106,7 @@ router.post('/register', async (request, response) => {
 
         const usernameExists = await database.checkUsernameExists(username);
         if (usernameExists) return response.status(400).json({ message: 'A felhasználónév már foglalt.' });
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
         const result = await database.register(username, email, hashedPassword, full_name || null);
         const userId = result && result.insertId ? result.insertId : null;
         request.session.user = {
