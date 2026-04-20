@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function () {
     navActive();
     darkMode();
+
     if(await userSessionCheck())
     {
         profilButton();
@@ -250,5 +251,7 @@ function profilButton(){
     ulItem.appendChild(dropdownItem);
     loggedIn.appendChild(ulItem);
     loggedIn.appendChild(ulItem2);
+
+}
 
 }

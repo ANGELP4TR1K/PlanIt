@@ -124,4 +124,109 @@ router.post('/register', async (request, response) => {
     }
 });
 
+router.get('/profile', async (request, response) =>{
+    if(request.session && request.session.user)
+    {
+        const data = await database.selectUser(request.session.user.id);
+        if (data && data.length > 0) {
+            response.status(200).json({
+                id: data[0].id,
+                username: data[0].username,
+                email: data[0].email,
+                full_name: data[0].full_name,
+                created_at: data[0].creation_date
+            });
+        } else {
+            response.status(404).json({ message: 'Felhasználó nem található' });
+        }
+    }
+    else
+    {
+        response.status(401).json({ message: 'Nincs bejelentkezve.' });
+    }
+});
+
+router.put('/usernameupdate', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    const { username, full_name, email } = request.body;
+    if (!username) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+    try {
+        const usernameExists = await database.checkUsernameExists(username);
+        if (usernameExists) {
+            return response.status(400).json({ message: 'A felhasználónév már foglalt.' });
+        }
+        await database.updateUserProfile(request.session.user.id, username, email, full_name);
+
+        return response.status(200).json({ message: 'Felhasználónév frissítve', username });
+    } catch (error) {
+        return response.status(500).json({ message: 'Hiba a felhasználónév frissítésekor.' });
+    }
+});
+
+router.put('/fullnameupdate', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    const { full_name, username, email } = request.body;
+    if (!full_name) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+    try {
+        await database.updateUserProfile(request.session.user.id, username, email, full_name);
+
+        return response.status(200).json({ message: 'Teljes név frissítve', full_name });
+    } catch (error) {
+        return response.status(500).json({ message: 'Hiba a teljes név frissítésekor.' });
+    }
+});
+
+//?PUT /api/profile/password
+router.put('/passwordupdate', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    const { current_password, new_password } = request.body;
+    if (!current_password || !new_password) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+    try {
+        await database.updateUserPasswordSecure(request.session.user.id, current_password, new_password);
+        return response.status(200).json({ message: 'Jelszó sikeresen frissítve!' });
+    } catch (error) {
+        return response.status(400).json({ message: error.message || 'Hiba a jelszó frissítésekor.' });
+    }
+});
+
+//?DELETE /api/profile
+router.delete('/profile', async (request, response) => {
+    try {
+        if (!request.session.user) {
+            return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+        }
+
+        const userId = request.session.user.id;
+
+        // Delete user from database
+        await database.deleteUserById(userId);
+
+        // Destroy session
+        request.session.destroy((err) => {
+            if (err) {
+                return response.status(500).json({ message: 'Hiba a kijelentkezéskor' });
+            }
+
+            response.clearCookie('planit_session');
+            response.status(200).json({ message: 'Profil sikeresen törölve' });
+        });
+
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ message: 'Hiba a profil törléskor' });
+    }
+});
+
 module.exports = router;

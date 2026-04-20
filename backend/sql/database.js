@@ -32,9 +32,9 @@ async function insertEvents(type, description, category, title, date, capacity, 
 }
 
 //Selectek
-async function selectUser(email) {
-    const query = 'SELECT * FROM users WHERE email = ?;';
-    const [rows] = await pool.execute(query, [email]);
+async function selectUser(id) {
+    const query = 'SELECT * FROM users WHERE id = ?;';
+    const [rows] = await pool.execute(query, [id]);
     return rows;
 }
 
@@ -80,6 +80,38 @@ async function updateLocationById(id, name, latitude, longitude, link) {
     const query = 'UPDATE locations SET name = ?, latitude = ?, longitude = ?, link = ? WHERE id = ?;';
     const [rows] = await pool.execute(query, [name, latitude, longitude, link, id]);
     return rows;
+}
+
+async function updateUserProfile(id, username, email, full_name) {
+    const query = 'UPDATE users SET username = ?, email = ?, full_name = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [username, email, full_name, id]);
+    return rows;
+}
+
+async function updateUserPassword(id, password) {
+    const query = 'UPDATE users SET password = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [password, id]);
+    return rows;
+}
+
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10);
+}
+
+async function updateUserPasswordSecure(id, currentPassword, newPassword) {
+    const userData = await selectUser(id);
+    if (!userData || userData.length === 0) {
+        throw new Error('Felhasználó nem található');
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, userData[0].password);
+    if (!isPasswordValid) {
+        throw new Error('Hibás jelenlegi jelszó');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(id, hashedPassword);
+    return true;
 }
 
 async function updateUserById(id, username, email, password, role, full_name) {
@@ -148,6 +180,10 @@ module.exports = {
     updateEventById,
     updateLocationById,
     updateUserById,
+    updateUserProfile,
+    updateUserPassword,
+    updateUserPasswordSecure,
+    hashPassword,
     register,
     login,
     checkEmailExists,
