@@ -136,19 +136,11 @@ body.dark-mode #theme-switcher svg:last-child {
     font-size: 1.25rem;
     color: var(--text-color);
     letter-spacing: 1px;
-}
-
-.brand-text:hover {
-    color: var(--theme-btn-bg);
+    pointer-events: none;
 }
 
 .brand-text span {
     color: var(--primary-purple);
-}
-
-.brand-text span:hover,
-.brand-text:hover span {
-    color: var(--accent-color);
 }
 
 .nav-link {

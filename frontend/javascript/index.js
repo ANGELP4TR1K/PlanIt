@@ -6,15 +6,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function navActive() {
-    let navItems = document.querySelectorAll('.nav-item');
+    const navItems = document.querySelectorAll('.nav-item');
+    const currentPath = window.location.pathname;
 
     navItems.forEach(item => {
-        item.addEventListener('click', function () {
-            navItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            let navbarCollapse = document.getElementById('planitNav');
+        const link = item.querySelector('a');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+
+        // Active beállítása URL alapján
+        if (href === currentPath) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+
+        // Csak navbar bezárás mobilon
+        item.addEventListener('click', () => {
+            const navbarCollapse = document.getElementById('planitNav');
             if (navbarCollapse.classList.contains('show')) {
-                let bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                const bsCollapse = new bootstrap.Collapse(navbarCollapse);
                 bsCollapse.hide();
             }
         });
@@ -23,7 +35,7 @@ function navActive() {
 
 function darkMode() {
     let switchers = document.querySelectorAll('#theme-switcher');
-    
+
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
