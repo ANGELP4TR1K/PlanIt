@@ -3,6 +3,7 @@ const express = require('express'); //?npm install express
 const session = require('express-session'); //?npm install express-session
 const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
 const path = require('path');
+require('dotenv').config(); //?npm install dotenv
 
 //!Beállítások
 const app = express();
@@ -40,8 +41,23 @@ app.use(
 //!Routing
 //?Főoldal:
 router.get('/', (request, response) => {
-    response.sendFile(path.join(__dirname, '../frontend/html/index.html'));
+    response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 });
+
+router.get('/profile', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
+  
+router.get('/felfedezes', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));
+});
+
+//?Config endpoint for frontend
+app.get('/config', (req, res) => {
+    res.json({
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+    });
+});
+
 
 //!API endpoints
 app.use('/', router);

@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -37,10 +38,9 @@ async function selectAllEvents() {
     return rows;
 }
 
-async function selectUser(email) {
-    const query = 'SELECT * FROM users WHERE email = ?;';
-    const [rows] = await pool.execute(query, [email]);
-    return rows;
+async function selectUser(id) {
+    const query = 'SELECT * FROM users WHERE id = ?;';
+    const [rows] = await pool.execute(query, [id]);
 }
 
 async function selectEventById(id) {
@@ -87,6 +87,38 @@ async function updateLocationById(id, name, latitude, longitude, link) {
     return rows;
 }
 
+async function updateUserProfile(id, username, email, full_name) {
+    const query = 'UPDATE users SET username = ?, email = ?, full_name = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [username, email, full_name, id]);
+    return rows;
+}
+
+async function updateUserPassword(id, password) {
+    const query = 'UPDATE users SET password = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [password, id]);
+    return rows;
+}
+
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10);
+}
+
+async function updateUserPasswordSecure(id, currentPassword, newPassword) {
+    const userData = await selectUser(id);
+    if (!userData || userData.length === 0) {
+        throw new Error('Felhasználó nem található');
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, userData[0].password);
+    if (!isPasswordValid) {
+        throw new Error('Hibás jelenlegi jelszó');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(id, hashedPassword);
+    return true;
+}
+
 async function updateUserById(id, username, email, password, role, full_name) {
     const query = 'UPDATE users SET username = ?, email = ?, password = ?, role = ?, full_name = ? WHERE id = ?;';
     const [rows] = await pool.execute(query, [username, email, password, role, full_name, id]);
@@ -95,10 +127,11 @@ async function updateUserById(id, username, email, password, role, full_name) {
 
 //Login
 async function login(email, password) {
-    const query = 'SELECT * FROM users WHERE email = ? AND password = ?;';
-    const [rows] = await pool.execute(query, [email, password]);
-    return rows;
+    const query = 'SELECT * FROM users WHERE email = ?;';
+    const [rows] = await pool.execute(query, [email]);
+    return await bcrypt.compare(password, rows[0].password) ? rows[0] : null;
 }
+
 
 //Regisztráció
 async function register(username, email, password, full_name) {
@@ -153,8 +186,12 @@ module.exports = {
     updateEventById,
     updateLocationById,
     updateUserById,
-    login,
+    updateUserProfile,
+    updateUserPassword,
+    updateUserPasswordSecure,
+    hashPassword,
     register,
+    login,
     checkEmailExists,
     checkUsernameExists,
     checkLocationExists,
