@@ -34,7 +34,7 @@ function renderCards(eventsToRender) {
         const card = document.createElement('div');
         card.className = 'card event-card';
         card.innerHTML = `
-            <img src="/api/images/${event.id}.jpg" alt="${event.name}" class="card-img-top">
+            <img src="/api/images/${event.id+214}" alt="${event.name}" class="card-img-top">
             <div class="card-body">
                 <h5 class="card-title">${event.name}</h5>
                 <p class="card-text text-muted">${event.description} – ${event.date}</p>
