@@ -13,7 +13,8 @@
     <!--!CSS-->
     <link rel="stylesheet" href="../css/index.css" />
     <!--!JavaScript-->
-    <script src="../javascript/index.js"></script>
+    <script src="../javascript/index.js" defer></script>
+    <script src="../javascript/map.js"></script>
 </head>
 
 <body>
@@ -61,8 +62,9 @@
 
                     <div class="dropdown">
                         <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
-                        <ul class="dropdown-menu dropdown-menu-start account-dropdown-card">
-                            <li>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
                                 <button class="dropdown-item login-item" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">Bejelentkezés</button>
                             </li>
@@ -70,6 +72,9 @@
                                 <button class="dropdown-item register-item" data-bs-toggle="modal"
                                     data-bs-target="#registerModal">Regisztráció</button>
                             </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
                         </ul>
                     </div>
 
@@ -108,7 +113,7 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Bejelentkezés</p>
 
-                    <form>
+                    <form id="loginForm">
                         <div class="login-input-field">
                             <label for="email">E-mail</label>
                             <div class="input-wrapper">
@@ -138,11 +143,11 @@
                         </div>
 
                         <div class="extra-options">
-                            <label><input type="checkbox"> Bejelentkezve maradok</label>
                             <a href="#" class="forgot-link">Elfelejtetted a jelszavad?</a>
                         </div>
 
                         <button type="submit" class="login-btn">Bejelentkezés</button>
+                        <div id="loginError" class="error-message"></div>
                     </form>
 
                     <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal"
@@ -168,11 +173,19 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Regisztráció</p>
 
-                    <form>
+                    <form id="registerForm">
                         <div class="login-input-field">
                             <label for="regName">Teljes név</label>
                             <div class="input-wrapper">
                                 <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="userName">Felhasználónév</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username"
                                     required>
                             </div>
                         </div>
@@ -196,8 +209,8 @@
                                         <path
                                             d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
                                     </svg>
-                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg"
-                                        height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
                                         <path
                                             d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
                                     </svg>
@@ -212,6 +225,7 @@
                         </div>
 
                         <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                        <div id="registerError" class="error-message"></div>
                     </form>
 
                     <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal"
@@ -219,6 +233,165 @@
                 </div>
             </div>
         </div>
+
+        <!-- Map Section -->
+        <section id="map" class="map-section">
+            <div class="map-container">
+                <!-- Search and Filter Controls -->
+                <div class="map-controls">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Esemény keresése...">
+                        <button id="searchBtn" class="search-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="currentColor">
+                                <path
+                                    d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="filter-container">
+                        <div class="filter-group">
+                            <label for="typeFilter">Típus</label>
+                            <select id="typeFilter" class="filter-select">
+                                <option value="all">Összes típus</option>
+                                <option value="hivatalos">Hivatalos</option>
+                                <option value="kozossegi">Közösségi</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group category-checkboxes">
+                            <label>Kategóriák</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="koncert" checked>
+                                    <span>Koncert</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="sport" checked>
+                                    <span>Sport</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="kiallitas" checked>
+                                    <span>Kiállítás</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="szinhaz" checked>
+                                    <span>Színház</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="workshop" checked>
+                                    <span>Workshop</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" class="category-checkbox" value="vasar" checked>
+                                    <span>Vásár</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="resetFilters" class="reset-btn">Szűrők törlése</button>
+                    </div>
+                </div>
+
+                <!-- Map Display -->
+                <div id="mapDisplay" class="map-display"></div>
+            </div>
+        </section>
+
+
+        <!-- Event Details Modal -->
+        <div class="modal fade" id="eventModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content event-modal-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg>
+                    </button>
+
+                    <div class="event-modal-content">
+                        <h2 class="event-modal-title" id="eventModalTitle">Esemény Címe</h2>
+
+                        <div class="event-modal-details">
+                            <div class="event-detail-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="currentColor">
+                                    <path
+                                        d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z" />
+                                </svg>
+                                <div>
+                                    <strong>Dátum</strong>
+                                    <p id="eventModalDate">2026.02.10</p>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="currentColor">
+                                    <path
+                                        d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z" />
+                                </svg>
+                                <div>
+                                    <strong>Kategória</strong>
+                                    <p id="eventModalCategory">Sport</p>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="currentColor">
+                                    <path
+                                        d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z" />
+                                </svg>
+                                <div>
+                                    <strong>Típus</strong>
+                                    <p id="eventModalType">Közösségi</p>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="currentColor">
+                                    <path
+                                        d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Z" />
+                                </svg>
+                                <div>
+                                    <strong>Helyszín</strong>
+                                    <p id="eventModalLocation">Budapest</p>
+                                </div>
+                            </div>
+
+                            <div class="event-detail-row">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="currentColor">
+                                    <path
+                                        d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z" />
+                                </svg>
+                                <div>
+                                    <strong>Szervező</strong>
+                                    <p id="eventModalOrganizer">Szervező neve</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-modal-description">
+                            <h3>Részletek</h3>
+                            <p id="eventModalDescription">Az esemény részletes leírása itt található...</p>
+                        </div>
+
+                        <div class="event-modal-actions">
+                            <button class="event-action-btn secondary-btn" data-bs-dismiss="modal">Bezárás</button>
+                            <button class="event-action-btn primary-btn">Jelentkezés</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </body>
 

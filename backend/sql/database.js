@@ -1,18 +1,19 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
     user: 'root',
     password: '',
-    database: 'exampledb',
+    database: 'planit',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
 //!SQL Queries
-async function selectall() {
-    const query = 'SELECT * FROM exampletable;';
+async function selectallUser() {
+    const query = 'SELECT * FROM users;';
     const [rows] = await pool.execute(query);
     return rows;
 }
@@ -173,5 +174,28 @@ async function checkIfUserIsAdmin(email) {
 
 //!Export
 module.exports = {
-    selectall
+    selectallUser,
+    selectAllEvents,
+    insertLocation,
+    insertEvents,
+    selectUser,
+    selectEventById,
+    selectLocationById,
+    deleteEventById,
+    deleteLocationById,
+    deleteUserById,
+    updateEventById,
+    updateLocationById,
+    updateUserById,
+    updateUserProfile,
+    updateUserPassword,
+    updateUserPasswordSecure,
+    hashPassword,
+    register,
+    login,
+    checkEmailExists,
+    checkUsernameExists,
+    checkLocationExists,
+    checkEventExistsById,
+    checkIfUserIsAdmin
 };
