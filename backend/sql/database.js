@@ -33,7 +33,7 @@ async function insertEvents(type, description, category, title, date, capacity, 
 
 //Selectek
 async function selectAllEvents() {
-    const query = 'SELECT events.*, locations.name AS helyszin, locations.latitude, locations.longitude FROM events JOIN locations ON events.location_id = locations.id;';
+    const query = 'SELECT events.*, locations.name AS helyszin, locations.latitude, locations.longitude FROM events JOIN locations ON events.location_id = locations.id WHERE events.date >= CURDATE() ORDER BY events.date ASC;';
     const [rows] = await pool.execute(query);
     return rows;
 }
