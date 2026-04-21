@@ -129,25 +129,16 @@ function loginModal()
                 modal.hide();
                 form.reset();
                 const loginErrorDiv = document.getElementById('loginError');
-                loginErrorDiv.innerHTML = '';
-                loginErrorDiv.style = '';
+                loginErrorDiv.classList.remove('show');
+                loginErrorDiv.textContent = '';
                 location.reload();
                 // opcionális redirect
                 // window.location.href = '/dashboard';
 
             } else {
-                const errorElement = document.createElement('p');
-                errorElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323"><path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5ZM440-440h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg> ' + data.message ||  '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323"><path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5ZM440-440h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg> Hiba történt a bejelentkezés során';
                 const loginErrorDiv = document.getElementById('loginError');
-                loginErrorDiv.innerHTML = '';
-                loginErrorDiv.style.color = 'red';
-                loginErrorDiv.style.backgroundColor = '#f8d7da';
-                loginErrorDiv.style.paddingTop = '10px';
-                loginErrorDiv.style.paddingLeft = '20px';
-                loginErrorDiv.style.borderRadius = '15px';
-                loginErrorDiv.style.border = '3px solid red';
-                loginErrorDiv.appendChild(errorElement);
-
+                loginErrorDiv.classList.add('show');
+                loginErrorDiv.textContent = data.message || 'Hiba történt a bejelentkezés során';
             }
 
         } catch (err) {
@@ -181,24 +172,16 @@ function registerModal()
                 modal.hide();
                 form.reset();
                 const registerErrorDiv = document.getElementById('registerError');
-                registerErrorDiv.innerHTML = '';
-                registerErrorDiv.style = '';
+                registerErrorDiv.classList.remove('show');
+                registerErrorDiv.textContent = '';
                 location.reload();
                 // opcionális redirect
                 // window.location.href = '/dashboard';
 
             } else {
-                const errorElement = document.createElement('p');
-                errorElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323"><path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5ZM440-440h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg> ' + data.message ||  '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#EA3323"><path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5ZM440-440h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg> Hiba történt a regisztráció során';
                 const registerErrorDiv = document.getElementById('registerError');
-                registerErrorDiv.innerHTML = '';
-                registerErrorDiv.style.color = 'red';
-                registerErrorDiv.style.backgroundColor = '#f8d7da';
-                registerErrorDiv.style.paddingTop = '10px';
-                registerErrorDiv.style.paddingLeft = '20px';
-                registerErrorDiv.style.borderRadius = '15px';
-                registerErrorDiv.style.border = '3px solid red';
-                registerErrorDiv.appendChild(errorElement);
+                registerErrorDiv.classList.add('show');
+                registerErrorDiv.textContent = data.message || 'Hiba történt a regisztráció során';
             }
 
         } catch (err) {
