@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function () {
+    darkMode();
     if (window.location.pathname === '/profile') {
         if (await userSessionCheck())
         {
