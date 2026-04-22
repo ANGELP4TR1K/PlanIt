@@ -20,6 +20,7 @@ CREATE TABLE events (
     title VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
     location_id INT NOT NULL,
+    is_private BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );
 
@@ -32,6 +33,25 @@ CREATE TABLE users (
     full_name VARCHAR(100) NOT NULL,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE event_invites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    created_by INT NOT NULL,
+    expires_at DATETIME NOT NULL,
+    max_capacity INT NOT NULL,
+    uses INT DEFAULT 0,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    used BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+INSERT INTO events (id, type, description, category, title, date, location_id) VALUES
+(999, "private", "house party", "party", "kecske", "2026-09-02", 27);
+
+INSERT INTO event_invites(event_id, created_by, expires_at, max_capacity, token) VALUES
+(999, 2, '2026-09-01 23:59:59', 10, UUID());
 
 INSERT INTO locations (name, latitude, longitude, link) VALUES 
 ('KOBUCI Kert',47.54071310,19.04622650,NULL),

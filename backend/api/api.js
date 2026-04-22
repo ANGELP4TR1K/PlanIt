@@ -234,4 +234,57 @@ router.delete('/profile', async (request, response) => {
     }
 });
 
+//?POST /api/createEventInvite
+router.post('/createEventInvite', async (request, response) => {
+    const { event_id, created_by, expires_at, max_capacity } = request.body;
+    if (!event_id || !created_by || !expires_at || !max_capacity) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+    try {
+        const result = await database.createEventInvite(event_id, created_by, expires_at, max_capacity);
+        if (result) {
+            return response.status(201).json({ message: 'Sikeres meghívó létrehozás' });
+        }
+        else {
+            return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
+
+        }
+    } catch (error) {
+        return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
+    }
+});
+
+//?GET /api/checkTokenExistsandUsed
+router.get('/checkTokenExistsandUsed', async (request, response) => {
+    const { token } = request.query;
+    if (!token) {
+        return response.status(400).json({ message: 'Hiányzó token!' });
+    }
+    try {
+        const exists = await database.checkTokenExistsandUsed(token);
+        return response.status(200).json({ exists });
+    } catch (error) {
+        return response.status(500).json({ message: 'Token ellenőrzése sikertelen.' });
+    }
+});
+
+//?PUT /api/useToken
+router.put('/useToken', async (request, response) => {
+    const { token } = request.body;
+    if (!token) {
+        return response.status(400).json({ message: 'Hiányzó token!' });
+    }
+    try {
+        const result = await database.useToken(token);
+        if (result) {
+            return response.status(200).json({ message: 'Token sikeresen használva' });
+        }
+        else {
+            return response.status(500).json({ message: 'Token használata sikertelen.' });
+        }
+    } catch (error) {
+        return response.status(500).json({ message: 'Token használata sikertelen.' });
+    }
+});
+
 module.exports = router;
