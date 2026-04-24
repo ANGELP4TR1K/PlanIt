@@ -1,4 +1,5 @@
 //!Module-ok importálása
+require('dotenv').config(); //?npm install dotenv - Load environment variables
 const express = require('express'); //?npm install express
 const session = require('express-session'); //?npm install express-session
 const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
@@ -57,6 +58,9 @@ router.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 });
 
+//?Jelszó újítása oldal:
+router.get('/reset-password', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 router.get('/profile', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
 });

@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -172,6 +173,28 @@ async function checkIfUserIsAdmin(email) {
     return rows.length > 0 && rows[0].role === 'admin';
 }
 
+//Password Reset
+async function createPasswordResetToken(email) {
+    const token = crypto.randomBytes(32).toString('hex');
+
+    const query = 'UPDATE users SET password_reset_token = ?, password_reset_expires = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE email = ?;';
+    await pool.execute(query, [token, email]);
+    return token;
+}
+
+async function verifyPasswordResetToken(token) {
+    const query = 'SELECT id, email FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW();';
+    const [rows] = await pool.execute(query, [token]);
+    return rows.length > 0 ? rows[0] : null;
+}
+
+async function resetPassword(userId, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const query = 'UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?;';
+    await pool.execute(query, [hashedPassword, userId]);
+    return true;
+}
+
 //!Export
 module.exports = {
     selectallUser,
@@ -197,5 +220,9 @@ module.exports = {
     checkUsernameExists,
     checkLocationExists,
     checkEventExistsById,
+    checkIfUserIsAdmin,
+    createPasswordResetToken,
+    verifyPasswordResetToken,
+    resetPassword
     checkIfUserIsAdmin
 };
