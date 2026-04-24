@@ -2,7 +2,10 @@
 require('dotenv').config(); //?npm install dotenv - Load environment variables
 const express = require('express'); //?npm install express
 const session = require('express-session'); //?npm install express-session
+const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
 const path = require('path');
+const fs = require('fs');
+require('dotenv').config(); //?npm install dotenv
 
 //!Beállítások
 const app = express();
@@ -14,12 +17,38 @@ const port = 3000;
 app.use(express.json()); //?Middleware JSON
 app.set('trust proxy', 1); //?Middleware Proxy
 
+//!Statikus képek route
+app.get('/api/images/:id', (req, res) => {
+    const imageDir = path.join(__dirname, '../frontend/images');
+    const extensions = ['.jpg', '.png'];
+
+    for (const ext of extensions) {
+        const filePath = path.join(imageDir, req.params.id + ext);
+        if (fs.existsSync(filePath)) {
+            return res.sendFile(filePath);
+        }
+    }
+
+    res.status(404).json({ error: 'Image not found' });
+});
+
 //!Session beállítása:
 app.use(
     session({
+        key: 'planit_session',
         secret: 'titkos_kulcs', //?Ezt generálni kell a későbbiekben
+        store: new MySQLStore({
+            host: '127.0.0.1',
+            port: 3306,
+            user: 'root',
+            password: '',
+            database: 'planit'
+        }),
         resave: false,
-        saveUninitialized: true
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        }
     })
 );
 
@@ -32,7 +61,21 @@ router.get('/', (request, response) => {
 //?Jelszó újítása oldal:
 router.get('/reset-password', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
+router.get('/profile', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
 });
+  
+router.get('/felfedezes', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));
+});
+
+//?Config endpoint for frontend
+app.get('/config', (req, res) => {
+    res.json({
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+    });
+});
+
 
 //!API endpoints
 app.use('/', router);

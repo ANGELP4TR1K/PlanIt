@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         loginModal();
         registerModal();
         forgotPasswordModal();
+        resetPasswordModal();
         showPassword();
     }
-    resetPasswordModal();
     if (typeof initMap === "function") {
         initMap();
         fetchEvents();
@@ -103,7 +103,6 @@ function showPassword() {
         });
     });
 }
-
 
 function loginModal()
 {

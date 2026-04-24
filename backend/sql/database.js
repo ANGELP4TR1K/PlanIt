@@ -224,4 +224,5 @@ module.exports = {
     createPasswordResetToken,
     verifyPasswordResetToken,
     resetPassword
+    checkIfUserIsAdmin
 };
