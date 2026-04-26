@@ -255,19 +255,6 @@ router.post('/createEventInvite', async (request, response) => {
     }
 });
 
-//?GET /api/checkTokenExistsandUsed
-router.get('/checkTokenExistsandUsed', async (request, response) => {
-    const { token } = request.query;
-    if (!token) {
-        return response.status(400).json({ message: 'Hiányzó token!' });
-    }
-    try {
-        const exists = await database.checkTokenExistsandUsed(token);
-        return response.status(200).json({ exists });
-    } catch (error) {
-        return response.status(500).json({ message: 'Token ellenőrzése sikertelen.' });
-    }
-});
 
 //?PUT /api/useToken
 router.put('/useToken', async (request, response) => {
@@ -281,10 +268,13 @@ router.put('/useToken', async (request, response) => {
             return response.status(200).json({ message: 'Token sikeresen használva' });
         }
         else {
-            return response.status(500).json({ message: 'Token használata sikertelen.' });
+            return response.status(200).json({ message: 'Token használata nem lehetséges, mert elérte a limitet.' });
         }
     } catch (error) {
         return response.status(500).json({ message: 'Token használata sikertelen.' });
+    }
+});
+
 //?POST /api/forgot-password
 router.post('/forgot-password', async (request, response) => {
     const { email } = request.body;

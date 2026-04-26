@@ -174,25 +174,18 @@ async function checkIfUserIsAdmin(email) {
 }
 
 //36 karakteres egyedi token létrehozása
-async function createEventInvite(event_id, created_by, expires_at, max_capacity) {
-    for (let i = 0; i < max_capacity; i++) {
-        const query = 'INSERT INTO event_invites (token, event_id, created_by, expires_at, max_capacity) VALUES (UUID(), ?, ?, ?, ?);';
-        const [rows] = await pool.execute(query, [event_id, created_by, expires_at, max_capacity]);
-        return rows.affectedRows > 0;
-    }
-    
-}
-
-async function checkTokenExistsandUsed(token) {
-    const query = 'SELECT * FROM event_invites WHERE token = ? AND expires_at > NOW() AND !used AND max_capacity > uses;';
-    const [rows] = await pool.execute(query, [token]);
-    return rows.length > 0;
+async function createEventInvite( event_id, created_by, expires_at, max_capacity) {
+    const query = 'INSERT INTO event_invites ( event_id, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, UUID());';
+    const [rows] = await pool.execute(query, [ event_id, created_by, expires_at, max_capacity]);
+    return rows.affectedRows > 0;
 }
 
 async function useToken(token){
-    const query = 'UPDATE event_invites SET used = TRUE, uses = uses + 1 WHERE token = ?;';
+    const query = 'UPDATE event_invites SET uses = uses + 1 WHERE token = ? AND uses < max_capacity AND expires_at > NOW();';
     const [rows] = await pool.execute(query, [token]);
-    return rows;
+    return rows.affectedRows > 0;
+}
+
 //Password Reset
 async function createPasswordResetToken(email) {
     const token = crypto.randomBytes(32).toString('hex');
@@ -242,11 +235,8 @@ module.exports = {
     checkEventExistsById,
     createEventInvite,
     checkIfUserIsAdmin,
-    checkTokenExistsandUsed,
-    useToken
-    checkIfUserIsAdmin,
+    useToken,
     createPasswordResetToken,
     verifyPasswordResetToken,
     resetPassword
-    checkIfUserIsAdmin
 };
