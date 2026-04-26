@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt'); //?npm install bcrypt
 const router = express.Router();
 const database = require('../sql/database.js');
 const fs = require('fs/promises');
+const nodemailer = require('nodemailer'); //?npm install nodemailer
 
 //!Multer
 const multer = require('multer'); //?npm install multer
@@ -284,6 +285,74 @@ router.put('/useToken', async (request, response) => {
         }
     } catch (error) {
         return response.status(500).json({ message: 'Token használata sikertelen.' });
+//?POST /api/forgot-password
+router.post('/forgot-password', async (request, response) => {
+    const { email } = request.body;
+    if (!email) {
+        return response.status(400).json({ message: 'E-mail cím szükséges!' });
+    }
+
+    try {
+        const emailExists = await database.checkEmailExists(email);
+        if (!emailExists) {
+            return response.status(404).json({ message: 'E-mail cím nem található.' });
+        }
+
+        const token = await database.createPasswordResetToken(email);
+
+        // Email küldése
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        console.log('Password reset token created:', token);
+        const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'PlanIt - Jelszó visszaállítása',
+            html: `
+                <h2>Jelszó visszaállítása</h2>
+                <p>Az alábbi linkre kattintva állíthatod vissza a jelszavadat:</p>
+                <a href="${resetLink}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    Jelszó visszaállítása
+                </a>
+                <p>Ez a link 1 óra múlva lejár.</p>
+                <p>Ha nem te küldted ezt az e-mailt, hagyd figyelmen kívül.</p>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        return response.status(200).json({ message: 'Jelszó visszaállítási link elküldve az e-mail címedre.' });
+
+    } catch (error) {
+        console.error(error);
+        return response.status(500).json({ message: 'Hiba a jelszó visszaállítása során.' });
+    }
+});
+
+//?POST /api/reset-password
+router.post('/reset-password', async (request, response) => {
+    const { token, newPassword } = request.body;
+    if (!token || !newPassword) {
+        return response.status(400).json({ message: 'Token és új jelszó szükséges!' });
+    }
+
+    try {
+        const user = await database.verifyPasswordResetToken(token);
+        if (!user) {
+            return response.status(400).json({ message: 'Érvénytelen vagy lejárt token.' });
+        }
+
+        await database.resetPassword(user.id, newPassword);
+        return response.status(200).json({ message: 'Jelszó sikeresen visszaállítva!' });
+
+    } catch (error) {
+        console.error(error);
+        return response.status(500).json({ message: 'Hiba a jelszó visszaállítása során.' });
     }
 });
 

@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     {
         loginModal();
         registerModal();
+        forgotPasswordModal();
+        resetPasswordModal();
         showPassword();
     }
     if (typeof initMap === "function") {
@@ -237,4 +239,106 @@ function profilButton(){
 
 }
 
+function forgotPasswordModal() {
+    const form = document.getElementById('forgotPasswordForm');
+    if (!form) return;
 
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgotEmail').value;
+
+        try {
+            const res = await fetch('/api/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await res.json();
+            const errorDiv = document.getElementById('forgotPasswordError');
+            const successDiv = document.getElementById('forgotPasswordSuccess');
+
+            if (res.ok) {
+                successDiv.classList.add('show');
+                successDiv.textContent = data.message;
+                errorDiv.classList.remove('show');
+                errorDiv.textContent = '';
+                form.reset();
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+                    modal.hide();
+                }, 2000);
+            } else {
+                errorDiv.classList.add('show');
+                errorDiv.textContent = data.message || 'Hiba történt a jelszó újítás során';
+                successDiv.classList.remove('show');
+                successDiv.textContent = '';
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Hálózati hiba');
+        }
+    });
+}
+
+function resetPasswordModal() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+        document.getElementById('resetToken').value = token;
+        const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+        modal.show();
+    }
+
+    const form = document.getElementById('resetPasswordForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = document.getElementById('resetToken').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (newPassword !== confirmPassword) {
+            const errorDiv = document.getElementById('resetPasswordError');
+            errorDiv.classList.add('show');
+            errorDiv.textContent = 'A jelszavak nem egyeznek!';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token, newPassword })
+            });
+
+            const data = await res.json();
+            const errorDiv = document.getElementById('resetPasswordError');
+            const successDiv = document.getElementById('resetPasswordSuccess');
+
+            if (res.ok) {
+                successDiv.classList.add('show');
+                successDiv.textContent = data.message;
+                errorDiv.classList.remove('show');
+                errorDiv.textContent = '';
+                form.reset();
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                errorDiv.classList.add('show');
+                errorDiv.textContent = data.message || 'Hiba történt a jelszó újítás során';
+                successDiv.classList.remove('show');
+                successDiv.textContent = '';
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Hálózati hiba');
+        }
+    });
+}

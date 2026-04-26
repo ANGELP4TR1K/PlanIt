@@ -32,6 +32,8 @@ CREATE TABLE users (
     role VARCHAR(50) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    password_reset_token VARCHAR(255) NULL,
+    password_reset_expires DATETIME NULL
 );
 
 CREATE TABLE event_invites (

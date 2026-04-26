@@ -43,10 +43,16 @@
 3. Bcrypt telepítése a megfelelő működéshez:<br>
    `npm install bcrypt`<br>
 
-5. Backend indítása fejlesztés alatt: _(Fájlok szerkesztésének az esetén újraindul a szerver.)_<br>
+4. Nodemailer telepítése a megfelelő működéshez:<br>
+   `npm install nodemailer`<br>
+
+5. Dotenv telepítése a megfelelő működéshez:<br>
+   `npm install dotenv`<br>
+
+6. Backend indítása fejlesztés alatt: _(Fájlok szerkesztésének az esetén újraindul a szerver.)_<br>
    `npm run dev`<br>
 
-6. Backend indítása élesben: _(Fájlok szerkesztésének az esetén nem indul újra a szerver.)_<br>
+7. Backend indítása élesben: _(Fájlok szerkesztésének az esetén nem indul újra a szerver.)_<br>
    `npm run start`<br>
 
 ## NPM hiba esetén<br>
@@ -86,6 +92,7 @@ Nyisd meg a böngésződben a **http://localhost:3000** címet.
 `mysql2`<br>
 `express-mysql-session`<br>
 `bcrypt`<br>
+`nodemailer`<br>
 
 ## nodemon.json felépítése:<br>
 
