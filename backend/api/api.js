@@ -237,20 +237,23 @@ router.delete('/profile', async (request, response) => {
 
 //?POST /api/createEventInvite
 router.post('/createEventInvite', async (request, response) => {
-    const { event_id, created_by, expires_at, max_capacity } = request.body;
-    if (!event_id || !created_by || !expires_at || !max_capacity) {
+    const { name, location, date, max_capacity } = request.body;
+    if (!name || !location || !date || !max_capacity) {
         return response.status(400).json({ message: 'Hiányzó adatok!' });
     }
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
     try {
-        const result = await database.createEventInvite(event_id, created_by, expires_at, max_capacity);
-        if (result) {
-            return response.status(201).json({ message: 'Sikeres meghívó létrehozás' });
-        }
-        else {
+        const created_by = request.session.user.id;
+        const result = await database.createEventInvite(name, location, date, created_by, max_capacity);
+        if (result && result.token) {
+            return response.status(201).json({ message: 'Sikeres meghívó létrehozás', eventId: result.eventId, token: result.token });
+        } else {
             return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
-
         }
     } catch (error) {
+        console.error('createEventInvite error:', error);
         return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
     }
 });
@@ -272,6 +275,34 @@ router.put('/useToken', async (request, response) => {
         }
     } catch (error) {
         return response.status(500).json({ message: 'Token használata sikertelen.' });
+    }
+});
+
+//?GET /api/invite/:token - get invite + event details
+router.get('/invite/:token', async (request, response) => {
+    const { token } = request.params;
+    try {
+        const invite = await database.getInviteByToken(token);
+        if (!invite) return response.status(404).json({ message: 'Meghívó nem található' });
+        return response.status(200).json({ invite });
+    } catch (err) {
+        console.error(err);
+        return response.status(500).json({ message: 'Hiba történt' });
+    }
+});
+
+//?POST /api/invite/join - join event using token
+router.post('/invite/join', async (request, response) => {
+    const { token } = request.body;
+    if (!token) return response.status(400).json({ message: 'Hiányzó token' });
+    if (!request.session || !request.session.user) return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    try {
+        const result = await database.joinEventWithToken(token, request.session.user.id);
+        if (result.success) return response.status(200).json({ message: 'Sikeres csatlakozás' });
+        return response.status(400).json({ message: result.message });
+    } catch (err) {
+        console.error(err);
+        return response.status(500).json({ message: 'Hiba történt' });
     }
 });
 

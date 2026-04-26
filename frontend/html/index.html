@@ -234,6 +234,24 @@
             </div>
         </div>
 
+        <!-- Invite modal (shared) -->
+        <div class="modal fade" id="inviteModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title" id="inviteEventTitle">Esemény</h2>
+                    <div class="modal-body">
+                        <p id="inviteEventDetails"></p>
+                        <div id="inviteError" class="error-message"></div>
+                        <div class="d-flex gap-2">
+                            <button id="inviteJoinBtn" class="btn btn-success">Részt veszek</button>
+                            <button id="inviteLoginBtn" class="btn btn-primary" data-bs-dismiss="modal">Bejelentkezés</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Map Section -->
         <section id="map" class="map-section">
             <div class="map-container">

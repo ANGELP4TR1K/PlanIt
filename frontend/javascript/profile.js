@@ -147,6 +147,35 @@ function setupProfileEventListeners() {
     if (deleteProfileBtn) {
         deleteProfileBtn.addEventListener('click', handleDeleteProfile);
     }
+
+    // Create Event Button
+    const createEventBtn = document.getElementById('createEventBtn');
+    if (createEventBtn) {
+        createEventBtn.addEventListener('click', () => {
+            const modalEl = document.getElementById('createEventModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        });
+    }
+
+    // Create Event Form
+    const createEventForm = document.getElementById('createEventForm');
+    if (createEventForm) {
+        createEventForm.addEventListener('submit', handleCreateEventSubmit);
+    }
+
+    // Join by code button
+    const joinByCodeBtn = document.getElementById('joinByCodeBtn');
+    if (joinByCodeBtn) {
+        joinByCodeBtn.addEventListener('click', () => {
+            const modalEl = document.getElementById('joinCodeModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        });
+    }
+
+    const joinCodeForm = document.getElementById('joinCodeForm');
+    if (joinCodeForm) joinCodeForm.addEventListener('submit', handleJoinByCodeSubmit);
 }
 
 async function handleUsernameSubmit(e) {
@@ -347,5 +376,204 @@ async function performDeleteProfile(modal) {
         modal.hide();
         errorDiv.classList.add('show');
         errorDiv.textContent = 'Hálózati hiba történt';
+    }
+}
+
+async function handleCreateEventSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('eventName').value.trim();
+    const location = document.getElementById('eventLocation').value.trim();
+    const max_capacity = parseInt(document.getElementById('eventMaxCapacity').value, 10);
+    const date = document.getElementById('eventDateTime').value;
+    const errorDiv = document.getElementById('createEventError');
+
+    errorDiv.classList.remove('show');
+    errorDiv.textContent = '';
+
+    if (!name || !location || !date || !max_capacity || isNaN(max_capacity) || max_capacity < 1) {
+        errorDiv.classList.add('show');
+        errorDiv.textContent = 'Kérlek tölts ki minden mezőt helyesen.';
+        return;
+    }
+
+    const payload = {
+        name,
+        location,
+        date,
+        max_capacity,
+        created_by: window.currentUserData && window.currentUserData.id ? window.currentUserData.id : null
+    };
+
+    try {
+        const response = await fetch('/api/createEventInvite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            errorDiv.classList.add('show');
+            errorDiv.textContent = data.message || 'Hiba történt az esemény létrehozásakor.';
+            return;
+        }
+
+        // close modal
+        const modalEl = document.getElementById('createEventModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        // append to my events list with eventId and token (token is 10-digit code)
+        appendEventToList({ name, location, date, max_capacity, eventId: data.eventId, token: data.token });
+
+        // reset form
+        document.getElementById('createEventForm').reset();
+
+        showNotification('Esemény sikeresen létrehozva', 'success');
+
+    } catch (err) {
+        console.error(err);
+        errorDiv.classList.add('show');
+        errorDiv.textContent = 'Hálózati hiba történt.';
+    }
+}
+
+function appendEventToList(event) {
+    const list = document.getElementById('myEventsList');
+    if (!list) return;
+
+    const card = document.createElement('div');
+    card.className = 'card mb-2';
+    const inviteBtnHtml = event.token ? `<button class="btn btn-outline-primary btn-sm invite-btn" data-token="${event.token}" data-eventid="${event.eventId}">Meghívó küldése</button>` : '';
+    card.innerHTML = `
+        <div class="card-body d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="card-title">${escapeHtml(event.name)}</h5>
+                <p class="card-text">Helyszín: ${escapeHtml(event.location)} — Kapacitás: ${event.max_capacity}</p>
+                <p class="card-text"><small class="text-muted">${formatDateTime(event.date)}</small></p>
+            </div>
+            <div class="ms-3">
+                ${inviteBtnHtml}
+            </div>
+        </div>
+    `;
+    list.prepend(card);
+
+    // attach invite button handler
+    if (event.token) {
+        const btn = card.querySelector('.invite-btn');
+        btn.addEventListener('click', () => {
+            openInviteModal(event.token);
+        });
+    }
+}
+
+function appendJoinedEventToList(event) {
+    const list = document.getElementById('joinedEventsList');
+    if (!list) return;
+
+    const card = document.createElement('div');
+    card.className = 'card mb-2';
+    card.innerHTML = `
+        <div class="card-body d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="card-title">${escapeHtml(event.name)}</h5>
+                <p class="card-text">Helyszín: ${escapeHtml(event.location)} — Kapacitás: ${event.max_capacity}</p>
+                <p class="card-text"><small class="text-muted">${formatDateTime(event.date)}</small></p>
+            </div>
+            <div class="ms-3">
+            </div>
+        </div>
+    `;
+    list.prepend(card);
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"]+/g, function (s) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[s];
+    });
+}
+
+function formatDateTime(value) {
+    try {
+        const d = new Date(value);
+        return d.toLocaleString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+        return value;
+    }
+}
+
+function openInviteModal(token) {
+    const modalEl = document.getElementById('inviteModal');
+    const modal = new bootstrap.Modal(modalEl);
+    const codeInput = document.getElementById('inviteCodeInput');
+    codeInput.value = token; // token is the 10-digit code
+    modal.show();
+
+    const copyBtn = document.getElementById('copyInviteBtn');
+    copyBtn.onclick = async () => {
+        try {
+            await navigator.clipboard.writeText(codeInput.value);
+            showNotification('Kód kimásolva a vágólapra', 'success');
+        } catch (e) {
+            showNotification('Másolás sikertelen', 'error');
+        }
+    };
+}
+
+async function handleJoinByCodeSubmit(e) {
+    e.preventDefault();
+    const code = document.getElementById('joinCodeInputField').value.trim();
+    const preview = document.getElementById('joinCodePreview');
+    const errorDiv = document.getElementById('joinCodeError');
+    preview.textContent = '';
+    errorDiv.textContent = '';
+    if (!/^[0-9]{10}$/.test(code)) {
+        errorDiv.textContent = 'Kérlek egy érvényes 10 jegyű kódot adj meg.';
+        return;
+    }
+
+    try {
+        const r = await fetch(`/api/invite/${code}`);
+        const data = await r.json();
+        if (!r.ok) {
+            errorDiv.textContent = data.message || 'Meghívó nem található';
+            return;
+        }
+
+        // show preview
+        const invite = data.invite;
+        preview.innerHTML = `<strong>${escapeHtml(invite.name)}</strong> — ${escapeHtml(invite.location)} — ${formatDateTime(invite.date)}`;
+
+        // if logged in, attempt join
+        if (await userSessionCheck()) {
+            const joinRes = await fetch('/api/invite/join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: code })
+            });
+            const jd = await joinRes.json();
+            if (!joinRes.ok) {
+                errorDiv.textContent = jd.message || 'Csatlakozás sikertelen';
+                return;
+            }
+
+            // close modal and append event to Eseményeim (joined events)
+            const modalEl = document.getElementById('joinCodeModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+            appendJoinedEventToList({ name: invite.name, location: invite.location, date: invite.date, max_capacity: invite.max_capacity, eventId: invite.event_id, token: code });
+            showNotification('Sikeresen csatlakoztál az eseményhez', 'success');
+        } else {
+            // not logged in -> show login
+            const loginModalEl = document.getElementById('loginModal');
+            const loginModal = new bootstrap.Modal(loginModalEl);
+            loginModal.show();
+            errorDiv.textContent = 'Előbb jelentkezz be, majd próbáld újra.';
+        }
+
+    } catch (err) {
+        console.error(err);
+        errorDiv.textContent = 'Hiba történt';
     }
 }

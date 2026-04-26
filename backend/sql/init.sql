@@ -19,7 +19,7 @@ CREATE TABLE events (
     category VARCHAR(100) NOT NULL,
     title VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    location_id INT NOT NULL,
+    location_id INT,
     is_private BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );
@@ -38,14 +38,26 @@ CREATE TABLE users (
 
 CREATE TABLE event_invites (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    event_id INT NOT NULL,
+    event_id INT,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    date DATETIME NOT NULL,
     created_by INT NOT NULL,
     expires_at DATETIME NOT NULL,
     max_capacity INT NOT NULL,
     token VARCHAR(64) NOT NULL UNIQUE,
     uses INT DEFAULT 0,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE event_participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (event_id) REFERENCES events(id),
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- INSERT INTO events (id, type, description, category, title, date, location_id) VALUES
