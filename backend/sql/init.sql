@@ -19,7 +19,7 @@ CREATE TABLE events (
     category VARCHAR(100) NOT NULL,
     title VARCHAR(50) NOT NULL,
     date DATE NOT NULL,
-    location_id INT NOT NULL,
+    location_id INT,
     is_private BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );
@@ -31,29 +31,40 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     password_reset_token VARCHAR(255) NULL,
     password_reset_expires DATETIME NULL
 );
 
 CREATE TABLE event_invites (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    event_id INT NOT NULL,
+    event_id INT,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    date DATETIME NOT NULL,
     created_by INT NOT NULL,
     expires_at DATETIME NOT NULL,
     max_capacity INT NOT NULL,
-    uses INT DEFAULT 0,
     token VARCHAR(64) NOT NULL UNIQUE,
-    used BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (event_id) REFERENCES events(id),
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    uses INT DEFAULT 0,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
-INSERT INTO events (id, type, description, category, title, date, location_id) VALUES
-(999, "private", "house party", "party", "kecske", "2026-09-02", 27);
+CREATE TABLE event_participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
-INSERT INTO event_invites(event_id, created_by, expires_at, max_capacity, token) VALUES
-(999, 2, '2026-09-01 23:59:59', 10, UUID());
+-- INSERT INTO events (id, type, description, category, title, date, location_id) VALUES
+-- (999, "private", "house party", "party", "kecske", "2026-09-02", 27);
+
+-- INSERT INTO event_invites(event_id, created_by, expires_at, max_capacity, token) VALUES
+-- (999, 2, '2026-09-01 23:59:59', 10, UUID());
 
 INSERT INTO locations (name, latitude, longitude, link) VALUES 
 ('KOBUCI Kert',47.54071310,19.04622650,NULL),

@@ -19,7 +19,81 @@ document.addEventListener('DOMContentLoaded', async function () {
         fetchEvents();
         setupMapFilters();
     }
+
+    // Invite link handling: if URL path is /invite/<token>
+    const path = window.location.pathname;
+    const inviteMatch = path.match(/^\/invite\/([a-zA-Z0-9_-]+)/);
+    if (inviteMatch) {
+        const token = inviteMatch[1];
+        handleInviteToken(token);
+    }
 });
+
+async function handleInviteToken(token) {
+    try {
+        const res = await fetch(`/api/invite/${token}`);
+        const data = await res.json();
+        if (!res.ok) {
+            alert(data.message || 'Meghívó nem található');
+            return;
+        }
+
+        const invite = data.invite;
+        const titleEl = document.getElementById('inviteEventTitle');
+        const detailsEl = document.getElementById('inviteEventDetails');
+        const joinBtn = document.getElementById('inviteJoinBtn');
+        const loginBtn = document.getElementById('inviteLoginBtn');
+        const errorDiv = document.getElementById('inviteError');
+
+        titleEl.textContent = invite.name || invite.event_title || 'Esemény';
+        detailsEl.textContent = `Helyszín: ${invite.location} · Dátum: ${new Date(invite.date).toLocaleString('hu-HU')}`;
+        errorDiv.textContent = '';
+
+        // show/hide login button depending on session
+        const session = await userSessionCheck();
+        if (!session) {
+            joinBtn.style.display = 'none';
+            loginBtn.textContent = 'Bejelentkezés';
+            loginBtn.onclick = () => {
+                const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+                modal.show();
+            };
+        } else {
+            joinBtn.style.display = 'inline-block';
+            loginBtn.style.display = 'none';
+            joinBtn.onclick = async () => {
+                // call join API
+                try {
+                    const r = await fetch('/api/invite/join', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    const jd = await r.json();
+                    if (r.ok) {
+                        const modalEl = document.getElementById('inviteModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        modal.hide();
+                        showNotification('Sikeresen csatlakoztál az eseményhez', 'success');
+                        // redirect to profile or reload to show My events
+                        setTimeout(() => { window.location.href = '/profile'; }, 800);
+                    } else {
+                        errorDiv.textContent = jd.message || 'Csatlakozás sikertelen';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    errorDiv.textContent = 'Hálózati hiba';
+                }
+            };
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('inviteModal'));
+        modal.show();
+    } catch (err) {
+        console.error(err);
+        alert('Hiba történt a meghívó betöltésekor');
+    }
+}
 
 async function userSessionCheck()
 {

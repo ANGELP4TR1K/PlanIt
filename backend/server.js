@@ -61,6 +61,8 @@ router.get('/', (request, response) => {
 //?Jelszó újítása oldal:
 router.get('/reset-password', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
+});
+
 router.get('/profile', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
 });
