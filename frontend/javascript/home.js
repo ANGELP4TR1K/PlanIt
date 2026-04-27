@@ -10,7 +10,7 @@ async function fetchHomeEvents() {
             const card = document.createElement('div');
             card.className = 'card event-card';
             card.innerHTML = `
-                <img src="/api/images/${event.id}" alt="${event.title}" class="card-img-top">
+                <img src="/api/images/${event.id+214}" alt="${event.title}" class="card-img-top">
                 <div class="card-body">
                     <h5 class="card-title">${event.title}</h5>
                     <p class="card-text text-muted">${event.helyszin} – ${dateText}</p>
