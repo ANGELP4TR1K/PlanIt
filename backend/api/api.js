@@ -377,4 +377,115 @@ router.post('/reset-password', async (request, response) => {
     }
 });
 
+//?GET /api/userEvents - Get all user events (joined and created)
+router.get('/userEvents', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    try {
+        const userId = request.session.user.id;
+
+        const communityEvents = await database.getUserCommunityEvents(userId);
+        const privateEvents = await database.getUserPrivateEvents(userId);
+        const createdEvents = await database.getUserCreatedEvents(userId);
+
+        return response.status(200).json({
+            communityEvents: communityEvents || [],
+            privateEvents: privateEvents || [],
+            createdEvents: createdEvents || []
+        });
+
+    } catch (error) {
+        console.error('Error getting user events:', error);
+        return response.status(500).json({ message: 'Hiba az események lekérése során.' });
+    }
+});
+
+//?GET /api/events/:id - Get single event details
+router.get('/events/:id', async (request, response) => {
+    const { id } = request.params;
+    if (!id) {
+        return response.status(400).json({ message: 'Esemény ID szükséges' });
+    }
+
+    try {
+        const event = await database.getEventDetailsById(id);
+        if (!event) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+
+        return response.status(200).json(event);
+
+    } catch (error) {
+        console.error('Error getting event details:', error);
+        return response.status(500).json({ message: 'Hiba az esemény adatainak lekérése során.' });
+    }
+});
+
+//?POST /api/events/:id/leave - Leave an event
+router.post('/events/:id/leave', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    const { id } = request.params;
+    const userId = request.session.user.id;
+
+    if (!id) {
+        return response.status(400).json({ message: 'Esemény ID szükséges' });
+    }
+
+    try {
+        const event = await database.selectEventById(id);
+        if (!event || event.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+
+        const result = await database.removeUserFromEvent(id, userId);
+        if (result) {
+            return response.status(200).json({ message: 'Sikeresen elhagytad az eseményt' });
+        } else {
+            return response.status(400).json({ message: 'Nem tudsz elhagyni egy eseményt, amelyen nem vagy résztvevő' });
+        }
+
+    } catch (error) {
+        console.error('Error leaving event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény elhagyása során.' });
+    }
+});
+
+//?DELETE /api/events/:id - Delete an event
+router.delete('/events/:id', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    const { id } = request.params;
+    const userId = request.session.user.id;
+
+    if (!id) {
+        return response.status(400).json({ message: 'Esemény ID szükséges' });
+    }
+
+    try {
+        const event = await database.getPrivateEvent(id);
+        if (!event || event.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+        console.log('Event details:', event[0]);
+        // Check if user is the creator of the event
+        if (event[0].created_by !== userId) {
+            return response.status(403).json({ message: 'Nincs jogosultságod ezt az eseményt törölni' });
+        }
+
+        await database.deleteEventAndParticipants(id);
+        return response.status(200).json({ message: 'Az esemény sikeresen törölve lett' });
+
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
+    }
+});
+
 module.exports = router;

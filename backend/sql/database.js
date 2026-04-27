@@ -306,6 +306,79 @@ async function resetPassword(userId, newPassword) {
     return true;
 }
 
+// User Events Functions
+async function getUserCommunityEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        JOIN event_participants ep ON e.id = ep.event_id
+        WHERE ep.user_id = ? AND e.type = 'official' AND e.date >= CURDATE()
+        ORDER BY e.date ASC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
+async function getUserPrivateEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        JOIN event_participants ep ON e.id = ep.event_id
+        WHERE ep.user_id = ? AND e.type = 'private' AND e.date >= CURDATE()
+        ORDER BY e.date ASC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
+async function getUserCreatedEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        JOIN event_invites ON event_invites.event_id = e.id
+        WHERE event_invites.created_by = ? AND e.date >= CURDATE()
+        ORDER BY e.date ASC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
+async function getEventDetailsById(eventId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude,
+               COUNT(DISTINCT ep.user_id) AS participant_count
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        LEFT JOIN event_participants ep ON e.id = ep.event_id
+        WHERE e.id = ?
+        GROUP BY e.id;
+    `;
+    const [rows] = await pool.execute(query, [eventId]);
+    return rows.length > 0 ? rows[0] : null;
+}
+
+async function removeUserFromEvent(eventId, userId) {
+    const query = 'DELETE FROM event_participants WHERE event_id = ? AND user_id = ?;';
+    const [rows] = await pool.execute(query, [eventId, userId]);
+    return rows.affectedRows > 0;
+}
+
+async function getPrivateEvent(eventId) {
+    const query = 'SELECT events.*, event_invites.created_by FROM events INNER JOIN event_invites ON event_invites.event_id = events.id WHERE events.is_private = 1 AND events.id = ?;';
+    const [rows] = await pool.execute(query, [eventId]);
+    return rows;
+}
+
+async function deleteEventAndParticipants(eventId) {
+    await pool.execute('DELETE FROM event_participants WHERE event_id = ?', [eventId]);
+    await pool.execute('DELETE FROM event_invites WHERE event_id = ?', [eventId]);
+    await pool.execute('DELETE FROM events WHERE id = ?', [eventId]);
+    return true;
+}
+
 //!Export
 module.exports = {
     selectallUser,
@@ -338,5 +411,12 @@ module.exports = {
     useToken,
     createPasswordResetToken,
     verifyPasswordResetToken,
-    resetPassword
+    resetPassword,
+    getUserCommunityEvents,
+    getUserPrivateEvents,
+    getUserCreatedEvents,
+    getEventDetailsById,
+    removeUserFromEvent,
+    deleteEventAndParticipants,
+    getPrivateEvent
 };
