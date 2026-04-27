@@ -48,7 +48,7 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    padding-top: 50px;
+    padding-top: 120px;
     margin: 0;
 }
 
@@ -136,19 +136,11 @@ body.dark-mode #theme-switcher svg:last-child {
     font-size: 1.25rem;
     color: var(--text-color);
     letter-spacing: 1px;
-}
-
-.brand-text:hover {
-    color: var(--theme-btn-bg);
+    pointer-events: none;
 }
 
 .brand-text span {
     color: var(--primary-purple);
-}
-
-.brand-text span:hover,
-.brand-text:hover span {
-    color: var(--accent-color);
 }
 
 .nav-link {
@@ -184,6 +176,8 @@ body.dark-mode #theme-switcher svg:last-child {
 .container-fluid.navbar-container {
     padding: 0;
 }
+
+
 
 #theme-switcher {
     background-color: var(--theme-btn-bg);
@@ -251,8 +245,7 @@ body.dark-mode #theme-switcher svg:last-child {
     margin-bottom: 10px;
 }
 
-.login-item,
-.register-item {
+.dropdown-item {
     background: var(--nav-active-hover);
     color: var(--nav-active-bg);
     font-weight: 600;
@@ -411,6 +404,50 @@ body.dark-mode .modal-backdrop {
 }
 
 
+
+/* ==========================================================================
+   Mik vagyunk szekció
+   ========================================================================== */
+#mikvagyunk {
+    padding: 40px 20px;
+}
+
+.about-card {
+    background: var(--card-background);
+    padding: 60px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 300px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px var(--nav-shadow);
+}
+
+.about-card h1 {
+    margin: 0 0 15px 0;
+}
+
+.about-card p {
+    margin: 0 0 25px 0;
+}
+
+.about-card .btn {
+    background: var(--primary-purple);
+    border-color: var(--primary-purple);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.about-card .btn:hover {
+    background: var(--primary-purple-dark);
+    border-color: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+
 /* ==========================================================================
    Terkep es kereso
    ========================================================================== */
@@ -422,14 +459,15 @@ body.dark-mode .modal-backdrop {
 .map-container {
     max-width: 1400px;
     margin: 0 auto;
+    box-shadow: 0 4px 20px var(--nav-shadow);
+    border-radius: 20px;
 }
 
 .map-controls {
     background: var(--card-background);
     padding: 25px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 20px var(--nav-shadow);
+    border-radius: 20px 20px 0 0;
+    /* box-shadow: 0 4px 20px var(--nav-shadow); */
 }
 
 .search-container {
@@ -536,7 +574,11 @@ body.dark-mode .modal-backdrop {
     height: 600px;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 20px var(--nav-shadow);
+    /* box-shadow: 0 4px 20px var(--nav-shadow); */
+}
+
+section.discovery .map-display {
+    border-radius: 0 0 20px 20px;
 }
 
 
@@ -680,6 +722,60 @@ body.dark-mode .gm-style-iw-tc {
 /* ==========================================================================
    Esemeny modal
    ========================================================================== */
+.event-modal-hero {
+    position: relative;
+    height: 360px;
+}
+
+.event-modal-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 24px 24px 0 0;
+}
+
+.event-modal-preview-img {
+    position: absolute;
+    bottom: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 16px;
+    border: 3px solid var(--bg-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+a.event-action-btn {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.date-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.date-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--input-border-color);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-color);
+}
+
+.date-chip.selected {
+    border-color: var(--primary-purple);
+    background: var(--primary-purple);
+    color: white;
+}
+
 .event-modal-card {
     border-radius: 24px;
     padding: 0;
@@ -692,7 +788,7 @@ body.dark-mode .gm-style-iw-tc {
 }
 
 .event-modal-content {
-    padding: 50px 40px 30px 40px;
+    padding: 78px 40px 30px 40px;
 }
 
 .event-modal-title {
@@ -799,6 +895,152 @@ body.dark-mode .gm-style-iw-tc {
     background: var(--input-border-color);
 }
 
+
+/* ==========================================================================
+   Felfedezes esemenyei
+   ========================================================================== */
+
+
+#discoverevents{
+    background-color: var(--bg-color);
+    height: 675px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-color: var(--text-color) var(--card-background);
+    scrollbar-width: thin;
+    padding: 25px;
+    border-left: 4px solid var(--card-background);
+    border-right: 4px solid var(--card-background);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    gap: 24px;
+}
+
+
+/* ==========================================================================
+   Horizontal Cards Carousel
+   ========================================================================== */
+
+.event-card {
+    flex: 0 0 22%;
+    max-width: 22%;
+    box-sizing: border-box;
+    min-width: 160px;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px var(--nav-shadow);
+    background: var(--card-background);
+    /* transition: transform 0.25s ease, box-shadow 0.25s ease;
+    will-change: transform, box-shadow; */
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px var(--nav-shadow);
+}
+
+.event-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    background: var(--input-background);
+}
+
+.event-card .card-body {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 8px 0;
+}
+
+.event-card .card-text {
+    font-size: 13px;
+    margin: 0 0 12px 0;
+    flex-grow: 1;
+}
+
+.event-card .btn {
+    margin-top: auto;
+    background: var(--primary-purple);
+    border-color: var(--primary-purple);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.event-card .btn:hover {
+    background: var(--primary-purple-dark);
+    border-color: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+
+
+/* ==========================================================================
+   Horizontal Cards Carousel
+   ========================================================================== */
+.carousel-section {
+    background: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.carousel-section .container-fluid {
+    padding: 0 0;
+}
+
+.carousel-section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.horizontal-cards-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.horizontal-cards-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.horizontal-cards-wrapper::-webkit-scrollbar-track {
+    background: var(--input-background);
+    border-radius: 10px;
+}
+
+.horizontal-cards-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 10px;
+}
+
+.horizontal-cards-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-purple-dark);
+}
+
+
 /* ==========================================================================
    Mobil nézet
    ========================================================================== */
@@ -829,7 +1071,7 @@ body.dark-mode .gm-style-iw-tc {
     }
 
     .event-modal-content {
-        padding: 40px 25px 25px 25px;
+        padding: 68px 25px 25px 25px;
     }
     
     .event-modal-title {
@@ -848,6 +1090,46 @@ body.dark-mode .gm-style-iw-tc {
     .event-action-btn {
         width: 100%;
     }
+    
+    #discoverevents { 
+        gap: 16px; 
+    }
+
+    .event-card {
+        flex: 0 0 46%;
+        max-width: 46%;
+        min-width: 0;
+    }
+
+    .event-card .card-img-top {
+        height: 150px;
+    }
+
+    .event-card .card-body {
+        padding: 12px;
+    }
+
+    .event-card .card-title {
+        font-size: 15px;
+    }
+
+        .carousel-section {
+        padding: 40px 15px;
+    }
+
+    .carousel-section-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .horizontal-cards-wrapper {
+        gap: 15px;
+    }
+
+}
+
+@media (max-width: 625px) {
+    .event-card { flex: 0 0 100%; max-width: 100%; min-width: 0; }
 }
 
 @media (max-width: 480px) {
@@ -870,8 +1152,44 @@ body.dark-mode .gm-style-iw-tc {
     .checkbox-group {
         grid-template-columns: 1fr;
     }
-}
 
+    .event-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .event-card .card-img-top {
+        height: 120px;
+    }
+
+    .event-card .card-body {
+        padding: 10px;
+    }
+
+    .event-card .card-title {
+        font-size: 14px;
+    }
+
+    .event-card .card-text {
+        font-size: 12px;
+    }
+
+    .carousel-section {
+        padding: 30px 10px;
+    }
+
+    .carousel-section-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .horizontal-cards-wrapper {
+        gap: 12px;
+    }
+
+
+}
 
 /* ==========================================================================
    Tabletes nézet
@@ -925,11 +1243,75 @@ body.dark-mode .gm-style-iw-tc {
         transform: none;
     }
 
+    .event-card { 
+        flex: 0 0 48%; max-width: 48%; 
+    }
 }
 
 /* Navbar szélességének változtatása különben rosszul csúszik össze */
 @media (max-width: 1400px) {
     .navbar {
         width: 75%;
+    }
+}
+
+@media (max-width: 522px) {
+    .event-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Error and Success Messages */
+.error-message {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #dc3545;
+    margin-top: 10px;
+    display: none;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+body.dark-mode .error-message {
+    background: rgba(220, 53, 69, 0.15);
+    color: #ff6b6b;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.success-message {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid #28a745;
+    margin-top: 10px;
+    display: none;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+body.dark-mode .success-message {
+    background: rgba(40, 167, 69, 0.15);
+    color: #5fff5f;
+}
+
+.success-message.show {
+    display: block;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
