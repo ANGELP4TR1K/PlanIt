@@ -137,8 +137,8 @@ function createEventCard(event, type) {
     card.className = 'events-item';
     card.setAttribute('data-event-id', event.id);
 
-    const imageUrl = `/uploads/${event.id}.png`;
-    const eventType = event.is_private ? 'Közösségi' : 'Hivatalos';
+    const imageUrl = `/api/images/${event.id+214}`;
+    const eventType = event.type == 'private' ? 'Közösségi' : 'Hivatalos';
     const dateObj = new Date(event.date);
     const dateStr = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
     const timeStr = dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
