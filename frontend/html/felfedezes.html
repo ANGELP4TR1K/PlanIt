@@ -15,6 +15,7 @@
     <!--!JavaScript-->
     <script src="../javascript/index.js"></script>
     <script src="../javascript/map.js"></script>
+  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
 </head>
 <body>
 
@@ -289,93 +290,56 @@
 
         <!-- Event Details Modal -->
         <div class="modal fade" id="eventModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content event-modal-card">
                     <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                            fill="currentColor">
-                            <path
-                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
                         </svg>
                     </button>
-                    
+                    <div class="event-modal-hero">
+                        <img id="eventModalHero" src="" alt="" class="event-modal-hero-img">
+                        <img id="eventModalImage" src="" alt="" class="event-modal-preview-img">
+                    </div>
                     <div class="event-modal-content">
-                        <h2 class="event-modal-title" id="eventModalTitle">Esemény Címe</h2>
-
+                        <h2 class="event-modal-title" id="eventModalTitle"></h2>
                         <div class="event-modal-details">
                             <div class="event-detail-row">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="currentColor">
-                                    <path
-                                        d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z" />
                                 </svg>
                                 <div>
-                                    <strong>Dátum</strong>
-                                    <p id="eventModalDate">2026.02.10</p>
+                                    <strong>Válassz időpontot</strong>
+                                    <div id="eventModalDates" class="date-chips"></div>
                                 </div>
                             </div>
-
                             <div class="event-detail-row">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="currentColor">
-                                    <path
-                                        d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z" />
                                 </svg>
                                 <div>
                                     <strong>Kategória</strong>
-                                    <p id="eventModalCategory">Sport</p>
+                                    <p id="eventModalCategory"></p>
                                 </div>
                             </div>
-
                             <div class="event-detail-row">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="currentColor">
-                                    <path
-                                        d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z" />
-                                </svg>
-                                <div>
-                                    <strong>Típus</strong>
-                                    <p id="eventModalType">Közösségi</p>
-                                </div>
-                            </div>
-
-                            <div class="event-detail-row">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="currentColor">
-                                    <path
-                                        d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Z" />
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Z" />
                                 </svg>
                                 <div>
                                     <strong>Helyszín</strong>
-                                    <p id="eventModalLocation">Budapest</p>
-                                </div>
-                            </div>
-
-                            <div class="event-detail-row">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                    width="24px" fill="currentColor">
-                                    <path
-                                        d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z" />
-                                </svg>
-                                <div>
-                                    <strong>Szervező</strong>
-                                    <p id="eventModalOrganizer">Szervező neve</p>
+                                    <p id="eventModalLocation"></p>
                                 </div>
                             </div>
                         </div>
-                        
-
-                        <div class="event-modal-description">
-                            <h3>Részletek</h3>
-                            <p id="eventModalDescription">Az esemény részletes leírása itt található...</p>
-                        </div>
-
                         <div class="event-modal-actions">
                             <button class="event-action-btn secondary-btn" data-bs-dismiss="modal">Bezárás</button>
-                            <button class="event-action-btn primary-btn">Jelentkezés</button>
+                            <a href="https://ticketswap.hu" target="_blank" class="event-action-btn primary-btn">Irány a TicketSwap!</a>
+                            <button class="event-action-btn primary-btn">Érdekel</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
 </body>

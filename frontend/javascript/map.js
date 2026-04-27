@@ -1,16 +1,29 @@
-async function fetchEvents() { //Eventek betöltése
+async function fetchEvents() {
     try {
         const response = await fetch('/api/events');
         const data = await response.json();
-        allEvents = data.map(normalizeEvent);
+        allEvents = groupEvents(data).map(normalizeEvent);
         renderCards(allEvents);
         displayMarkers(allEvents);
     } catch (error) {
-        console.error('Nem sikerült betölteni az eseményeket:', error); 
+        console.error('Nem sikerült betölteni az eseményeket:', error);
     }
 }
 
-function normalizeEvent(e) { //DB-ből kódra alakítás/convertálás
+function groupEvents(data) {
+    const groups = {};
+    data.forEach(e => {
+        const key = `${e.title}_${e.location_id}`;
+        if (!groups[key]) {
+            groups[key] = { ...e, dates: [e.date] };
+        } else {
+            groups[key].dates.push(e.date);
+        }
+    });
+    return Object.values(groups);
+}
+
+function normalizeEvent(e) {
     return {
         id: e.id,
         name: e.title,
@@ -18,8 +31,8 @@ function normalizeEvent(e) { //DB-ből kódra alakítás/convertálás
         lng: parseFloat(e.longitude),
         type: e.type,
         category: e.category,
-        description: e.description,
-        date: formatDate(e.date)
+        helyszin: e.helyszin,
+        dates: e.dates.map(formatDate)
     };
 }
 
@@ -37,7 +50,7 @@ function renderCards(eventsToRender) {
             <img src="/api/images/${event.id+214}" alt="${event.name}" class="card-img-top">
             <div class="card-body">
                 <h5 class="card-title">${event.name}</h5>
-                <p class="card-text text-muted">${event.description} – ${event.date}</p>
+                <p class="card-text text-muted">${event.helyszin} – ${event.dates.length > 1 ? event.dates[0] + ' (+' + (event.dates.length - 1) + ' időpont)' : event.dates[0]}</p>
                 <a href="#" class="btn btn-primary btn-sm" onclick="openEventModal(${event.id}); return false;">Részletek</a>
             </div>
         `;
@@ -55,6 +68,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 let map;
 let markers = [];
 let infoWindow;
+let clusterer = null;
 
 let allEvents = [];
 
@@ -84,6 +98,7 @@ function initializeMap() {
     map = new google.maps.Map(document.getElementById('mapDisplay'), {
         center: defaultCenter,
         zoom: defaultZoom,
+        streetViewControl: false,
         styles: document.body.classList.contains('dark-mode') ? getDarkModeStyles() : getHidePOIStyles()
     });
 
@@ -92,23 +107,22 @@ function initializeMap() {
 
 // Display markers on map
 function displayMarkers(eventsToShow) {
-    // Clear existing markers
-    markers.forEach(m => m.marker.setMap(null));
+    if (clusterer) {
+        clusterer.clearMarkers();
+        clusterer = null;
+    }
     markers = [];
 
-    // Marker colors based on type
     const markerColors = {
         hivatalos: '#0004ff',
         kozossegi: '#ff0000'
     };
 
-    // Add markers for each event
     eventsToShow.forEach(event => {
         const markerColor = markerColors[event.type] || '#5d5fef';
-        
+
         const marker = new google.maps.Marker({
             position: { lat: event.lat, lng: event.lng },
-            map: map,
             title: event.name,
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
@@ -125,10 +139,10 @@ function displayMarkers(eventsToShow) {
                 <div class="map-popup-content">
                     <h3 class="popup-title">${event.name}</h3>
                     <div class="popup-details">
-                        <p class="popup-date"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z"/></svg> ${event.date}</p>
+                        <p class="popup-date"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z"/></svg> ${event.dates.join(' • ')}</p>
                         <p class="popup-type"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg> ${getTypeLabel(event.type)}</p>
                         <p class="popup-category"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z"/></svg> ${getCategoryLabel(event.category)}</p>
-                        <p class="popup-description">${event.description}</p>
+                        <p class="popup-description">${event.helyszin}</p>
                     </div>
                     <button class="popup-btn" onclick="openEventModal(${event.id})">Érdekel</button>
                 </div>
@@ -140,7 +154,8 @@ function displayMarkers(eventsToShow) {
         markers.push({ marker, event });
     });
 
-    // Fit bounds to show all markers
+    clusterer = new markerClusterer.MarkerClusterer({ map, markers: markers.map(m => m.marker) });
+
     if (markers.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         markers.forEach(m => bounds.extend(m.marker.getPosition()));
@@ -254,15 +269,7 @@ function getTypeLabel(type) {
 
 // Helper function to get category label in Hungarian
 function getCategoryLabel(category) {
-    const labels = {
-        koncert: 'Koncert',
-        sport: 'Sport',
-        kiallitas: 'Kiállítás',
-        szinhaz: 'Színház',
-        workshop: 'Workshop',
-        vasar: 'Vásár'
-    };
-    return labels[category] || category;
+    return category;
 }
 
 // Hide default POIs (theaters, cinemas, malls, etc.) for light mode
@@ -440,23 +447,34 @@ window.mapFunctions = {
     resetFilters
 };
 
-// Open event details modal
+const categoryHeroImages = {
+    'koncert': '/images/categories/koncert.png',
+    'fesztivál': '/images/categories/fesztival.png',
+    'sport': '/images/categories/sport.png',
+    'színház': '/images/categories/szinhaz.png',
+    'komédia': '/images/categories/komedia.png'
+};
+
 window.openEventModal = function(eventId) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
 
-    // Populate modal content
+    document.getElementById('eventModalHero').src = categoryHeroImages[event.category.toLowerCase()] || '/images/categories/default.png';
+    document.getElementById('eventModalImage').src = `/api/images/${event.id+214}`;
     document.getElementById('eventModalTitle').textContent = event.name;
-    document.getElementById('eventModalDate').textContent = event.date;
-    document.getElementById('eventModalType').textContent = getTypeLabel(event.type);
     document.getElementById('eventModalCategory').textContent = getCategoryLabel(event.category);
-    document.getElementById('eventModalDescription').textContent = event.description;
-    
-    // Show additional details
-    document.getElementById('eventModalLocation').textContent = 'Budapest';
-    document.getElementById('eventModalOrganizer').textContent = event.type === 'hivatalos' ? 'Hivatalos Szervező' : 'Közösségi Szervező';
-    
-    // Show modal
+    document.getElementById('eventModalLocation').textContent = event.helyszin;
+
+    const datesContainer = document.getElementById('eventModalDates');
+    datesContainer.innerHTML = event.dates.map((d, i) =>
+        `<span class="date-chip ${i === 0 ? 'selected' : ''}" onclick="selectDateChip(this)">${d}</span>`
+    ).join('');
+
     const modal = new bootstrap.Modal(document.getElementById('eventModal'));
     modal.show();
 };
+
+function selectDateChip(el) {
+    el.closest('.date-chips').querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+}
