@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Profil</title>
+        <!--!Bootstrap-->
+        <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" />
+        <!--?Popper: dropdowns, popovers, tooltips-->
+        <script src="../bootstrap/js/popper.min.js"></script>
+        <script src="../bootstrap/js/bootstrap.min.js"></script>
+        <!--!CSS-->
+        <link rel="stylesheet" href="../css/index.css" />
+        <link rel="stylesheet" href="../css/profile.css" />
+        <!--!JavaScript-->
+        <script src="../javascript/index.js"></script>
+        <script src="../javascript/profile.js"></script>
+    </head>
+    <body>
+        <div class="fixed-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid navbar-container">
+                <div class="logo-container">
+                    <div class="logo-circle">
+                        <!-- Logo img vagy svg -->
+                    </div>
+                    <a class="navbar-brand brand-text" href="/">PLAN<span>IT</span></a>
+                </div>
+                <div id="nav-buttons">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Téma váltó mobil nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+
+                <!-- Navbar gombjai -->
+                <div class="collapse navbar-collapse" id="planitNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/">Főoldal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/felfedezes">Felfedezés</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/esemenyeim">Eseményeim</a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="/rolunk">Rólunk</a>
+                        </li>
+                    </ul>
+
+                    <div class="dropdown">
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
+                                <button class="dropdown-item login-item" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Bejelentkezés</button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item register-item" data-bs-toggle="modal"
+                                    data-bs-target="#registerModal">Regisztráció</button>
+                            </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
+                        </ul>
+                    </div>
+
+                    <!-- Téma váltó desktop nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <div class="container-fluid">
+        <div id="tiltas">
+            <!-- Auth Error Display -->
+            <div class="auth-error-container">
+                <div class="auth-error-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#EA3323">
+                        <path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5ZM440-440h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/>
+                    </svg>
+                    <h2>Bejelentkezés szükséges</h2>
+                    <p>Sajnos nem férhetsz hozzá ehhez az oldalhoz bejelentkezés nélkül.</p>
+                    <button id="authErrorLoginBtn" class="btn btn-primary" style="background-color: #EA3323; border: none; padding: 10px 30px;">Bejelentkezés</button>
+                </div>
+            </div>
+        </div>
+        <!-- Profile Content -->
+        <div id="profileContent" class="profile-container" style="display: none;">
+            <div class="profile-header">
+                <h1>Profilom</h1>
+            </div>
+
+            <!-- E-mail Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>E-mail cím</h2>
+                </div>
+                <div class="info-row">
+                    <label>E-mail:</label>
+                    <span id="displayEmail"></span>
+                </div>
+            </div>
+
+            <!-- Username Edit Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Felhasználónév</h2>
+                    <button id="editUsernameBtn" class="btn btn-outline-primary btn-sm">Szerkesztés</button>
+                </div>
+
+                <!-- Display Mode -->
+                <div id="usernameDisplay" class="profile-display">
+                    <div class="info-row">
+                        <span id="displayUsername"></span>
+                    </div>
+                </div>
+
+                <!-- Edit Mode -->
+                <form id="usernameEditForm" class="profile-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="editUsername">Új felhasználónév</label>
+                        <input type="text" id="editUsername" name="username" class="form-control" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Mentés</button>
+                        <button type="button" id="cancelUsernameBtn" class="btn btn-secondary">Mégse</button>
+                    </div>
+                    <div id="usernameEditError" class="error-message"></div>
+                </form>
+            </div>
+
+            <!-- Full Name Edit Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Teljes név</h2>
+                    <button id="editFullNameBtn" class="btn btn-outline-primary btn-sm">Szerkesztés</button>
+                </div>
+
+                <!-- Display Mode -->
+                <div id="fullNameDisplay" class="profile-display">
+                    <div class="info-row">
+                        <span id="displayFullName"></span>
+                    </div>
+                </div>
+
+                <!-- Edit Mode -->
+                <form id="fullNameEditForm" class="profile-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="editFullName">Új teljes név</label>
+                        <input type="text" id="editFullName" name="full_name" class="form-control" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Mentés</button>
+                        <button type="button" id="cancelFullNameBtn" class="btn btn-secondary">Mégse</button>
+                    </div>
+                    <div id="fullNameEditError" class="error-message"></div>
+                </form>
+            </div>
+
+            <!--Create Event-->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Létrehozott események</h2>
+                    <div class="d-flex gap-2">
+                            <button id="createEventBtn" class="btn btn-outline-primary btn-sm">Létrehozás</button>
+                    </div>
+                </div>
+                <div id="myEventsList" class="events-list mt-3">
+                    <!-- Létrehozott események ide kerülnek -->
+                </div>
+            </div>
+
+             <!--My events-->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Eseményeim</h2>
+                    <button id="joinByCodeBtn" class="btn btn-outline-secondary btn-sm">Részvétel</button>
+                </div>
+                <div id="joinedEventsList" class="events-list mt-3">
+                    <!-- A felhasználóhoz tartozó (részt vett vagy meghívóval csatlakozott) események -->
+                </div>
+            </div>
+
+            <!-- Security Section - Change Password -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Biztonság</h2>
+                </div>
+
+                <form id="passwordChangeForm" class="profile-form">
+                    <div class="form-group">
+                        <label for="currentPassword">Jelenlegi jelszó</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="currentPassword" name="current_password" class="form-control" required>
+                            <button type="button" class="eye-btn password-toggle" data-target="currentPassword">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">Új jelszó</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="newPassword" name="new_password" class="form-control" required>
+                            <button type="button" class="eye-btn password-toggle" data-target="newPassword">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Jelszó megerősítése</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="confirmPassword" name="confirm_password" class="form-control" required>
+                            <button type="button" class="eye-btn password-toggle" data-target="confirmPassword">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Jelszó frissítése</button>
+                    </div>
+                    <div id="passwordChangeError" class="error-message"></div>
+                </form>
+            </div>
+
+            <!-- Account Info Section -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2>Fiók információ</h2>
+                </div>
+                <div class="info-row">
+                    <label>Fiók létrehozva:</label>
+                    <span id="displayCreatedAt"></span>
+                </div>
+            </div>
+
+            <!-- Danger Zone Section -->
+            <div class="profile-section danger-zone">
+                <div class="section-header">
+                    <h2>Veszélyzóna</h2>
+                </div>
+                <div class="danger-zone-content">
+                    <p>A profil törlése véglegesen eltávolítja az összes fiók adatát. Ez a művelet nem visszafordítható.</p>
+                    <button id="deleteProfileBtn" class="btn btn-danger">Profil törlése</button>
+                    <div id="deleteProfileError" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <!-- Bezaras gomb -->
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><svg
+                            xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg></button>
+                    <h2 class="modal-title">Plan<span>It</span></h2>
+                    <p class="subtitle">Bejelentkezés</p>
+
+                    <form id="loginForm">
+                        <div class="login-input-field">
+                            <label for="email">E-mail</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="email" placeholder="example@example.com" name="email"
+                                    autocomplete="username" required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="password">Jelszó</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="password" placeholder="••••••••" name="password"
+                                    autocomplete="current-password" required>
+                                <button type="button" id="togglePassword" class="eye-btn">
+                                    <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="extra-options">
+                            <a href="#" class="forgot-link">Elfelejtetted a jelszavad?</a>
+                        </div>
+
+                        <button type="submit" class="login-btn">Bejelentkezés</button>
+                        <div id="loginError"></div>
+                    </form>
+
+                    <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal"
+                            data-bs-target="#registerModal">Regisztrálj</a></p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Register modal -->
+        <div class="modal fade" id="registerModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg>
+                    </button>
+
+                    <h2 class="modal-title">Plan<span>It</span></h2>
+                    <p class="subtitle">Regisztráció</p>
+
+                    <form id="registerForm">
+                        <div class="login-input-field">
+                            <label for="regName">Teljes név</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="userName">Felhasználónév</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="regEmail">E-mail</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="regEmail" placeholder="example@example.com" name="email"
+                                    autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="regPassword">Jelszó</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="regPassword" placeholder="••••••••" name="password"
+                                    autocomplete="new-password" required>
+                                <button type="button" class="eye-btn toggle-reg-password">
+                                    <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="extra-options">
+                            <label>
+                                <input type="checkbox" required> Elfogadom az <a href="#">ÁFSZ</a>-t
+                            </label>
+                        </div>
+
+                        <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                        <div id="registerError"></div>
+                    </form>
+
+                    <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal"
+                            data-bs-target="#loginModal">Jelentkezz be</a></p>
+                </div>
+            </div>
+
+
+            
+        </div>
+
+        <!-- Create Event Modal -->
+        <div class="modal fade" id="createEventModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title">Esemény létrehozása</h2>
+
+                    <form id="createEventForm">
+                        <div class="login-input-field">
+                            <label for="eventName">Esemény megnevezése</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="eventName" name="name" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="eventLocation">Helyszín</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="eventLocation" name="location" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="eventMaxCapacity">Maximális kapacitás</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="eventMaxCapacity" name="max_capacity" class="form-control" min="1" required />
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="eventDateTime">Dátum és idő</label>
+                            <div class="input-wrapper">
+                                <input type="datetime-local" id="eventDateTime" name="date" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="form-actions mt-3">
+                            <button type="submit" class="btn btn-success">Létrehozás</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégse</button>
+                        </div>
+                        <div id="createEventError" class="error-message mt-2"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invite Modal (shows 10-digit code) -->
+        <div class="modal fade" id="inviteModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title">Meghívó küldése</h2>
+                    <p>Oszd meg az eseményt barátaiddal — másold ki a 10 jegyű kódot:</p>
+                    <div class="input-group">
+                        <input type="text" id="inviteCodeInput" class="form-control" readonly />
+                        <button id="copyInviteBtn" class="btn btn-outline-secondary">Másolás</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join by code modal -->
+        <div class="modal fade" id="joinCodeModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title">Részvétel kód alapján</h2>
+                    <form id="joinCodeForm" class="p-3">
+                        <div class="mb-2">
+                            <label for="joinCodeInputField">Add meg a 10 jegyű kódot</label>
+                            <input type="text" id="joinCodeInputField" class="form-control" maxlength="10" required />
+                        </div>
+                        <div id="joinCodePreview" class="mb-2"></div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">Csatlakozás</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégse</button>
+                        </div>
+                        <div id="joinCodeError" class="error-message mt-2"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Profile Confirmation Modal -->
+            <div class="modal fade" id="deleteProfileModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content delete-confirmation-modal">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title">Profil törlése</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-3">Biztosan törlöd a profilodat?</p>
+                            <p class="text-danger fw-bold">Ez a művelet nem visszafordítható! Minden adatod véglegesen törlődik.</p>
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégse</button>
+                            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Profil törlése</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </body>
+</html>

@@ -1,8 +1,10 @@
 //!Module-ok importálása
+require('dotenv').config(); //?npm install dotenv - Load environment variables
 const express = require('express'); //?npm install express
 const session = require('express-session'); //?npm install express-session
 const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config(); //?npm install dotenv
 
 //!Beállítások
@@ -16,7 +18,19 @@ app.use(express.json()); //?Middleware JSON
 app.set('trust proxy', 1); //?Middleware Proxy
 
 //!Statikus képek route
-app.use('/api/images', express.static(path.join(__dirname, 'eventImg')));
+app.get('/api/images/:id', (req, res) => {
+    const imageDir = path.join(__dirname, '../frontend/images');
+    const extensions = ['.jpg', '.png'];
+
+    for (const ext of extensions) {
+        const filePath = path.join(imageDir, req.params.id + ext);
+        if (fs.existsSync(filePath)) {
+            return res.sendFile(filePath);
+        }
+    }
+
+    res.status(404).json({ error: 'Image not found' });
+});
 
 //!Session beállítása:
 app.use(
@@ -44,7 +58,22 @@ router.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 });
 
+//?Jelszó újítása oldal:
+router.get('/reset-password', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
+});
 
+router.get('/profile', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
+});
+  
+router.get('/felfedezes', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));
+});
+
+router.get('/esemenyeim', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/esemenyeim.html'));
+});
 
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {

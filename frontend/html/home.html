@@ -14,10 +14,94 @@
     <!--!JavaScript-->
     <script src="../javascript/index.js"></script>
     <script src="../javascript/map.js"></script>
+    <script src="../javascript/home.js"></script>
 </head>
 <body>
 
-    <!-- Login modal -->
+    <div class="fixed-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid navbar-container">
+                <div class="logo-container">
+                    <div class="logo-circle">
+                        <!-- Logo img vagy svg -->
+                    </div>
+                    <a class="navbar-brand brand-text" href="/">PLAN<span>IT</span></a>
+                </div>
+                <div id="nav-buttons">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Téma váltó mobil nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+
+                <!-- Navbar gombjai -->
+                <div class="collapse navbar-collapse" id="planitNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="/">Főoldal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/felfedezes">Felfedezés</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/esemenyeim">Eseményeim</a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="/rolunk">Rólunk</a>
+                        </li>
+                    </ul>
+
+                    <div class="dropdown">
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
+                                <button class="dropdown-item login-item" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Bejelentkezés</button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item register-item" data-bs-toggle="modal"
+                                    data-bs-target="#registerModal">Regisztráció</button>
+                            </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
+                        </ul>
+                    </div>
+
+                    <!-- Téma váltó desktop nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container-fluid">
+        <div class="row text-center">
+
+        </div>
+
+
+        <!-- Login modal -->
         <div class="modal fade" id="loginModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content login-card">
@@ -31,7 +115,7 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Bejelentkezés</p>
 
-                    <form>
+                    <form id="loginForm">
                         <div class="login-input-field">
                             <label for="email">E-mail</label>
                             <div class="input-wrapper">
@@ -61,11 +145,11 @@
                         </div>
 
                         <div class="extra-options">
-                            <label><input type="checkbox"> Bejelentkezve maradok</label>
-                            <a href="#" class="forgot-link">Elfelejtetted a jelszavad?</a>
+                            <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Elfelejtetted a jelszavad?</a>
                         </div>
 
                         <button type="submit" class="login-btn">Bejelentkezés</button>
+                        <div id="loginError" class="error-message"></div>
                     </form>
 
                     <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal"
@@ -91,11 +175,19 @@
                     <h2 class="modal-title">Plan<span>It</span></h2>
                     <p class="subtitle">Regisztráció</p>
 
-                    <form>
+                    <form id="registerForm">
                         <div class="login-input-field">
                             <label for="regName">Teljes név</label>
                             <div class="input-wrapper">
                                 <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="userName">Felhasználónév</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username"
                                     required>
                             </div>
                         </div>
@@ -134,8 +226,8 @@
                             </label>
                         </div>
 
-                        <button type="submit" id="account-create-btn" class="account-create-btn">Fiók
-                            Létrehozása</button>
+                        <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                        <div id="registerError" class="error-message"></div>
                     </form>
 
                     <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal"
@@ -144,77 +236,105 @@
             </div>
         </div>
 
-    <div class="fixed-top">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid navbar-container">
-                <div class="logo-container">
-                    <div class="logo-circle">
-                        <!-- Logo img vagy svg -->
-                    </div>
-                    <a class="navbar-brand brand-text" href="#">PLAN<span>IT</span></a>
-                </div>
-                <div id="nav-buttons">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
-                        <span class="navbar-toggler-icon"></span>
+
+        <!-- Forgot Password Modal -->
+        <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg>
                     </button>
 
-                    <!-- Téma váltó mobil nézethez -->
-                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
-                            <path
-                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                            fill="currentColor">
-                            <path
-                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
-                        </svg></button>
-                </div>
+                    <h2 class="modal-title">Plan<span>It</span></h2>
+                    <p class="subtitle">Jelszó újítása</p>
 
-                <!-- Navbar gombjai -->
-                <div class="collapse navbar-collapse" id="planitNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="#explore">Felfedezés</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#events">Események</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#map">Térkép</a>
-                        </li>
-                    </ul>
+                    <form id="forgotPasswordForm">
+                        <div class="login-input-field">
+                            <label for="forgotEmail">E-mail</label>
+                            <div class="input-wrapper">
+                                <input type="email" id="forgotEmail" placeholder="example@example.com" name="email" required>
+                            </div>
+                        </div>
 
-                    <div class="dropdown">
-                        <button class="account-btn dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown">Profil</button>
-                        <ul class="dropdown-menu dropdown-menu-start account-dropdown-card">
-                            <li>
-                                <button class="dropdown-item login-item" data-bs-toggle="modal"
-                                    data-bs-target="#loginModal">Bejelentkezés</button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item register-item" data-bs-toggle="modal"
-                                    data-bs-target="#registerModal">Regisztráció</button>
-                            </li>
-                        </ul>
-                    </div>
+                        <button type="submit" class="login-btn">Jelszó újítási link küldése</button>
+                        <div id="forgotPasswordError" class="error-message"></div>
+                        <div id="forgotPasswordSuccess" class="success-message"></div>
+                    </form>
 
-                    <!-- Téma váltó desktop nézethez -->
-                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
-                            <path
-                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
-                            fill="currentColor">
-                            <path
-                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
-                        </svg></button>
+                    <p class="footer-text">Vissza a <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">bejelentkezéshez</a></p>
                 </div>
             </div>
-        </nav>
-    </div>
+        </div>
+
+
+        <!-- Reset Password Modal -->
+        <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content login-card">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg>
+                    </button>
+
+                    <h2 class="modal-title">Plan<span>It</span></h2>
+                    <p class="subtitle">Új jelszó beállítása</p>
+
+                    <form id="resetPasswordForm">
+                        <input type="hidden" id="resetToken" name="token">
+
+                        <div class="login-input-field">
+                            <label for="newPassword">Új jelszó</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="newPassword" placeholder="••••••••" name="password" required>
+                                <button type="button" class="eye-btn reset-password-eye">
+                                    <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="login-input-field">
+                            <label for="confirmPassword">Jelszó megerősítése</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="confirmPassword" placeholder="••••••••" name="confirmPassword" required>
+                                <button type="button" class="eye-btn reset-password-eye-confirm">
+                                    <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                    </svg>
+                                    <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                        viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                        <path
+                                            d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="login-btn">Jelszó megváltoztatása</button>
+                        <div id="resetPasswordError" class="error-message"></div>
+                        <div id="resetPasswordSuccess" class="success-message"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     <div class="container-fluid">
         <div class="row text-center">
 
@@ -235,104 +355,7 @@
     <section class="carousel-section text-center" id="events">
         <div class="container-fluid">
             <h2 class="carousel-section-title mb-4">Aktív Események</h2>
-            <div class="horizontal-cards-wrapper">
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 1" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Koncert 2026</h5>
-                        <p class="card-text text-muted">Budapest - Március 25</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test02.jpg" alt="Event 2" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kiállítás</h5>
-                        <p class="card-text text-muted">Debrecen - Április 5</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test03.jpg" alt="Event 3" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kokain árulgatások</h5>
-                        <p class="card-text text-muted">Szeged - Március 30</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 4" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Workshop</h5>
-                        <p class="card-text text-muted">Pécs - Április 10</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 1" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Koncert 2026</h5>
-                        <p class="card-text text-muted">Budapest - Március 25</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test02.jpg" alt="Event 2" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kiállítás</h5>
-                        <p class="card-text text-muted">Debrecen - Április 5</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test03.jpg" alt="Event 3" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kokain árulgatások</h5>
-                        <p class="card-text text-muted">Szeged - Március 30</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 4" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Workshop</h5>
-                        <p class="card-text text-muted">Pécs - Április 10</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 1" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Koncert 2026</h5>
-                        <p class="card-text text-muted">Budapest - Március 25</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test02.jpg" alt="Event 2" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kiállítás</h5>
-                        <p class="card-text text-muted">Debrecen - Április 5</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test03.jpg" alt="Event 3" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Kokain árulgatások</h5>
-                        <p class="card-text text-muted">Szeged - Március 30</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-                <div class="card event-card">
-                    <img src="/api/images/test01.jpg" alt="Event 4" class="card-img-top">
-                    <div class="card-body">
-                        <h5 class="card-title">Workshop</h5>
-                        <p class="card-text text-muted">Pécs - Április 10</p>
-                        <a href="#" class="btn btn-primary btn-sm">Részletek</a>
-                    </div>
-                </div>
-            </div>
+            <div class="horizontal-cards-wrapper" id="homeEvents"></div>
         </div>
     </section>
 
@@ -399,5 +422,7 @@
                 <div id="mapDisplay" class="map-display"></div>
             </div>
         </section>
+
+
 </body>
 </html>
