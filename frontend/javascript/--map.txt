@@ -1,0 +1,26 @@
+--map
+Mapon a cardok befejezése
+lag hiba fix
+Street View nezet kikapcsolása
+Cardról az esemény Card kidolgozása
+
+
+--szűrés
+Szűrés javítása nem statikus adatra
+Dátum alapján szűrés
+
+
+--Főoldal kártya listázás
+Csak 20db legközelebbi esemény pl.
+Ugyanezt a főoldali mapra.
+-nyilas porgetes
+
+
+
+
+
+
+
+
++-kártyák generálása
+Privát események hozzáadaása
