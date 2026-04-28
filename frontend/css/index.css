@@ -1315,3 +1315,299 @@ body.dark-mode .success-message {
         transform: translateY(0);
     }
 }
+
+.carousel-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+.carousel-wrapper .event-card {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.horizontal-cards-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px 0;
+    flex: 1;
+    scrollbar-width: none;
+}
+
+.horizontal-cards-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-arrow {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    color: currentColor;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    padding: 0;
+    opacity: 0.6;
+}
+
+.scroll-arrow:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.scroll-arrow:active {
+    transform: scale(0.95);
+}
+
+/* Discovery Page */
+.discovery-section {
+    padding: 40px 0;
+    background: var(--bg-color);
+}
+
+.discovery-section .container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.discovery-filters {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+body.dark-mode .discovery-filters {
+    background: var(--card-bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 16px 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+}
+
+body.dark-mode .search-input {
+    background: #2a2a2a;
+    border-color: #444;
+    color: white;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.search-btn {
+    padding: 12px 12px;
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.2s;
+}
+
+body.dark-mode .search-btn {
+    border-color: #444;
+    color: #aaa;
+}
+
+.search-btn:hover {
+    border-color: #007bff;
+    color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 25px;
+    align-items: flex-start;
+}
+
+@media (max-width: 1200px) {
+    .filters-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #333;
+}
+
+body.dark-mode .filter-group label {
+    color: #ccc;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.checkbox-label:hover {
+    background: rgba(0, 123, 255, 0.08);
+}
+
+.checkbox-label input {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.date-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.date-filters label {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #333;
+}
+
+body.dark-mode .date-filters label {
+    color: #ccc;
+}
+
+.date-range {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.date-input {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+}
+
+body.dark-mode .date-input {
+    background: #2a2a2a;
+    border-color: #444;
+    color: white;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.reset-btn {
+    padding: 10px 16px;
+    background: none;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    align-self: flex-end;
+}
+
+body.dark-mode .reset-btn {
+    border-color: #444;
+    color: #aaa;
+}
+
+.reset-btn:hover {
+    border-color: #007bff;
+    color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+.discovery-cards {
+    margin-bottom: 40px;
+}
+
+.events-scroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: none;
+}
+
+.events-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.events-scroll .event-card {
+    flex: 0 0 250px;
+    max-width: 250px;
+}
+
+.discovery-map {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    min-height: 500px;
+}
+
+body.dark-mode .discovery-map {
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.map-display {
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+}

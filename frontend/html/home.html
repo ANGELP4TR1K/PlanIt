@@ -12,6 +12,7 @@
     <!--!CSS-->
     <link rel="stylesheet" href="../css/index.css" />
     <!--!JavaScript-->
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <script src="../javascript/index.js"></script>
     <script src="../javascript/map.js"></script>
     <script src="../javascript/home.js"></script>
@@ -355,7 +356,19 @@
     <section class="carousel-section text-center" id="events">
         <div class="container-fluid">
             <h2 class="carousel-section-title mb-4">Aktív Események</h2>
-            <div class="horizontal-cards-wrapper" id="homeEvents"></div>
+            <div class="carousel-wrapper">
+                <button class="scroll-arrow scroll-arrow-left" id="homeScrollLeft">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m313-440 224 224-57 57-321-321 321-321 57 57-224 224h487v80H313Z" />
+                    </svg>
+                </button>
+                <div class="horizontal-cards-wrapper" id="homeEvents"></div>
+                <button class="scroll-arrow scroll-arrow-right" id="homeScrollRight">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="M647-440H160v-80h487L423-744l57-56 321 321-321 321-57-57 224-224Z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </section>
 

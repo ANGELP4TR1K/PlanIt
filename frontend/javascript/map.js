@@ -32,7 +32,8 @@ function normalizeEvent(e) {
         type: e.type,
         category: e.category,
         helyszin: e.helyszin,
-        dates: e.dates.map(formatDate)
+        dates: e.dates.map(formatDate),
+        rawDates: e.dates
     };
 }
 
@@ -42,6 +43,8 @@ function formatDate(dateStr) {
 
 function renderCards(eventsToRender) {
     const container = document.getElementById('discoverevents');
+    if (!container) return;
+
     container.innerHTML = '';
     eventsToRender.forEach(event => {
         const card = document.createElement('div');
@@ -62,7 +65,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadGoogleMapsAPI();
     initializeMap();
     setupEventListeners();
-    fetchEvents();
+    await fetchEvents();
+
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('eventId');
+    if (eventId) {
+        window.openEventModal(parseInt(eventId));
+    }
 });
 
 let map;
@@ -92,10 +101,13 @@ async function loadGoogleMapsAPI() {
 }
 
 function initializeMap() {
+    const mapDisplay = document.getElementById('mapDisplay');
+    if (!mapDisplay) return;
+
     const defaultCenter = { lat: 47.4979, lng: 19.0402 };
     const defaultZoom = 13;
 
-    map = new google.maps.Map(document.getElementById('mapDisplay'), {
+    map = new google.maps.Map(mapDisplay, {
         center: defaultCenter,
         zoom: defaultZoom,
         streetViewControl: false,
@@ -107,6 +119,8 @@ function initializeMap() {
 
 // Display markers on map
 function displayMarkers(eventsToShow) {
+    if (!map) return;
+
     if (clusterer) {
         clusterer.clearMarkers();
         clusterer = null;
@@ -165,76 +179,68 @@ function displayMarkers(eventsToShow) {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Search button
-    document.getElementById('searchBtn').addEventListener('click', performSearch);
-    
-    // Real-time search as user types
-    document.getElementById('searchInput').addEventListener('input', performSearch);
-    
-    // Search on Enter key
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
+    document.getElementById('searchBtn')?.addEventListener('click', performSearch);
+    document.getElementById('searchInput')?.addEventListener('input', performSearch);
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') performSearch();
     });
-
-    // Filter changes
-    document.getElementById('typeFilter').addEventListener('change', applyFilters);
-    
-    // Category checkboxes
-    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', applyFilters);
+    document.querySelectorAll('.category-checkbox').forEach(cb => {
+        cb.addEventListener('change', applyFilters);
     });
-
-    // Reset filters
-    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
+    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
+    document.getElementById('resetFilters')?.addEventListener('click', resetFilters);
 }
 
-// Perform search
 function performSearch() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    
     if (!searchTerm) {
         applyFilters();
         return;
     }
-
     const filteredEvents = allEvents.filter(evt =>
         evt.name.toLowerCase().includes(searchTerm) ||
-        evt.description.toLowerCase().includes(searchTerm) ||
-        getTypeLabel(evt.type).toLowerCase().includes(searchTerm) ||
-        getCategoryLabel(evt.category).toLowerCase().includes(searchTerm)
+        evt.helyszin.toLowerCase().includes(searchTerm) ||
+        evt.category.toLowerCase().includes(searchTerm)
     );
-
     renderCards(filteredEvents);
     displayMarkers(filteredEvents);
 }
 
-// Apply filters
 function applyFilters() {
-    const typeFilter = document.getElementById('typeFilter').value;
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    
-    // Get checked categories
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const normalizeStr = str => (str || '').normalize('NFC').toLowerCase().trim();
     const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-        .map(cb => cb.value);
+        .map(cb => normalizeStr(cb.value));
+    const dateFrom = document.getElementById('dateFrom')?.value || '';
+    const dateTo = document.getElementById('dateTo')?.value || '';
 
     let filteredEvents = allEvents;
 
-    if (typeFilter !== 'all') {
-        filteredEvents = filteredEvents.filter(evt => evt.type === typeFilter);
-    }
-
     if (checkedCategories.length > 0) {
-        filteredEvents = filteredEvents.filter(evt => checkedCategories.includes(evt.category));
+        filteredEvents = filteredEvents.filter(evt =>
+            checkedCategories.includes(normalizeStr(evt.category))
+        );
     } else {
         filteredEvents = [];
+    }
+
+    if (dateFrom || dateTo) {
+        filteredEvents = filteredEvents.filter(evt =>
+            evt.rawDates.some(d => {
+                if (dateFrom && dateTo) return d >= dateFrom && d <= dateTo;
+                if (dateFrom) return d >= dateFrom;
+                return d <= dateTo;
+            })
+        );
     }
 
     if (searchTerm) {
         filteredEvents = filteredEvents.filter(evt =>
             evt.name.toLowerCase().includes(searchTerm) ||
-            evt.description.toLowerCase().includes(searchTerm)
+            evt.helyszin.toLowerCase().includes(searchTerm) ||
+            evt.category.toLowerCase().includes(searchTerm)
         );
     }
 
@@ -242,16 +248,15 @@ function applyFilters() {
     displayMarkers(filteredEvents);
 }
 
-// Reset all filters
 function resetFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('typeFilter').value = 'all';
-    
-    // Check all category checkboxes
+    const dateFromEl = document.getElementById('dateFrom');
+    const dateToEl = document.getElementById('dateTo');
+    if (dateFromEl) dateFromEl.value = '';
+    if (dateToEl) dateToEl.value = '';
     document.querySelectorAll('.category-checkbox').forEach(cb => {
         cb.checked = true;
     });
-    
     renderCards(allEvents);
     displayMarkers(allEvents);
     map.setCenter({ lat: 47.4979, lng: 19.0402 });
@@ -448,29 +453,40 @@ window.mapFunctions = {
 };
 
 const categoryHeroImages = {
-    'koncert': '/images/categories/koncert.png',
-    'fesztivál': '/images/categories/fesztival.png',
-    'sport': '/images/categories/sport.png',
-    'színház': '/images/categories/szinhaz.png',
-    'komédia': '/images/categories/komedia.png'
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
 };
 
 window.openEventModal = function(eventId) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
 
-    document.getElementById('eventModalHero').src = categoryHeroImages[event.category.toLowerCase()] || '/images/categories/default.png';
-    document.getElementById('eventModalImage').src = `/api/images/${event.id+214}`;
-    document.getElementById('eventModalTitle').textContent = event.name;
-    document.getElementById('eventModalCategory').textContent = getCategoryLabel(event.category);
-    document.getElementById('eventModalLocation').textContent = event.helyszin;
-
+    const heroEl = document.getElementById('eventModalHero');
+    const imageEl = document.getElementById('eventModalImage');
+    const titleEl = document.getElementById('eventModalTitle');
+    const categoryEl = document.getElementById('eventModalCategory');
+    const locationEl = document.getElementById('eventModalLocation');
     const datesContainer = document.getElementById('eventModalDates');
+    const modalEl = document.getElementById('eventModal');
+
+    if (!heroEl || !imageEl || !titleEl || !categoryEl || !locationEl || !datesContainer || !modalEl) return;
+
+    heroEl.src = categoryHeroImages[event.category.toLowerCase()] || '/api/categories/default.png';
+    imageEl.src = `/api/images/${event.id+214}`;
+    titleEl.textContent = event.name;
+    categoryEl.textContent = getCategoryLabel(event.category);
+    locationEl.textContent = event.helyszin;
+
     datesContainer.innerHTML = event.dates.map((d, i) =>
         `<span class="date-chip ${i === 0 ? 'selected' : ''}" onclick="selectDateChip(this)">${d}</span>`
     ).join('');
 
-    const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+    const modal = new bootstrap.Modal(modalEl);
     modal.show();
 };
 
