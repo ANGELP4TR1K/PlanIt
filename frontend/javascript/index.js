@@ -416,3 +416,37 @@ function resetPasswordModal() {
         }
     });
 }
+
+function redirectToLogin(contentContainer) {
+    if (contentContainer) {
+        contentContainer.innerHTML = '';
+    }
+
+    const container = document.createElement('div');
+    container.className = 'login-required-container';
+
+    const contentBox = document.createElement('div');
+    contentBox.className = 'login-required-box';
+
+    const heading = document.createElement('h2');
+    heading.className = 'login-required-title';
+    heading.textContent = 'Bejelentkezés szükséges';
+
+    const description = document.createElement('p');
+    description.className = 'login-required-text';
+    description.textContent = 'Az eseményeid megtekintéséhez be kell jelentkezned.';
+
+    const button = document.createElement('button');
+    button.className = 'login-required-btn';
+    button.textContent = 'Bejelentkezés';
+    button.addEventListener('click', () => {
+        const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+        modal.show();
+    });
+
+    contentBox.appendChild(heading);
+    contentBox.appendChild(description);
+    contentBox.appendChild(button);
+    container.appendChild(contentBox);
+    document.body.appendChild(container);
+}
