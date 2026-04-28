@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if(await userSessionCheck())
     {
-        profilButton();
+        await profilButton();
     }
     else
     {
@@ -267,11 +267,27 @@ function registerModal()
     });
 }
 
-function profilButton(){
+async function profilButton(){
     const loggedIn = document.getElementById('loggedIn');
     const loggedOut = document.getElementById('loggedOut');
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'block';
+
+    let userRole = null;
+    try {
+        const response = await fetch('/api/userRole', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.session) {
+            userRole = data.role;
+        }
+    } catch (error) {
+        console.error('Error fetching user role:', error);
+    }
 
     const ulItem = document.createElement('li');
     const dropdownItem = document.createElement('button');
@@ -280,6 +296,22 @@ function profilButton(){
     dropdownItem.addEventListener('click', () => {
         window.location.href = '/profile';
     });
+
+    ulItem.appendChild(dropdownItem);
+    loggedIn.appendChild(ulItem);
+
+    if (userRole === 'szervezo' || userRole === 'admin') {
+        const ulItem3 = document.createElement('li');
+        const dropdownItem3 = document.createElement('button');
+        dropdownItem3.classList.add('dropdown-item');
+        dropdownItem3.textContent = 'Szervezés';
+        dropdownItem3.style.marginTop = '10px';
+        dropdownItem3.addEventListener('click', () => {
+            window.location.href = '/szervezo';
+        });
+        ulItem3.appendChild(dropdownItem3);
+        loggedIn.appendChild(ulItem3);
+    }
 
     const ulItem2 = document.createElement('li');
     const dropdownItem2 = document.createElement('button');
@@ -307,8 +339,6 @@ function profilButton(){
     });
 
     ulItem2.appendChild(dropdownItem2);
-    ulItem.appendChild(dropdownItem);
-    loggedIn.appendChild(ulItem);
     loggedIn.appendChild(ulItem2);
 
 }

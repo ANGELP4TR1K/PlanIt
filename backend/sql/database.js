@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { get } = require('browser-sync');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -26,9 +27,9 @@ async function insertLocation(name, latitude, longitude, link) {
     return rows;
 }
 
-async function insertEvents(type, description, category, title, date, capacity, location_id ) {
-    const query = 'INSERT INTO events (type, description, category, title, date, capacity, location_id) VALUES (?, ?, ?, ?, ?, ?, ?);';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id]);
+async function insertEvents(type, description, category, title, date, location_id, created_by) {
+    const query = 'INSERT INTO events (type, description, category, title, date, location_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?);';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, created_by]);
     return rows;
 }
 
@@ -57,6 +58,18 @@ async function selectLocationById(id) {
     return rows;
 }
 
+async function selectLocationByCoordinates(latitude, longitude) {
+    const query = 'SELECT * FROM locations WHERE latitude = ? AND longitude = ?;';
+    const [rows] = await pool.execute(query, [latitude, longitude]);
+    return rows.length > 0 ? rows[0] : null;
+}
+
+async function selectAllLocations() {
+    const query = 'SELECT id, name FROM locations ORDER BY name ASC;';
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
 //Deletek
 async function deleteEventById(id) {
     const query = 'DELETE FROM events WHERE id = ?;';
@@ -77,9 +90,9 @@ async function deleteUserById(id) {
 }
 
 //Updatek
-async function updateEventById(id, type, description, category, title, date, capacity, location_id) {
-    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, capacity = ?, location_id = ? WHERE id = ?;';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id, id]);
+async function updateEventById(id, type, description, category, title, date, location_id) {
+    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, location_id = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, id]);
     return rows;
 }
 
@@ -346,6 +359,18 @@ async function getUserCreatedEvents(userId) {
     return rows;
 }
 
+async function getUserCreatedOfficialEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        WHERE e.created_by = ? AND e.date >= CURDATE() AND e.type = 'Official'
+        ORDER BY e.date ASC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
 async function getEventDetailsById(eventId) {
     const query = `
         SELECT e.*, l.name AS location, l.latitude, l.longitude,
@@ -388,6 +413,8 @@ module.exports = {
     selectUser,
     selectEventById,
     selectLocationById,
+    selectLocationByCoordinates,
+    selectAllLocations,
     deleteEventById,
     deleteLocationById,
     deleteUserById,
@@ -415,6 +442,7 @@ module.exports = {
     getUserCommunityEvents,
     getUserPrivateEvents,
     getUserCreatedEvents,
+    getUserCreatedOfficialEvents,
     getEventDetailsById,
     removeUserFromEvent,
     deleteEventAndParticipants,
