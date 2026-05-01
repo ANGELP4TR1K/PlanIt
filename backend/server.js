@@ -34,6 +34,8 @@ app.get('/api/images/:id', (req, res) => {
 
 app.use('/api/categories', express.static(path.join(__dirname, 'uploads/categories')));
 
+app.use('/api/devpictures', express.static(path.join(__dirname, 'uploads/devPictures')));
+
 //!Session beállítása:
 app.use(
     session({
@@ -81,6 +83,10 @@ router.get('/szervezo', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/szervezo.html'));
 });
 
+router.get('/rolunk', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/rolunk.html'));
+ });
+  
 router.get('/aszf', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
 });
