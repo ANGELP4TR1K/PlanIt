@@ -85,6 +85,10 @@ router.get('/szervezo', (request, response) => {
 
 router.get('/rolunk', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/rolunk.html'));
+ });
+  
+router.get('/aszf', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
 });
 
 //?Config endpoint for frontend
