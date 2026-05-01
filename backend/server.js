@@ -81,6 +81,10 @@ router.get('/szervezo', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/szervezo.html'));
 });
 
+router.get('/aszf', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
+});
+
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {
     res.json({
