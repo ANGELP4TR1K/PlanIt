@@ -132,33 +132,7 @@ body.dark-mode #theme-switcher svg:last-child {
     backdrop-filter: blur(10px);
 }
 
-.logo-container {
-    position: relative;
-    z-index: 100;
-}
-
-.logo-circle {
-    background-color: var(--primary-purple);
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 5px solid var(--bg-color);
-    position: absolute;
-    top: -15px;
-    transform: translateY(10px);
-    box-shadow: 0 4px 12px var(--nav-shadow);
-}
-
-.logo-circle img {
-    width: 70%;
-    height: auto;
-}
-
 .brand-text {
-    margin-left: 75px;
     font-weight: 800;
     font-size: 1.25rem;
     color: var(--text-color);
@@ -1281,17 +1255,6 @@ a.event-action-btn {
     .navbar {
         border-radius: 20px;
     }
-
-    .brand-text {
-        margin-left: 65px;
-    }
-
-    .logo-circle {
-        width: 55px;
-        height: 55px;
-        transform: translateY(10px);
-    }
-
 
     .nav-actions {
         margin-top: 15px;
