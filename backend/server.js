@@ -34,6 +34,8 @@ app.get('/api/images/:id', (req, res) => {
 
 app.use('/api/categories', express.static(path.join(__dirname, 'uploads/categories')));
 
+app.use('/api/devpictures', express.static(path.join(__dirname, 'uploads/devPictures')));
+
 //!Session beállítása:
 app.use(
     session({
@@ -77,6 +79,18 @@ router.get('/esemenyeim', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/esemenyeim.html'));
 });
 
+router.get('/szervezo', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/szervezo.html'));
+});
+
+router.get('/rolunk', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/rolunk.html'));
+ });
+  
+router.get('/aszf', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
+});
+
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {
     res.json({
@@ -90,8 +104,11 @@ app.use('/', router);
 const endpoints = require('./api/api.js');
 app.use('/api', endpoints);
 
-//!Szerver futtatása
+//!Static file serving
 app.use(express.static(path.join(__dirname, '../frontend'))); //?frontend mappa tartalmának betöltése az oldal működéséhez
+app.use('/uploads', express.static(path.join(__dirname, './uploads'))); //?uploads mappa kiszolgálása statikus fájlokként
+
+//!Szerver futtatása
 app.listen(port, ip, () => {
     console.log(`Szerver elérhetősége: http://${ip}:${port}`);
 });

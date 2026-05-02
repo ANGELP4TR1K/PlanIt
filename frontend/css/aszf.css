@@ -1,0 +1,146 @@
+/* ==========================================================================
+   ÁSZF PAGE STYLES
+   ========================================================================== */
+
+.aszf-main {
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+}
+
+.aszf-container {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* Header */
+.aszf-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--input-border-color);
+}
+
+.aszf-title {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text-color);
+    margin-bottom: 12px;
+}
+
+.aszf-meta {
+    font-size: 14px;
+    color: var(--nav-text);
+    margin: 0;
+}
+
+/* Table of contents */
+.aszf-toc {
+    background: var(--input-background);
+    border: 1px solid var(--input-border-color);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+}
+
+.toc-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--nav-text);
+    margin-bottom: 14px;
+}
+
+.toc-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toc-list a {
+    font-size: 14px;
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.toc-list a:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+}
+
+/* Sections */
+.aszf-section {
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--input-border-color);
+    scroll-margin-top: 110px;
+}
+
+.aszf-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.aszf-section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 16px;
+}
+
+.aszf-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-top: 24px;
+    margin-bottom: 10px;
+}
+
+.aszf-section p {
+    font-size: 15px;
+    color: var(--nav-text);
+    line-height: 1.8;
+    margin-bottom: 14px;
+}
+
+.aszf-section p:last-child {
+    margin-bottom: 0;
+}
+
+.aszf-section ul {
+    padding-left: 20px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.aszf-section ul li {
+    font-size: 15px;
+    color: var(--nav-text);
+    line-height: 1.7;
+}
+
+.aszf-section a {
+    color: var(--primary-purple);
+    text-decoration: none;
+}
+
+.aszf-section a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .aszf-title {
+        font-size: 28px;
+    }
+
+    .aszf-toc {
+        padding: 20px;
+    }
+}

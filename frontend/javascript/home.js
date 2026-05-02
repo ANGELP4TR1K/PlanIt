@@ -15,29 +15,19 @@ function formatDate(dateStr) {
     return dateStr.split('T')[0].replace('-', '. ').replace('-', '. ') + '.';
 }
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
 async function fetchHomeEvents() {
     try {
         const response = await fetch('/api/events');
         const data = await response.json();
         const container = document.getElementById('homeEvents');
 
-        const budapest = { lat: 47.4979, lng: 19.0402 };
+        // Mai dátum (helyi idő szerint)
+        const today = new Date().toISOString().split('T')[0];
 
-        const events = groupEvents(data).map(event => ({
-            ...event,
-            distance: calculateDistance(budapest.lat, budapest.lng, parseFloat(event.latitude), parseFloat(event.longitude))
-        }));
-
-        events.sort((a, b) => a.distance - b.distance);
+        // Csak mai vagy jövőbeli események, dátum szerint rendezve, első 20
+        const events = groupEvents(data)
+            .filter(e => e.dates[0].split('T')[0] >= today);
+        events.sort((a, b) => new Date(a.dates[0]) - new Date(b.dates[0]));
         const closest20 = events.slice(0, 20);
 
         closest20.forEach(event => {
