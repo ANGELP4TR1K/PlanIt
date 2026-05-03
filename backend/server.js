@@ -19,7 +19,7 @@ app.set('trust proxy', 1); //?Middleware Proxy
 
 //!Statikus képek route
 app.get('/api/images/:id', (req, res) => {
-    const imageDir = path.join(__dirname, '../frontend/images');
+    const imageDir = path.join(__dirname, 'uploads/eventImages');
     const extensions = ['.jpg', '.png'];
 
     for (const ext of extensions) {
@@ -31,6 +31,10 @@ app.get('/api/images/:id', (req, res) => {
 
     res.status(404).json({ error: 'Image not found' });
 });
+
+app.use('/api/categories', express.static(path.join(__dirname, 'uploads/categories')));
+
+app.use('/api/devpictures', express.static(path.join(__dirname, 'uploads/devPictures')));
 
 //!Session beállítása:
 app.use(
@@ -88,8 +92,11 @@ app.use('/', router);
 const endpoints = require('./api/api.js');
 app.use('/api', endpoints);
 
-//!Szerver futtatása
+//!Static file serving
 app.use(express.static(path.join(__dirname, '../frontend'))); //?frontend mappa tartalmának betöltése az oldal működéséhez
+app.use('/uploads', express.static(path.join(__dirname, './uploads'))); //?uploads mappa kiszolgálása statikus fájlokként
+
+//!Szerver futtatása
 app.listen(port, ip, () => {
     console.log(`Szerver elérhetősége: http://${ip}:${port}`);
 });

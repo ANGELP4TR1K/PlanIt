@@ -6,11 +6,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
+let ceAllLocations = [];
+let ceEditingEventId = null;
+
 function setupEventPage() {
     setupTabNavigation();
     loadAllEvents();
     setupEventDetailsModal();
     setupEventActions();
+    setupCommunityEventForm();
 }
 
 function setupTabNavigation() {
@@ -138,7 +142,8 @@ function createEventCard(event, type) {
     card.setAttribute('data-event-id', event.id);
 
     const imageUrl = `/api/images/${event.id+214}`;
-    const eventType = event.type == 'private' ? 'Közösségi' : 'Hivatalos';
+    const eventTypeMap = { official: 'Hivatalos', community: 'Közösségi', private: 'Privát' };
+    const eventType = eventTypeMap[event.type] || event.type;
     const dateObj = new Date(event.date);
     const dateStr = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
     const timeStr = dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
@@ -202,29 +207,79 @@ function createEventCard(event, type) {
     locationRow.appendChild(locationSpan);
     info.appendChild(locationRow);
 
+    if ((type === 'community' || type === 'created') && event.capacity) {
+        const capacityRow = document.createElement('div');
+        capacityRow.className = 'events-item-info-row';
+        const capacitySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        capacitySvg.setAttribute('height', '18px');
+        capacitySvg.setAttribute('viewBox', '0 -960 960 960');
+        capacitySvg.setAttribute('width', '18px');
+        capacitySvg.setAttribute('fill', 'currentColor');
+        const capacityPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        capacityPath.setAttribute('d', 'M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm720 0v-120q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v120H760ZM360-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm400-160q0 66-47 113t-113 47q-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113Z');
+        capacitySvg.appendChild(capacityPath);
+        const capacitySpan = document.createElement('span');
+        const joined = event.participant_count ?? 0;
+        capacitySpan.textContent = `${joined} / ${event.capacity} résztvevő`;
+        capacityRow.appendChild(capacitySvg);
+        capacityRow.appendChild(capacitySpan);
+        info.appendChild(capacityRow);
+    }
+
     body.appendChild(info);
 
-    // Create type badge
+    // Create type badge(s)
+    const badgeRow = document.createElement('div');
+    badgeRow.className = 'events-item-badge-row';
+
     const typeBadge = document.createElement('span');
     typeBadge.className = 'events-item-type';
     typeBadge.textContent = eventType;
-    body.appendChild(typeBadge);
+    badgeRow.appendChild(typeBadge);
+
+    if (event.is_private) {
+        const privateBadge = document.createElement('span');
+        privateBadge.className = 'events-item-type events-item-type-private';
+        privateBadge.textContent = 'Privát';
+        badgeRow.appendChild(privateBadge);
+    }
+
+    body.appendChild(badgeRow);
 
     // Create actions container
     const actions = document.createElement('div');
     actions.className = 'events-item-actions';
 
     if (type === 'created') {
+        if (event.is_private && event.invite_token) {
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'events-item-btn events-item-btn-copy';
+            copyBtn.textContent = 'Meghívó másolása';
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(event.invite_token).then(() => {
+                    copyBtn.textContent = 'Másolva!';
+                    setTimeout(() => { copyBtn.textContent = 'Meghívó másolása'; }, 2000);
+                });
+            });
+            actions.appendChild(copyBtn);
+        }
+
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'events-item-btn events-item-btn-secondary';
+        detailsBtn.textContent = 'Részletek';
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+
         const editBtn = document.createElement('button');
         editBtn.className = 'events-item-btn events-item-btn-primary';
         editBtn.textContent = 'Szerkesztés';
-        editBtn.addEventListener('click', () => editEvent(event.id));
+        editBtn.addEventListener('click', () => editEvent(event));
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'events-item-btn events-item-btn-danger';
         deleteBtn.textContent = 'Törlés';
         deleteBtn.addEventListener('click', () => showDeleteConfirmationModal(event.id));
 
+        actions.appendChild(detailsBtn);
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
     } else {
@@ -328,8 +383,33 @@ async function leaveEvent(eventId) {
     showLeaveConfirmationModal(eventId);
 }
 
-function editEvent(eventId) {
-    window.location.href = `/edit-event/${eventId}`;
+function editEvent(event) {
+    ceEditingEventId = event.id;
+
+    document.getElementById('ce-title').value = event.title || '';
+    document.getElementById('ce-description').value = event.description || '';
+    document.getElementById('ce-category').value = event.category || '';
+    document.getElementById('ce-locationInput').value = event.location || '';
+    document.getElementById('ce-selectedLocationId').value = event.location_id || '';
+    document.getElementById('ce-capacity').value = event.capacity || '';
+    document.getElementById('ce-isPrivate').checked = !!event.is_private;
+
+    const dateStr = event.date ? (event.date.includes('T') ? event.date : event.date.replace(' ', 'T')) : '';
+    if (dateStr) {
+        const d = new Date(dateStr);
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('ce-date').value =
+            `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    document.getElementById('ce-newLocationFields').style.display = 'none';
+
+    const modal = document.querySelector('#createCommunityEventModal .ce-modal-title');
+    if (modal) modal.textContent = 'Esemény szerkesztése';
+    const submitBtn = document.getElementById('ce-submitBtn');
+    if (submitBtn) submitBtn.textContent = 'Esemény mentése';
+
+    new bootstrap.Modal(document.getElementById('createCommunityEventModal')).show();
 }
 
 
@@ -467,7 +547,7 @@ async function showDeleteConfirmationModal(eventId) {
         confirmBtn.textContent = 'Feldolgozás...';
 
         try {
-            const response = await fetch(`/api/events/${eventId}`, {
+            const response = await fetch(`/api/deleteCommunityEvent/${eventId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -501,6 +581,221 @@ async function showDeleteConfirmationModal(eventId) {
     });
 }
 
+async function setupCommunityEventForm() {
+    // Load locations for autocomplete
+    try {
+        const res = await fetch('/api/locations');
+        const data = await res.json();
+        ceAllLocations = data.locations || [];
+    } catch (e) {
+        console.error('Error fetching locations:', e);
+    }
+
+    setupCELocationAutocomplete();
+    setupCEImagePreview();
+
+    document.getElementById('ce-submitBtn').addEventListener('click', submitCommunityEventForm);
+
+    // Reset form when modal closes
+    const modalEl = document.getElementById('createCommunityEventModal');
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        resetCEForm();
+        const titleEl = modalEl.querySelector('.ce-modal-title');
+        if (titleEl) titleEl.textContent = 'Új esemény létrehozása';
+        const submitBtn = document.getElementById('ce-submitBtn');
+        if (submitBtn) submitBtn.textContent = 'Esemény létrehozása';
+    });
+}
+
+function setupCELocationAutocomplete() {
+    const locationInput = document.getElementById('ce-locationInput');
+    const locationDropdown = document.getElementById('ce-locationDropdown');
+    const newLocationFields = document.getElementById('ce-newLocationFields');
+    const selectedLocationId = document.getElementById('ce-selectedLocationId');
+
+    locationInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        if (query.length === 0) {
+            locationDropdown.style.display = 'none';
+            return;
+        }
+
+        const filtered = ceAllLocations.filter(loc => loc.name.toLowerCase().includes(query));
+        locationDropdown.innerHTML = '';
+
+        filtered.forEach(loc => {
+            const item = document.createElement('div');
+            item.className = 'ce-location-item';
+            item.textContent = loc.name;
+            item.addEventListener('click', () => {
+                locationInput.value = loc.name;
+                selectedLocationId.value = loc.id;
+                newLocationFields.style.display = 'none';
+                locationDropdown.style.display = 'none';
+                clearCENewLocationFields();
+            });
+            locationDropdown.appendChild(item);
+        });
+
+        const newItem = document.createElement('div');
+        newItem.className = 'ce-location-item ce-location-item-new';
+        newItem.textContent = `"${query}" – Új helyszín létrehozása`;
+        newItem.addEventListener('click', () => {
+            locationInput.value = query;
+            selectedLocationId.value = '';
+            newLocationFields.style.display = 'block';
+            locationDropdown.style.display = 'none';
+        });
+        locationDropdown.appendChild(newItem);
+
+        locationDropdown.style.display = 'block';
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target !== locationInput && !locationDropdown.contains(e.target)) {
+            locationDropdown.style.display = 'none';
+        }
+    });
+}
+
+function clearCENewLocationFields() {
+    ['ce-locationName', 'ce-zipCode', 'ce-city', 'ce-street', 'ce-houseNumber'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+
+function setupCEImagePreview() {
+    const imageInput = document.getElementById('ce-image');
+    const imagePreview = document.getElementById('ce-imagePreview');
+    const imagePreviewContainer = document.getElementById('ce-imagePreviewContainer');
+    const removeImageBtn = document.getElementById('ce-removeImageBtn');
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imagePreview.src = event.target.result;
+                imagePreviewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+        imageInput.value = '';
+        imagePreviewContainer.style.display = 'none';
+        imagePreview.src = '';
+    });
+}
+
+async function submitCommunityEventForm() {
+    const title = document.getElementById('ce-title').value.trim();
+    const description = document.getElementById('ce-description').value.trim();
+    const category = document.getElementById('ce-category').value;
+    const locationInput = document.getElementById('ce-locationInput').value.trim();
+    const selectedLocationId = document.getElementById('ce-selectedLocationId').value;
+    const date = document.getElementById('ce-date').value;
+    const capacity = document.getElementById('ce-capacity').value;
+    const isPrivate = document.getElementById('ce-isPrivate').checked;
+    const imageInput = document.getElementById('ce-image');
+
+    const errorEl = document.getElementById('ce-formError');
+    errorEl.style.display = 'none';
+    errorEl.textContent = '';
+
+    if (!title || !description || !category || !locationInput || !date || !capacity) {
+        errorEl.textContent = 'Tölts ki az összes kötelező mezőt!';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (!isPrivate && !selectedLocationId) {
+        const locationName = document.getElementById('ce-locationName').value.trim();
+        const zipCode = document.getElementById('ce-zipCode').value.trim();
+        const city = document.getElementById('ce-city').value.trim();
+        const street = document.getElementById('ce-street').value.trim();
+        const houseNumber = document.getElementById('ce-houseNumber').value.trim();
+
+        if (!locationName || !zipCode || !city || !street || !houseNumber) {
+            errorEl.textContent = 'Tölts ki az összes helyszín adatot, vagy válassz meglévő helyszínt!';
+            errorEl.style.display = 'block';
+            return;
+        }
+    }
+
+    const submitBtn = document.getElementById('ce-submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Feldolgozás...';
+
+    try {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('date', date);
+        formData.append('capacity', capacity);
+        formData.append('is_private', isPrivate ? '1' : '0');
+
+        formData.append('locationText', locationInput);
+
+        if (selectedLocationId) {
+            formData.append('locationId', selectedLocationId);
+        } else {
+            formData.append('locationName', document.getElementById('ce-locationName').value.trim());
+            formData.append('zipCode', document.getElementById('ce-zipCode').value.trim());
+            formData.append('city', document.getElementById('ce-city').value.trim());
+            formData.append('street', document.getElementById('ce-street').value.trim());
+            formData.append('houseNumber', document.getElementById('ce-houseNumber').value.trim());
+        }
+
+        if (imageInput.files.length > 0) {
+            formData.append('image', imageInput.files[0]);
+        }
+
+        const isEditing = !!ceEditingEventId;
+        const endpoint = isEditing ? `/api/updateCommunityEvent/${ceEditingEventId}` : '/api/createCommunityEvent';
+        const method = isEditing ? 'PUT' : 'POST';
+
+        const response = await fetch(endpoint, { method, body: formData });
+        const data = await response.json();
+
+        if (!response.ok) {
+            errorEl.textContent = data.message || (isEditing ? 'Hiba az esemény frissítése során.' : 'Hiba az esemény létrehozása során.');
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        const bsModal = bootstrap.Modal.getInstance(document.getElementById('createCommunityEventModal'));
+        bsModal.hide();
+
+        showNotification(isEditing ? 'Esemény sikeresen frissítve!' : 'Esemény sikeresen létrehozva!', 'success');
+        loadAllEvents();
+
+    } catch (error) {
+        console.error('Error creating community event:', error);
+        errorEl.textContent = 'Hálózati hiba az esemény létrehozása során.';
+        errorEl.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = ceEditingEventId ? 'Esemény mentése' : 'Esemény létrehozása';
+    }
+}
+
+function resetCEForm() {
+    ceEditingEventId = null;
+    document.getElementById('ce-eventForm').reset();
+    document.getElementById('ce-locationInput').value = '';
+    document.getElementById('ce-selectedLocationId').value = '';
+    document.getElementById('ce-newLocationFields').style.display = 'none';
+    clearCENewLocationFields();
+    document.getElementById('ce-imagePreviewContainer').style.display = 'none';
+    document.getElementById('ce-imagePreview').src = '';
+    document.getElementById('ce-image').value = '';
+    document.getElementById('ce-formError').style.display = 'none';
+}
+
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -527,7 +822,8 @@ function setupEventActions() {
 
     if (createEventBtn) {
         createEventBtn.addEventListener('click', () => {
-            window.location.href = '/create-event';
+            const modal = new bootstrap.Modal(document.getElementById('createCommunityEventModal'));
+            modal.show();
         });
     }
 

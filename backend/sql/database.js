@@ -57,6 +57,24 @@ async function selectLocationById(id) {
     return rows;
 }
 
+async function selectLocationByCoordinates(latitude, longitude) {
+    const query = 'SELECT * FROM locations WHERE latitude = ? AND longitude = ? AND (is_private = 0 OR is_private IS NULL) LIMIT 1;';
+    const [rows] = await pool.execute(query, [latitude, longitude]);
+    return rows.length > 0 ? rows[0] : null;
+}
+
+async function selectAllLocations(userId = null) {
+    const query = 'SELECT * FROM locations WHERE (is_private = 0 OR is_private IS NULL) OR (is_private = 1 AND created_by = ?);';
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
+async function insertPrivateLocation(name, latitude, longitude, link, created_by) {
+    const query = 'INSERT INTO locations (name, latitude, longitude, link, is_private, created_by) VALUES (?, ?, ?, ?, 1, ?);';
+    const [rows] = await pool.execute(query, [name, latitude, longitude, link, created_by]);
+    return rows;
+}
+
 //Deletek
 async function deleteEventById(id) {
     const query = 'DELETE FROM events WHERE id = ?;';
@@ -181,47 +199,6 @@ async function createPrivateEvent( description, category, title, date)
     return rows;
 }
 
-async function createEventInvite(name, location, date, created_by, max_capacity) {
-    const conn = await pool.getConnection();
-    try {
-        await conn.beginTransaction();
-
-        // create private event
-        const insertEventQuery = 'INSERT INTO events (type, description, category, title, date, location_id, is_private) VALUES (?, ?, ?, ?, ?, NULL, ?);';
-        const [eventResult] = await conn.execute(insertEventQuery, ['private', location || '', 'private', name, date, 1]);
-        const eventId = eventResult.insertId;
-
-            // compute expires_at (up to event date) and format for MySQL DATETIME
-            const stringdatum = date;
-            const datum = new Date(stringdatum);
-            if (isNaN(datum.getTime())) throw new Error('Invalid date');
-            const ujDatum = datum.toISOString().slice(0, 19).replace('T', ' ');
-
-        // generate unique 10-digit numeric code
-        let token;
-        let tries = 0;
-        do {
-            token = String(Math.floor(1000000000 + Math.random() * 9000000000)); // 10-digit
-            const [existing] = await conn.execute('SELECT id FROM event_invites WHERE token = ?', [token]);
-            if (existing.length === 0) break;
-            tries++;
-        } while (tries < 5);
-
-        if (!token) throw new Error('Could not generate unique invite code');
-
-        const insertInviteQuery = 'INSERT INTO event_invites (event_id, name, location, date, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
-        const [inviteResult] = await conn.execute(insertInviteQuery, [eventId, name, location, date, created_by, ujDatum, max_capacity, token]);
-
-        await conn.commit();
-        return { eventId, token };
-    } catch (err) {
-        await conn.rollback();
-        throw err;
-    } finally {
-        conn.release();
-    }
-}
-
 async function useToken(token){
     const query = 'UPDATE event_invites SET uses = uses + 1 WHERE token = ? AND uses < max_capacity AND expires_at > NOW();';
     const [rows] = await pool.execute(query, [token]);
@@ -241,47 +218,21 @@ async function getInviteByToken(token) {
 
 // Atomically join an event using the invite token: check capacity/expiry and insert participant
 async function joinEventWithToken(token, user_id) {
-    const conn = await pool.getConnection();
-    try {
-        await conn.beginTransaction();
+    const [rows] = await pool.execute('SELECT * FROM event_invites WHERE token = ?', [token]);
+    if (!rows || rows.length === 0) return { success: false, message: 'Érvénytelen token' };
 
-        // lock the invite row
-        const [rows] = await conn.execute('SELECT * FROM event_invites WHERE token = ? FOR UPDATE', [token]);
-        if (!rows || rows.length === 0) {
-            await conn.rollback();
-            return { success: false, message: 'Érvénytelen token' };
-        }
-        const invite = rows[0];
-        if (new Date(invite.expires_at) <= new Date()) {
-            await conn.rollback();
-            return { success: false, message: 'A meghívó lejárt' };
-        }
-        if (invite.uses >= invite.max_capacity) {
-            await conn.rollback();
-            return { success: false, message: 'A meghívó elérte a kapacitást' };
-        }
+    const invite = rows[0];
+    if (invite.created_by === user_id) return { success: false, message: 'Nem csatlakozhatsz a saját eseményedhez' };
+    if (new Date(invite.expires_at) <= new Date()) return { success: false, message: 'A meghívó lejárt' };
+    if (invite.uses >= invite.max_capacity) return { success: false, message: 'A meghívó elérte a kapacitást' };
 
-        // check if user already joined
-        const [existing] = await conn.execute('SELECT * FROM event_participants WHERE event_id = ? AND user_id = ?', [invite.event_id, user_id]);
-        if (existing && existing.length > 0) {
-            await conn.rollback();
-            return { success: false, message: 'Már részt veszel az eseményen' };
-        }
+    const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [invite.event_id, user_id]);
+    if (existing && existing.length > 0) return { success: false, message: 'Már részt veszel az eseményen' };
 
-        // insert participant
-        await conn.execute('INSERT INTO event_participants (event_id, user_id) VALUES (?, ?)', [invite.event_id, user_id]);
+    await pool.execute('INSERT INTO event_participants (event_id, user_id) VALUES (?, ?)', [invite.event_id, user_id]);
+    await pool.execute('UPDATE event_invites SET uses = uses + 1 WHERE id = ?', [invite.id]);
 
-        // increment uses
-        await conn.execute('UPDATE event_invites SET uses = uses + 1 WHERE id = ?', [invite.id]);
-
-        await conn.commit();
-        return { success: true };
-    } catch (err) {
-        await conn.rollback();
-        throw err;
-    } finally {
-        conn.release();
-    }
+    return { success: true };
 }
 
 //Password Reset
@@ -322,11 +273,14 @@ async function getUserCommunityEvents(userId) {
 
 async function getUserPrivateEvents(userId) {
     const query = `
-        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        SELECT e.*, l.name AS location, l.latitude, l.longitude,
+            (SELECT COUNT(*) FROM event_participants WHERE event_id = e.id) AS participant_count
         FROM events e
         LEFT JOIN locations l ON e.location_id = l.id
         JOIN event_participants ep ON e.id = ep.event_id
-        WHERE ep.user_id = ? AND e.type = 'private' AND e.date >= CURDATE()
+        WHERE ep.user_id = ?
+          AND (e.type = 'private' OR (e.type = 'community' AND e.is_private = 1))
+          AND e.date >= CURDATE()
         ORDER BY e.date ASC;
     `;
     const [rows] = await pool.execute(query, [userId]);
@@ -335,14 +289,26 @@ async function getUserPrivateEvents(userId) {
 
 async function getUserCreatedEvents(userId) {
     const query = `
-        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        SELECT DISTINCT e.*, l.name AS location, l.latitude, l.longitude,
+            (SELECT token FROM event_invites WHERE event_id = e.id LIMIT 1) AS invite_token,
+            (SELECT COUNT(*) FROM event_participants WHERE event_id = e.id) AS participant_count
         FROM events e
         LEFT JOIN locations l ON e.location_id = l.id
-        JOIN event_invites ON event_invites.event_id = e.id
-        WHERE event_invites.created_by = ? AND e.date >= CURDATE()
+        WHERE (
+            (e.created_by = ? AND e.type IN ('community', 'private'))
+            OR
+            e.id IN (SELECT event_id FROM event_invites WHERE created_by = ?)
+        )
+        AND e.date >= CURDATE()
         ORDER BY e.date ASC;
     `;
-    const [rows] = await pool.execute(query, [userId]);
+    const [rows] = await pool.execute(query, [userId, userId]);
+    return rows;
+}
+
+async function insertCommunityEvent(type, description, category, title, date, capacity, location_id, created_by, is_private) {
+    const query = 'INSERT INTO events (type, description, category, title, date, capacity, location_id, created_by, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id, created_by, is_private]);
     return rows;
 }
 
@@ -366,10 +332,36 @@ async function removeUserFromEvent(eventId, userId) {
     return rows.affectedRows > 0;
 }
 
+async function decrementInviteUses(eventId) {
+    const query = 'UPDATE event_invites SET uses = GREATEST(uses - 1, 0) WHERE event_id = ?;';
+    await pool.execute(query, [eventId]);
+}
+
 async function getPrivateEvent(eventId) {
     const query = 'SELECT events.*, event_invites.created_by FROM events INNER JOIN event_invites ON event_invites.event_id = events.id WHERE events.is_private = 1 AND events.id = ?;';
     const [rows] = await pool.execute(query, [eventId]);
     return rows;
+}
+
+async function createInviteForEvent(eventId, name, location, date, created_by, max_capacity) {
+    const datum = new Date(date);
+    if (isNaN(datum.getTime())) throw new Error('Invalid date');
+    const expires_at = datum.toISOString().slice(0, 19).replace('T', ' ');
+
+    let token;
+    let tries = 0;
+    do {
+        token = String(Math.floor(1000000000 + Math.random() * 9000000000));
+        const [existing] = await pool.execute('SELECT id FROM event_invites WHERE token = ?', [token]);
+        if (existing.length === 0) break;
+        tries++;
+    } while (tries < 5);
+
+    if (!token) throw new Error('Could not generate unique invite code');
+
+    const query = 'INSERT INTO event_invites (event_id, name, location, date, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
+    await pool.execute(query, [eventId, name, location || '', date, created_by, expires_at, max_capacity, token]);
+    return token;
 }
 
 async function deleteEventAndParticipants(eventId) {
@@ -383,6 +375,7 @@ async function deleteEventAndParticipants(eventId) {
 module.exports = {
     selectallUser,
     selectAllEvents,
+    selectAllLocations,
     insertLocation,
     insertEvents,
     selectUser,
@@ -404,7 +397,6 @@ module.exports = {
     checkUsernameExists,
     checkLocationExists,
     checkEventExistsById,
-    createEventInvite,
     getInviteByToken,
     joinEventWithToken,
     checkIfUserIsAdmin,
@@ -417,6 +409,11 @@ module.exports = {
     getUserCreatedEvents,
     getEventDetailsById,
     removeUserFromEvent,
+    decrementInviteUses,
     deleteEventAndParticipants,
-    getPrivateEvent
+    getPrivateEvent,
+    insertCommunityEvent,
+    selectLocationByCoordinates,
+    insertPrivateLocation,
+    createInviteForEvent
 };
