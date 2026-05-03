@@ -375,11 +375,14 @@ async function createInviteForEvent(eventId, name, location, date, created_by, m
     const query = 'INSERT INTO event_invites (event_id, name, location, date, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
     await pool.execute(query, [eventId, name, location || '', date, created_by, expires_at, max_capacity, token]);
     return token;
+}
+
 async function selectAllUsersAdmin() {
     const query = 'SELECT id, username, email, full_name, role, creation_date FROM users ORDER BY id ASC;';
     const [rows] = await pool.execute(query);
     return rows;
 }
+
 
 async function selectAllEventsAdmin() {
     const query = `
@@ -397,10 +400,13 @@ async function updateUserRole(id, role) {
     const query = 'UPDATE users SET role = ? WHERE id = ?;';
     const [rows] = await pool.execute(query, [role, id]);
     return rows;
+}
+
 async function getParticipantCount(eventId) {
     const [rows] = await pool.execute('SELECT COUNT(*) AS count FROM event_participants WHERE event_id = ?', [eventId]);
     return rows[0].count;
 }
+
 
 async function joinEvent(eventId, userId) {
     const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
@@ -532,14 +538,14 @@ module.exports = {
     insertCommunityEvent,
     selectLocationByCoordinates,
     insertPrivateLocation,
-    createInviteForEvent
+    createInviteForEvent,
     selectAllUsersAdmin,
     selectAllEventsAdmin,
     updateUserRole,
     selectAllLocationsAdmin,
     selectAllInvitesAdmin,
     deleteInviteById,
-    createInviteAdmin
+    createInviteAdmin,
     joinEvent,
     isUserParticipant,
     getParticipantCount
