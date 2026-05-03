@@ -180,9 +180,14 @@ function createEventCard(event, type) {
     card.className = 'events-item';
     card.setAttribute('data-event-id', event.id);
 
+<<<<<<< Updated upstream
     const imageUrl = `/api/images/${event.id+214}`;
     const eventTypeMap = { official: 'Hivatalos', community: 'Közösségi', private: 'Privát' };
     const eventType = eventTypeMap[event.type] || event.type;
+=======
+    const imageUrl = `/api/images/${event.id}`;
+    const eventType = event.type == 'private' ? 'Közösségi' : 'Hivatalos';
+>>>>>>> Stashed changes
     const dateObj = new Date(event.date);
     const dateStr = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
     const timeStr = dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
