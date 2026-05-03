@@ -12,7 +12,10 @@ function groupEvents(data) {
 }
 
 function formatDate(dateStr) {
-    return dateStr.split('T')[0].replace('-', '. ').replace('-', '. ') + '.';
+    const [datePart, timePart] = dateStr.split('T');
+    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
+    const time = timePart ? timePart.substring(0, 5) : null;
+    return time && time !== '00:00' ? `${date} ${time}` : date;
 }
 
 async function fetchHomeEvents() {
@@ -37,7 +40,7 @@ async function fetchHomeEvents() {
             const card = document.createElement('div');
             card.className = 'card event-card';
             card.innerHTML = `
-                <img src="/api/images/${event.id+214}" alt="${event.title}" class="card-img-top">
+                <img src="/api/images/${event.id}" alt="${event.title}" class="card-img-top">
                 <div class="card-body">
                     <h5 class="card-title">${event.title}</h5>
                     <p class="card-text text-muted">${event.helyszin} – ${dateText}</p>

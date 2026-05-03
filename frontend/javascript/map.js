@@ -1,28 +1,26 @@
-async function fetchEvents() {
-    try {
-        const response = await fetch('/api/events');
-        const data = await response.json();
-        allEvents = groupEvents(data).map(normalizeEvent);
-        renderCards(allEvents);
-        displayMarkers(allEvents);
-    } catch (error) {
-        console.error('Nem sikerült betölteni az eseményeket:', error);
-    }
-}
+// Térkép állapot változók
+let map;
+let markers = [];
+let infoWindow;
+let clusterer = null;
+let allEvents = [];
 
+// Események csoportosítása cím + helyszín alapján (több dátum = 1 csoport)
 function groupEvents(data) {
     const groups = {};
     data.forEach(e => {
         const key = `${e.title}_${e.location_id}`;
         if (!groups[key]) {
-            groups[key] = { ...e, dates: [e.date] };
+            groups[key] = { ...e, dates: [e.date], ids: [e.id] };
         } else {
             groups[key].dates.push(e.date);
+            groups[key].ids.push(e.id);
         }
     });
     return Object.values(groups);
 }
 
+// Esemény adatok normalizálása frontend formátumra
 function normalizeEvent(e) {
     return {
         id: e.id,
@@ -33,59 +31,26 @@ function normalizeEvent(e) {
         category: e.category,
         helyszin: e.helyszin,
         dates: e.dates.map(formatDate),
-        rawDates: e.dates
+        rawDates: e.dates,
+        rawIds: e.ids || [e.id],
+        link: e.link || null,
+        description: e.description || null
     };
 }
 
+// Dátum + idő formázása: "2026-06-11T12:00:00" → "2026. 06. 11. 12:00"
 function formatDate(dateStr) {
-    return dateStr.split('T')[0].replace('-', '. ').replace('-', '. ') + '.'; //T előtti rész a dátum, utána 2 kötőjel cseréje
+    const [datePart, timePart] = dateStr.split('T');
+    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
+    const time = timePart ? timePart.substring(0, 5) : null;
+    return time && time !== '00:00' ? `${date} ${time}` : date;
 }
 
-function renderCards(eventsToRender) {
-    const container = document.getElementById('discoverevents');
-    if (!container) return;
-
-    container.innerHTML = '';
-    eventsToRender.forEach(event => {
-        const card = document.createElement('div');
-        card.className = 'card event-card';
-        card.innerHTML = `
-            <img src="/api/images/${event.id+214}" alt="${event.name}" class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title">${event.name}</h5>
-                <p class="card-text text-muted">${event.helyszin} – ${event.dates.length > 1 ? event.dates[0] + ' (+' + (event.dates.length - 1) + ' időpont)' : event.dates[0]}</p>
-                <a href="#" class="btn btn-primary btn-sm" onclick="openEventModal(${event.id}); return false;">Részletek</a>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', async function() {
-    await loadGoogleMapsAPI();
-    initializeMap();
-    setupEventListeners();
-    await fetchEvents();
-
-    const params = new URLSearchParams(window.location.search);
-    const eventId = params.get('eventId');
-    if (eventId) {
-        window.openEventModal(parseInt(eventId));
-    }
-});
-
-let map;
-let markers = [];
-let infoWindow;
-let clusterer = null;
-
-let allEvents = [];
-
+// Google Maps API betöltése a backendről lekért API kulccsal
 async function loadGoogleMapsAPI() {
     try {
         const response = await fetch('/config');
         const config = await response.json();
-        
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}`;
@@ -100,16 +65,14 @@ async function loadGoogleMapsAPI() {
     }
 }
 
+// Térkép inicializálása a #mapDisplay elembe
 function initializeMap() {
     const mapDisplay = document.getElementById('mapDisplay');
     if (!mapDisplay) return;
 
-    const defaultCenter = { lat: 47.4979, lng: 19.0402 };
-    const defaultZoom = 13;
-
     map = new google.maps.Map(mapDisplay, {
-        center: defaultCenter,
-        zoom: defaultZoom,
+        center: { lat: 47.4979, lng: 19.0402 },
+        zoom: 13,
         streetViewControl: false,
         styles: document.body.classList.contains('dark-mode') ? getDarkModeStyles() : getHidePOIStyles()
     });
@@ -117,7 +80,7 @@ function initializeMap() {
     infoWindow = new google.maps.InfoWindow();
 }
 
-// Pin marker SVG generálás – 1 event: kék, több event: lila + szám
+// Pin marker SVG – 1 event: kék, több event: lila + szám
 // encodeURIComponent: az SVG-t URL-safe formátumra alakítja (nem kell base64!)
 function makeMarkerSvg(color, label) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42">
@@ -129,7 +92,7 @@ function makeMarkerSvg(color, label) {
     return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 
-// Cluster SVG generálás – kék kör a darabszámmal
+// Cluster SVG – kék kör a darabszámmal
 function makeClusterSvg(count) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">
         <circle cx="22" cy="22" r="20" fill="#3b82f6" stroke="white" stroke-width="3"/>
@@ -139,14 +102,14 @@ function makeClusterSvg(count) {
     return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 
-// Display markers on map
+// Markerek kirajzolása a térképre – helyszín szerint csoportosítva
 function displayMarkers(eventsToShow) {
     if (!map) return;
 
     if (clusterer) { clusterer.clearMarkers(); clusterer = null; }
     markers = [];
 
-    // Csoportosítás helyszín szerint (ugyanolyan lat/lng = 1 marker)
+    // Ugyanolyan lat/lng = 1 marker (több esemény ugyanazon helyszínen)
     const byLocation = {};
     eventsToShow.forEach(e => {
         const key = `${e.lat},${e.lng}`;
@@ -157,8 +120,6 @@ function displayMarkers(eventsToShow) {
     Object.values(byLocation).forEach(events => {
         const { lat, lng } = events[0];
         const multi = events.length > 1;
-
-        // 1 event → kék pin, több event → lila pin a darabszámmal
         const color = multi ? '#7c3aed' : '#3b82f6';
         const label = multi ? String(events.length) : '●';
 
@@ -209,6 +170,7 @@ function displayMarkers(eventsToShow) {
     }
 }
 
+// Egyedi esemény popup tartalma
 function buildSinglePopup(e) {
     return `<div class="map-popup-content">
         <h3 class="popup-title">${e.name}</h3>
@@ -219,6 +181,7 @@ function buildSinglePopup(e) {
     </div>`;
 }
 
+// Több esemény popup – helyszín listával
 function buildMultiPopup(events) {
     const items = events.map(e => `
         <div class="popup-multi-item">
@@ -235,281 +198,63 @@ function buildMultiPopup(events) {
     </div>`;
 }
 
-// Setup event listeners
-function setupEventListeners() {
-    document.getElementById('searchBtn')?.addEventListener('click', performSearch);
-    document.getElementById('searchInput')?.addEventListener('input', performSearch);
-    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') performSearch();
-    });
-    document.querySelectorAll('.category-checkbox').forEach(cb => {
-        cb.addEventListener('change', applyFilters);
-    });
-    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
-    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
-    document.getElementById('resetFilters')?.addEventListener('click', resetFilters);
-}
-
-function performSearch() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    if (!searchTerm) {
-        applyFilters();
-        return;
-    }
-    const filteredEvents = allEvents.filter(evt =>
-        evt.name.toLowerCase().includes(searchTerm) ||
-        evt.helyszin.toLowerCase().includes(searchTerm) ||
-        evt.category.toLowerCase().includes(searchTerm)
-    );
-    renderCards(filteredEvents);
-    displayMarkers(filteredEvents);
-}
-
-function applyFilters() {
-    const searchInput = document.getElementById('searchInput');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-    const normalizeStr = str => (str || '').normalize('NFC').toLowerCase().trim();
-    const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-        .map(cb => normalizeStr(cb.value));
-    const dateFrom = document.getElementById('dateFrom')?.value || '';
-    const dateTo = document.getElementById('dateTo')?.value || '';
-
-    let filteredEvents = allEvents;
-
-    if (checkedCategories.length > 0) {
-        filteredEvents = filteredEvents.filter(evt =>
-            checkedCategories.includes(normalizeStr(evt.category))
-        );
-    } else {
-        filteredEvents = [];
-    }
-
-    if (dateFrom || dateTo) {
-        filteredEvents = filteredEvents.filter(evt =>
-            evt.rawDates.some(d => {
-                if (dateFrom && dateTo) return d >= dateFrom && d <= dateTo;
-                if (dateFrom) return d >= dateFrom;
-                return d <= dateTo;
-            })
-        );
-    }
-
-    if (searchTerm) {
-        filteredEvents = filteredEvents.filter(evt =>
-            evt.name.toLowerCase().includes(searchTerm) ||
-            evt.helyszin.toLowerCase().includes(searchTerm) ||
-            evt.category.toLowerCase().includes(searchTerm)
-        );
-    }
-
-    renderCards(filteredEvents);
-    displayMarkers(filteredEvents);
-}
-
-function resetFilters() {
-    document.getElementById('searchInput').value = '';
-    const dateFromEl = document.getElementById('dateFrom');
-    const dateToEl = document.getElementById('dateTo');
-    if (dateFromEl) dateFromEl.value = '';
-    if (dateToEl) dateToEl.value = '';
-    document.querySelectorAll('.category-checkbox').forEach(cb => {
-        cb.checked = true;
-    });
-    renderCards(allEvents);
-    displayMarkers(allEvents);
-    map.setCenter({ lat: 47.4979, lng: 19.0402 });
-    map.setZoom(13);
-}
-
-// Helper function to get type label in Hungarian
-function getTypeLabel(type) {
-    const labels = {
-        hivatalos: 'Hivatalos',
-        kozossegi: 'Közösségi'
-    };
-    return labels[type] || type;
-}
-
-// Helper function to get category label in Hungarian
-function getCategoryLabel(category) {
-    return category;
-}
-
-// Hide default POIs (theaters, cinemas, malls, etc.) for light mode
-function getHidePOIStyles() {
-    return [
-        {
-            featureType: 'poi.business',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.attraction',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.government',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.medical',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.place_of_worship',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.school',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.sports_complex',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.park',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'transit.station.airport',
-            stylers: [{ visibility: 'off' }]
-        }
-    ];
-}
-
-// Dark mode styles for Google Maps
-function getDarkModeStyles() {
-    return [
-        // Hide default POIs in dark mode too
-        {
-            featureType: 'poi.business',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.attraction',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.government',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.medical',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.place_of_worship',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.school',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.sports_complex',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'poi.park',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'transit.station.airport',
-            stylers: [{ visibility: 'off' }]
-        },
-        {
-            featureType: 'transit.station',
-            stylers: [{ visibility: 'off' }]
-        },
-        // Original dark mode styling
-        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
-        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
-        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
-        {
-            featureType: 'administrative.locality',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#d59563' }]
-        },
-        {
-            featureType: 'poi',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#d59563' }]
-        },
-        {
-            featureType: 'poi.park',
-            elementType: 'geometry',
-            stylers: [{ color: '#263c3f' }]
-        },
-        {
-            featureType: 'poi.park',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#6b9a76' }]
-        },
-        {
-            featureType: 'road',
-            elementType: 'geometry',
-            stylers: [{ color: '#38414e' }]
-        },
-        {
-            featureType: 'road',
-            elementType: 'geometry.stroke',
-            stylers: [{ color: '#212a37' }]
-        },
-        {
-            featureType: 'road',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#9ca5b3' }]
-        },
-        {
-            featureType: 'road.highway',
-            elementType: 'geometry',
-            stylers: [{ color: '#746855' }]
-        },
-        {
-            featureType: 'road.highway',
-            elementType: 'geometry.stroke',
-            stylers: [{ color: '#1f2835' }]
-        },
-        {
-            featureType: 'road.highway',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#f3d19c' }]
-        },
-        {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [{ color: '#17263c' }]
-        },
-        {
-            featureType: 'water',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#515c6d' }]
-        },
-        {
-            featureType: 'water',
-            elementType: 'labels.text.stroke',
-            stylers: [{ color: '#17263c' }]
-        }
-    ];
-}
-
-// Update map theme when dark mode changes
+// Térkép téma frissítése dark mode váltáskor
 function updateMapTheme() {
     if (map) {
-        const isDark = document.body.classList.contains('dark-mode');
         map.setOptions({
-            styles: isDark ? getDarkModeStyles() : getHidePOIStyles()
+            styles: document.body.classList.contains('dark-mode') ? getDarkModeStyles() : getHidePOIStyles()
         });
     }
 }
 
-// Export for use in index.js if needed
-window.mapFunctions = {
-    updateMapTheme,
-    applyFilters,
-    resetFilters
-};
+// Világos mód: alap POI-k elrejtése
+function getHidePOIStyles() {
+    return [
+        { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.attraction', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.government', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.medical', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.school', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.sports_complex', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.park', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit.station.airport', stylers: [{ visibility: 'off' }] }
+    ];
+}
 
+// Sötét mód stílusok
+function getDarkModeStyles() {
+    return [
+        { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.attraction', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.government', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.medical', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.school', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.sports_complex', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi.park', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit.station.airport', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit.station', stylers: [{ visibility: 'off' }] },
+        { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+        { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+        { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+        { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+        { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+        { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+        { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+        { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+        { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+        { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] }
+    ];
+}
+
+// Kategória → hero kép mapelés
 const categoryHeroImages = {
     'koncert': '/api/categories/koncert.png',
     'fesztivál': '/api/categories/fesztival.png',
@@ -520,6 +265,7 @@ const categoryHeroImages = {
     'workshop': '/api/categories/workshop.png'
 };
 
+// Esemény modal megnyitása – ha nincs modal az oldalon (home), átirányít felfedezésre
 window.openEventModal = function(eventId) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
@@ -538,10 +284,26 @@ window.openEventModal = function(eventId) {
     }
 
     heroEl.src = categoryHeroImages[event.category.toLowerCase()] || '/api/categories/default.png';
-    imageEl.src = `/api/images/${event.id+214}`;
+    imageEl.src = `/api/images/${event.id}`;
+
+    const ticketBtn = document.getElementById('ticketswapBtn');
+    if (ticketBtn) {
+        if (event.link) {
+            ticketBtn.href = event.link;
+            ticketBtn.style.display = '';
+        } else {
+            ticketBtn.style.display = 'none';
+        }
+    }
+
     titleEl.textContent = event.name;
-    categoryEl.textContent = getCategoryLabel(event.category);
+    categoryEl.textContent = event.category;
     locationEl.textContent = event.helyszin;
+
+    const navigateBtn = document.getElementById('navigateBtn');
+    if (navigateBtn) {
+        navigateBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`;
+    }
 
     const countEl = document.getElementById('eventModalParticipantCount');
     if (countEl) {
@@ -559,10 +321,9 @@ window.openEventModal = function(eventId) {
     }
 
     datesContainer.innerHTML = event.dates.map((d, i) =>
-        `<span class="date-chip ${i === 0 ? 'selected' : ''}" onclick="selectDateChip(this)">${d}</span>`
+        `<span class="date-chip ${i === 0 ? 'selected' : ''}" data-event-id="${event.rawIds[i]}" onclick="selectDateChip(this)">${d}</span>`
     ).join('');
 
-    // Érdekel gomb státusz betöltése
     const btn = document.getElementById('interestedBtn');
     if (btn) {
         btn.dataset.eventId = event.id;
@@ -581,10 +342,10 @@ window.openEventModal = function(eventId) {
             });
     }
 
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
+    new bootstrap.Modal(modalEl).show();
 };
 
+// Érdekel gomb kezelése – belép az eseményre, frissíti a számlálót
 async function handleInterested() {
     const btn = document.getElementById('interestedBtn');
     const eventId = btn.dataset.eventId;
@@ -602,12 +363,51 @@ async function handleInterested() {
         btn.textContent = '✓ Jelentkeztem';
         btn.disabled = true;
         btn.classList.add('btn-joined');
+        const countEl = document.getElementById('eventModalParticipantCount');
+        if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
     } else {
         alert(data.message);
     }
 }
 
+// Dátum chip váltás – frissíti a résztvevő számot és az Érdekel gombot az adott időpontra
 function selectDateChip(el) {
     el.closest('.date-chips').querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
+
+    const eventId = el.dataset.eventId;
+
+    fetch(`/api/events/${eventId}/participants/count`)
+        .then(r => r.json())
+        .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count; });
+
+    const btn = document.getElementById('interestedBtn');
+    if (btn) {
+        btn.dataset.eventId = eventId;
+        fetch(`/api/events/${eventId}/joined`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.joined) {
+                    btn.textContent = '✓ Jelentkeztem';
+                    btn.disabled = true;
+                    btn.classList.add('btn-joined');
+                } else {
+                    btn.textContent = 'Érdekel';
+                    btn.disabled = false;
+                    btn.classList.remove('btn-joined');
+                }
+            });
+    }
 }
+
+// updateMapTheme exportálása index.js számára (dark mode váltáskor hívja)
+window.mapFunctions = { updateMapTheme };
+
+// Térkép inicializálása – csak a főoldalon fut
+// Ha felfedezes.js is betöltve van, az kezeli az inicializálást
+document.addEventListener('DOMContentLoaded', async function() {
+    if (!document.getElementById('mapDisplay')) return;
+    if (document.getElementById('discoverevents')) return; // felfedezes.js kezeli
+    await loadGoogleMapsAPI();
+    initializeMap();
+});
