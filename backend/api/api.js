@@ -467,6 +467,57 @@ router.get('/events/:id', async (request, response) => {
     }
 });
 
+//?GET /api/events/:id/participants - List participants (creator only)
+router.get('/events/:id/participants', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    const eventId = parseInt(request.params.id);
+    try {
+        const event = await database.selectEventById(eventId);
+        if (!event || event.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+        if (event[0].created_by !== request.session.user.id) {
+            return response.status(403).json({ message: 'Csak az esemény létrehozója láthatja a résztvevőket' });
+        }
+        const participants = await database.getEventParticipants(eventId);
+        return response.status(200).json(participants);
+    } catch (error) {
+        console.error('Error fetching participants:', error);
+        return response.status(500).json({ message: 'Hiba a résztvevők lekérésekor' });
+    }
+});
+
+//?DELETE /api/events/:id/participants/:userId - Remove a participant (creator only)
+router.delete('/events/:id/participants/:userId', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    const eventId = parseInt(request.params.id);
+    const targetUserId = parseInt(request.params.userId);
+    try {
+        const event = await database.selectEventById(eventId);
+        if (!event || event.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+        if (event[0].created_by !== request.session.user.id) {
+            return response.status(403).json({ message: 'Csak az esemény létrehozója távolíthat el résztvevőt' });
+        }
+        const removed = await database.removeUserFromEvent(eventId, targetUserId);
+        if (!removed) {
+            return response.status(404).json({ message: 'A felhasználó nem résztvevője az eseménynek' });
+        }
+        if (event[0].is_private) {
+            await database.decrementInviteUses(eventId);
+        }
+        return response.status(200).json({ message: 'Résztvevő eltávolítva' });
+    } catch (error) {
+        console.error('Error removing participant:', error);
+        return response.status(500).json({ message: 'Hiba a résztvevő eltávolításakor' });
+    }
+});
+
 //?POST /api/events/:id/leave - Leave an event
 router.post('/events/:id/leave', async (request, response) => {
     if (!request.session || !request.session.user) {

@@ -407,6 +407,17 @@ async function getParticipantCount(eventId) {
     return rows[0].count;
 }
 
+async function getEventParticipants(eventId) {
+    const [rows] = await pool.execute(
+        `SELECT u.id, u.username, u.full_name
+         FROM event_participants ep
+         JOIN users u ON ep.user_id = u.id
+         WHERE ep.event_id = ?
+         ORDER BY ep.created_at ASC`,
+        [eventId]
+    );
+    return rows;
+}
 
 async function joinEvent(eventId, userId) {
     const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
@@ -548,5 +559,6 @@ module.exports = {
     createInviteAdmin,
     joinEvent,
     isUserParticipant,
-    getParticipantCount
+    getParticipantCount,
+    getEventParticipants
 };
