@@ -419,6 +419,21 @@ async function updateUserRole(id, role) {
     const query = 'UPDATE users SET role = ? WHERE id = ?;';
     const [rows] = await pool.execute(query, [role, id]);
     return rows;
+async function getParticipantCount(eventId) {
+    const [rows] = await pool.execute('SELECT COUNT(*) AS count FROM event_participants WHERE event_id = ?', [eventId]);
+    return rows[0].count;
+}
+
+async function joinEvent(eventId, userId) {
+    const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
+    if (existing.length > 0) return { success: false, message: 'Már jelentkeztél erre az eseményre.' };
+    await pool.execute('INSERT INTO event_participants (event_id, user_id) VALUES (?, ?)', [eventId, userId]);
+    return { success: true };
+}
+
+async function isUserParticipant(eventId, userId) {
+    const [rows] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
+    return rows.length > 0;
 }
 
 async function deleteEventAndParticipants(eventId) {
@@ -542,4 +557,7 @@ module.exports = {
     selectAllInvitesAdmin,
     deleteInviteById,
     createInviteAdmin
+    joinEvent,
+    isUserParticipant,
+    getParticipantCount
 };

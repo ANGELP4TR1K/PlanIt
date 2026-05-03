@@ -117,64 +117,122 @@ function initializeMap() {
     infoWindow = new google.maps.InfoWindow();
 }
 
+// Pin marker SVG generálás – 1 event: kék, több event: lila + szám
+// encodeURIComponent: az SVG-t URL-safe formátumra alakítja (nem kell base64!)
+function makeMarkerSvg(color, label) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42">
+        <path d="M16 2 C24 2 30 8 30 16 C30 28 16 42 16 42 C16 42 2 28 2 16 C2 8 8 2 16 2Z"
+              fill="${color}" stroke="white" stroke-width="2.5"/>
+        <text x="16" y="21" text-anchor="middle" fill="white"
+              font-size="12" font-weight="bold">${label}</text>
+    </svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+// Cluster SVG generálás – kék kör a darabszámmal
+function makeClusterSvg(count) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+        <circle cx="22" cy="22" r="20" fill="#3b82f6" stroke="white" stroke-width="3"/>
+        <text x="22" y="27" text-anchor="middle" fill="white"
+              font-size="14" font-weight="bold">${count > 99 ? '99+' : count}</text>
+    </svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
 // Display markers on map
 function displayMarkers(eventsToShow) {
     if (!map) return;
 
-    if (clusterer) {
-        clusterer.clearMarkers();
-        clusterer = null;
-    }
+    if (clusterer) { clusterer.clearMarkers(); clusterer = null; }
     markers = [];
 
-    const markerColors = {
-        hivatalos: '#0004ff',
-        kozossegi: '#ff0000'
-    };
+    // Csoportosítás helyszín szerint (ugyanolyan lat/lng = 1 marker)
+    const byLocation = {};
+    eventsToShow.forEach(e => {
+        const key = `${e.lat},${e.lng}`;
+        if (!byLocation[key]) byLocation[key] = [];
+        byLocation[key].push(e);
+    });
 
-    eventsToShow.forEach(event => {
-        const markerColor = markerColors[event.type] || '#5d5fef';
+    Object.values(byLocation).forEach(events => {
+        const { lat, lng } = events[0];
+        const multi = events.length > 1;
+
+        // 1 event → kék pin, több event → lila pin a darabszámmal
+        const color = multi ? '#7c3aed' : '#3b82f6';
+        const label = multi ? String(events.length) : '●';
 
         const marker = new google.maps.Marker({
-            position: { lat: event.lat, lng: event.lng },
-            title: event.name,
+            position: { lat, lng },
             icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: markerColor,
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 2
+                url: makeMarkerSvg(color, label),
+                scaledSize: new google.maps.Size(32, 42),
+                anchor: new google.maps.Point(16, 42)
             }
         });
 
         marker.addListener('click', () => {
-            const contentString = `
-                <div class="map-popup-content">
-                    <h3 class="popup-title">${event.name}</h3>
-                    <div class="popup-details">
-                        <p class="popup-date"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z"/></svg> ${event.dates.join(' • ')}</p>
-                        <p class="popup-type"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg> ${getTypeLabel(event.type)}</p>
-                        <p class="popup-category"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z"/></svg> ${getCategoryLabel(event.category)}</p>
-                        <p class="popup-description">${event.helyszin}</p>
-                    </div>
-                    <button class="popup-btn" onclick="openEventModal(${event.id})">Érdekel</button>
-                </div>
-            `;
-            infoWindow.setContent(contentString);
+            infoWindow.setContent(multi ? buildMultiPopup(events) : buildSinglePopup(events[0]));
             infoWindow.open(map, marker);
         });
 
-        markers.push({ marker, event });
+        markers.push({ marker });
     });
 
-    clusterer = new markerClusterer.MarkerClusterer({ map, markers: markers.map(m => m.marker) });
+    // Custom cluster megjelenés: kék kör SVG-vel
+    const renderer = {
+        render: ({ count, position }) => new google.maps.Marker({
+            position,
+            icon: {
+                url: makeClusterSvg(count),
+                scaledSize: new google.maps.Size(50, 50),
+                anchor: new google.maps.Point(25, 25)
+            },
+            zIndex: 1000
+        })
+    };
+
+    // @googlemaps/markerclusterer külső library – unpkg CDN-ről töltjük be a HTML-ben
+    // GridAlgorithm: pixel-alapú négyzetráccsal dönti el mikor vonjon össze markereket
+    // gridSize: 65px – minél nagyobb, annál több markert von össze egy clusterbe
+    clusterer = new markerClusterer.MarkerClusterer({
+        map,
+        markers: markers.map(m => m.marker),
+        renderer,
+        algorithm: new markerClusterer.GridAlgorithm({ gridSize: 65 })
+    });
 
     if (markers.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         markers.forEach(m => bounds.extend(m.marker.getPosition()));
         map.fitBounds(bounds);
     }
+}
+
+function buildSinglePopup(e) {
+    return `<div class="map-popup-content">
+        <h3 class="popup-title">${e.name}</h3>
+        <p class="popup-location">📍 ${e.helyszin}</p>
+        <p class="popup-date">🗓 ${e.dates.join(' • ')}</p>
+        <p class="popup-category">🏷 ${e.category}</p>
+        <button class="popup-btn" onclick="infoWindow.close(); openEventModal(${e.id})">Részletek</button>
+    </div>`;
+}
+
+function buildMultiPopup(events) {
+    const items = events.map(e => `
+        <div class="popup-multi-item">
+            <div class="popup-multi-info">
+                <span class="popup-multi-name">${e.name}</span>
+                <span class="popup-multi-date">${e.dates[0]}${e.dates.length > 1 ? ` (+${e.dates.length - 1})` : ''}</span>
+            </div>
+            <button class="popup-mini-btn" onclick="infoWindow.close(); openEventModal(${e.id})">→</button>
+        </div>`).join('');
+    return `<div class="map-popup-content">
+        <h3 class="popup-title">📍 ${events[0].helyszin}</h3>
+        <p class="popup-subtitle">${events.length} esemény ezen a helyszínen</p>
+        <div class="popup-multi-list">${items}</div>
+    </div>`;
 }
 
 // Setup event listeners
@@ -474,7 +532,10 @@ window.openEventModal = function(eventId) {
     const datesContainer = document.getElementById('eventModalDates');
     const modalEl = document.getElementById('eventModal');
 
-    if (!heroEl || !imageEl || !titleEl || !categoryEl || !locationEl || !datesContainer || !modalEl) return;
+    if (!heroEl || !imageEl || !titleEl || !categoryEl || !locationEl || !datesContainer || !modalEl) {
+        window.location.href = `/felfedezes?eventId=${eventId}`;
+        return;
+    }
 
     heroEl.src = categoryHeroImages[event.category.toLowerCase()] || '/api/categories/default.png';
     imageEl.src = `/api/images/${event.id+214}`;
@@ -482,13 +543,69 @@ window.openEventModal = function(eventId) {
     categoryEl.textContent = getCategoryLabel(event.category);
     locationEl.textContent = event.helyszin;
 
+    const countEl = document.getElementById('eventModalParticipantCount');
+    if (countEl) {
+        fetch(`/api/events/${event.id}/participants/count`)
+            .then(r => r.json())
+            .then(data => { countEl.textContent = data.count; });
+    }
+
+    const descEl = document.getElementById('eventModalDescription');
+    if (descEl) {
+        // TODO: jelenleg a DB-ben az events.description mező üres (példa adatok)
+        // Ha majd valódi leírás kerül be, automatikusan azt fogja mutatni
+        descEl.textContent = event.description ||
+            'A részletes leírás és jegyvásárlási lehetőség az esemény oldalán érhető el. Keresd fel a TicketSwap oldalt a jegyekért!';
+    }
+
     datesContainer.innerHTML = event.dates.map((d, i) =>
         `<span class="date-chip ${i === 0 ? 'selected' : ''}" onclick="selectDateChip(this)">${d}</span>`
     ).join('');
 
+    // Érdekel gomb státusz betöltése
+    const btn = document.getElementById('interestedBtn');
+    if (btn) {
+        btn.dataset.eventId = event.id;
+        btn.textContent = 'Érdekel';
+        btn.disabled = false;
+        btn.classList.remove('btn-joined');
+
+        fetch(`/api/events/${event.id}/joined`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.joined) {
+                    btn.textContent = '✓ Jelentkeztem';
+                    btn.disabled = true;
+                    btn.classList.add('btn-joined');
+                }
+            });
+    }
+
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
 };
+
+async function handleInterested() {
+    const btn = document.getElementById('interestedBtn');
+    const eventId = btn.dataset.eventId;
+
+    const response = await fetch(`/api/events/${eventId}/join`, { method: 'POST' });
+    const data = await response.json();
+
+    if (response.status === 401) {
+        bootstrap.Modal.getInstance(document.getElementById('eventModal'))?.hide();
+        new bootstrap.Modal(document.getElementById('loginModal')).show();
+        return;
+    }
+
+    if (response.ok) {
+        btn.textContent = '✓ Jelentkeztem';
+        btn.disabled = true;
+        btn.classList.add('btn-joined');
+    } else {
+        alert(data.message);
+    }
+}
 
 function selectDateChip(el) {
     el.closest('.date-chips').querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));

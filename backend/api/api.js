@@ -339,6 +339,39 @@ router.post('/invite/join', async (request, response) => {
     }
 });
 
+//?POST /api/events/:id/join
+router.post('/events/:id/join', async (request, response) => {
+    if (!request.session?.user) return response.status(401).json({ message: 'Bejelentkezés szükséges.' });
+    try {
+        const result = await database.joinEvent(parseInt(request.params.id), request.session.user.id);
+        if (result.success) return response.status(200).json({ message: 'Sikeresen jelentkeztél!' });
+        return response.status(400).json({ message: result.message });
+    } catch (error) {
+        return response.status(500).json({ message: 'Hiba történt.' });
+    }
+});
+
+//?GET /api/events/:id/participants/count
+router.get('/events/:id/participants/count', async (request, response) => {
+    try {
+        const count = await database.getParticipantCount(parseInt(request.params.id));
+        return response.status(200).json({ count });
+    } catch (error) {
+        return response.status(500).json({ count: 0 });
+    }
+});
+
+//?GET /api/events/:id/joined
+router.get('/events/:id/joined', async (request, response) => {
+    if (!request.session?.user) return response.status(200).json({ joined: false });
+    try {
+        const joined = await database.isUserParticipant(parseInt(request.params.id), request.session.user.id);
+        return response.status(200).json({ joined });
+    } catch (error) {
+        return response.status(500).json({ joined: false });
+    }
+});
+
 //?POST /api/forgot-password
 router.post('/forgot-password', async (request, response) => {
     const { email } = request.body;
