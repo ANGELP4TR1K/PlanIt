@@ -415,6 +415,7 @@ async function selectAllUsersAdmin() {
     return rows;
 }
 
+
 async function selectAllEventsAdmin() {
     const query = `
         SELECT events.id, events.title, events.category, events.type, events.is_private, events.date, events.created_by,
