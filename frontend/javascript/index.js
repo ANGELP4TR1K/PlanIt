@@ -313,6 +313,19 @@ async function profilButton(){
         loggedIn.appendChild(ulItem3);
     }
 
+    if (userRole === 'admin') {
+        const ulItemAdmin = document.createElement('li');
+        const dropdownItemAdmin = document.createElement('button');
+        dropdownItemAdmin.classList.add('dropdown-item');
+        dropdownItemAdmin.textContent = 'Admin panel';
+        dropdownItemAdmin.style.marginTop = '10px';
+        dropdownItemAdmin.addEventListener('click', () => {
+            window.location.href = '/admin';
+        });
+        ulItemAdmin.appendChild(dropdownItemAdmin);
+        loggedIn.appendChild(ulItemAdmin);
+    }
+
     const ulItem2 = document.createElement('li');
     const dropdownItem2 = document.createElement('button');
     dropdownItem2.classList.add('dropdown-item');
