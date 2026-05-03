@@ -403,11 +403,3 @@ function selectDateChip(el) {
 // updateMapTheme exportálása index.js számára (dark mode váltáskor hívja)
 window.mapFunctions = { updateMapTheme };
 
-// Térkép inicializálása – csak a főoldalon fut
-// Ha felfedezes.js is betöltve van, az kezeli az inicializálást
-document.addEventListener('DOMContentLoaded', async function() {
-    if (!document.getElementById('mapDisplay')) return;
-    if (document.getElementById('discoverevents')) return; // felfedezes.js kezeli
-    await loadGoogleMapsAPI();
-    initializeMap();
-});
