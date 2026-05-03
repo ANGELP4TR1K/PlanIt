@@ -35,7 +35,7 @@ async function insertEvents(type, description, category, title, date, location_i
 
 //Selectek
 async function selectAllEvents() {
-    const query = 'SELECT events.*, locations.name AS helyszin, locations.latitude, locations.longitude FROM events JOIN locations ON events.location_id = locations.id WHERE events.date >= CURDATE() ORDER BY events.date ASC;';
+    const query = 'SELECT events.*, locations.name AS helyszin, locations.latitude, locations.longitude FROM events JOIN locations ON events.location_id = locations.id WHERE events.date >= CURDATE() AND events.is_private = 0 ORDER BY events.date ASC;';
     const [rows] = await pool.execute(query);
     return rows;
 }

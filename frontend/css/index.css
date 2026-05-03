@@ -948,6 +948,26 @@ a.event-action-btn {
     cursor: default;
 }
 
+.navigate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 5px 12px;
+    background: #1a3a5c;
+    color: white;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.navigate-btn:hover {
+    background: #0d2640;
+    color: white;
+}
+
 .event-participant-count {
     display: flex;
     align-items: center;

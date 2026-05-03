@@ -3,16 +3,20 @@ function groupEvents(data) {
     data.forEach(e => {
         const key = `${e.title}_${e.location_id}`;
         if (!groups[key]) {
-            groups[key] = { ...e, dates: [e.date] };
+            groups[key] = { ...e, dates: [e.date], ids: [e.id] };
         } else {
             groups[key].dates.push(e.date);
+            groups[key].ids.push(e.id);
         }
     });
     return Object.values(groups);
 }
 
 function formatDate(dateStr) {
-    return dateStr.split('T')[0].replace('-', '. ').replace('-', '. ') + '.';
+    const [datePart, timePart] = dateStr.split('T');
+    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
+    const time = timePart ? timePart.substring(0, 5) : null;
+    return time && time !== '00:00' ? `${date} ${time}` : date;
 }
 
 async function fetchHomeEvents() {
@@ -37,7 +41,7 @@ async function fetchHomeEvents() {
             const card = document.createElement('div');
             card.className = 'card event-card';
             card.innerHTML = `
-                <img src="/api/images/${event.id+214}" alt="${event.title}" class="card-img-top">
+                <img src="/api/images/${event.id}" alt="${event.title}" class="card-img-top">
                 <div class="card-body">
                     <h5 class="card-title">${event.title}</h5>
                     <p class="card-text text-muted">${event.helyszin} – ${dateText}</p>
@@ -48,6 +52,11 @@ async function fetchHomeEvents() {
         });
 
         setupScrollArrows();
+
+        // Normalizálás és térképre rakás (map.js normalizeEvent és displayMarkers)
+        allEvents = closest20.map(normalizeEvent);
+        displayMarkers(allEvents);
+
     } catch (error) {
         console.error('Nem sikerült betölteni az eseményeket:', error);
     }
@@ -60,17 +69,13 @@ function setupScrollArrows() {
     const leftBtn = document.getElementById('homeScrollLeft');
     const rightBtn = document.getElementById('homeScrollRight');
 
-    if (leftBtn) {
-        leftBtn.addEventListener('click', () => {
-            wrapper.scrollBy({ left: -300, behavior: 'smooth' });
-        });
-    }
-
-    if (rightBtn) {
-        rightBtn.addEventListener('click', () => {
-            wrapper.scrollBy({ left: 300, behavior: 'smooth' });
-        });
-    }
+    if (leftBtn) leftBtn.addEventListener('click', () => wrapper.scrollBy({ left: -300, behavior: 'smooth' }));
+    if (rightBtn) rightBtn.addEventListener('click', () => wrapper.scrollBy({ left: 300, behavior: 'smooth' }));
 }
 
-fetchHomeEvents();
+// Térkép init + események betöltése – home oldal teljes inicializálása
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadGoogleMapsAPI();
+    initializeMap();
+    await fetchHomeEvents();
+});
