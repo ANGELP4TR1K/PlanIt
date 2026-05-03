@@ -15,6 +15,27 @@ function setupEventPage() {
     setupEventDetailsModal();
     setupEventActions();
     setupCommunityEventForm();
+    handleInviteLink();
+}
+
+function handleInviteLink() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite');
+    if (!token) return;
+
+    // Switch to the community/private tab so context is clear
+    const joinTab = document.querySelector('.tab-btn[data-tab="communityEvents"]');
+    if (joinTab) joinTab.click();
+
+    // Pre-fill and open the join modal
+    const inviteCodeInput = document.getElementById('inviteCode');
+    if (inviteCodeInput) inviteCodeInput.value = token;
+
+    const joinModal = new bootstrap.Modal(document.getElementById('joinEventModal'));
+    joinModal.show();
+
+    // Clean the URL so the token isn't re-triggered on refresh
+    window.history.replaceState({}, '', window.location.pathname);
 }
 
 function setupTabNavigation() {
@@ -119,8 +140,12 @@ function displayEvents(events, gridId, type) {
             } else if (type === 'created') {
                 paragraph.textContent = 'Nincsenek létrehozott eseményeid. ';
                 const link = document.createElement('a');
-                link.href = '/profile';
+                link.href = '#';
                 link.textContent = 'Hozz létre egy új eseményt!';
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    new bootstrap.Modal(document.getElementById('createCommunityEventModal')).show();
+                });
                 paragraph.appendChild(link);
             }
 
@@ -256,9 +281,11 @@ function createEventCard(event, type) {
             copyBtn.className = 'events-item-btn events-item-btn-copy';
             copyBtn.textContent = 'Meghívó másolása';
             copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(event.invite_token).then(() => {
+                const inviteUrl = `${window.location.origin}/esemenyeim?invite=${event.invite_token}`;
+                const message = `Meghívlak az ${event.title} eseményemre csatlakozz a következő kóddal vagy csak kattints a linkre!\n\n${event.invite_token}\n\n${inviteUrl}`;
+                navigator.clipboard.writeText(message).then(() => {
                     copyBtn.textContent = 'Másolva!';
-                    setTimeout(() => { copyBtn.textContent = 'Meghívó másolása'; }, 2000);
+                    setTimeout(() => { copyBtn.textContent = 'Meghívó link másolása'; }, 2000);
                 });
             });
             actions.appendChild(copyBtn);
@@ -268,6 +295,11 @@ function createEventCard(event, type) {
         detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
         detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+
+        const attendeesBtn = document.createElement('button');
+        attendeesBtn.className = 'events-item-btn events-item-btn-secondary';
+        attendeesBtn.textContent = 'Résztvevők';
+        attendeesBtn.addEventListener('click', () => openParticipantsModal(event.id, event.title));
 
         const editBtn = document.createElement('button');
         editBtn.className = 'events-item-btn events-item-btn-primary';
@@ -280,6 +312,7 @@ function createEventCard(event, type) {
         deleteBtn.addEventListener('click', () => showDeleteConfirmationModal(event.id));
 
         actions.appendChild(detailsBtn);
+        actions.appendChild(attendeesBtn);
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
     } else {
@@ -864,5 +897,65 @@ function setupEventActions() {
                 showNotification('Hálózati hiba az esemény csatlakozásakor', 'error');
             }
         });
+    }
+}
+
+async function openParticipantsModal(eventId, eventTitle) {
+    const list = document.getElementById('participantsList');
+    const subtitle = document.getElementById('participantsModalSubtitle');
+    list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Betöltés...</p>';
+    subtitle.textContent = eventTitle;
+
+    const modal = new bootstrap.Modal(document.getElementById('participantsModal'));
+    modal.show();
+
+    try {
+        const response = await fetch(`/api/events/${eventId}/participants`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            list.innerHTML = `<p style="color:red">${data.message}</p>`;
+            return;
+        }
+
+        if (data.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Még nincs résztvevő.</p>';
+            return;
+        }
+
+        list.innerHTML = '';
+        data.forEach(participant => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.08);';
+
+            const info = document.createElement('div');
+            info.innerHTML = `<strong>${participant.full_name}</strong><br><span style="font-size:0.85rem; opacity:0.7">@${participant.username}</span>`;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'events-item-btn events-item-btn-danger';
+            removeBtn.style.cssText = 'padding:0.25rem 0.75rem; font-size:0.8rem; flex-shrink:0;';
+            removeBtn.textContent = 'Eltávolítás';
+            removeBtn.addEventListener('click', async () => {
+                removeBtn.disabled = true;
+                removeBtn.textContent = '...';
+                const res = await fetch(`/api/events/${eventId}/participants/${participant.id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    row.remove();
+                    if (list.children.length === 0) {
+                        list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Még nincs résztvevő.</p>';
+                    }
+                } else {
+                    removeBtn.disabled = false;
+                    removeBtn.textContent = 'Eltávolítás';
+                    showNotification('Nem sikerült eltávolítani a résztvevőt', 'error');
+                }
+            });
+
+            row.appendChild(info);
+            row.appendChild(removeBtn);
+            list.appendChild(row);
+        });
+    } catch (error) {
+        list.innerHTML = '<p style="color:red">Hálózati hiba</p>';
     }
 }
