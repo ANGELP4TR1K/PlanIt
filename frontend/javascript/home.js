@@ -3,9 +3,10 @@ function groupEvents(data) {
     data.forEach(e => {
         const key = `${e.title}_${e.location_id}`;
         if (!groups[key]) {
-            groups[key] = { ...e, dates: [e.date] };
+            groups[key] = { ...e, dates: [e.date], ids: [e.id] };
         } else {
             groups[key].dates.push(e.date);
+            groups[key].ids.push(e.id);
         }
     });
     return Object.values(groups);
@@ -51,6 +52,11 @@ async function fetchHomeEvents() {
         });
 
         setupScrollArrows();
+
+        // Normalizálás és térképre rakás (map.js normalizeEvent és displayMarkers)
+        allEvents = closest20.map(normalizeEvent);
+        displayMarkers(allEvents);
+
     } catch (error) {
         console.error('Nem sikerült betölteni az eseményeket:', error);
     }
@@ -63,17 +69,13 @@ function setupScrollArrows() {
     const leftBtn = document.getElementById('homeScrollLeft');
     const rightBtn = document.getElementById('homeScrollRight');
 
-    if (leftBtn) {
-        leftBtn.addEventListener('click', () => {
-            wrapper.scrollBy({ left: -300, behavior: 'smooth' });
-        });
-    }
-
-    if (rightBtn) {
-        rightBtn.addEventListener('click', () => {
-            wrapper.scrollBy({ left: 300, behavior: 'smooth' });
-        });
-    }
+    if (leftBtn) leftBtn.addEventListener('click', () => wrapper.scrollBy({ left: -300, behavior: 'smooth' }));
+    if (rightBtn) rightBtn.addEventListener('click', () => wrapper.scrollBy({ left: 300, behavior: 'smooth' }));
 }
 
-fetchHomeEvents();
+// Térkép init + események betöltése – home oldal teljes inicializálása
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadGoogleMapsAPI();
+    initializeMap();
+    await fetchHomeEvents();
+});
