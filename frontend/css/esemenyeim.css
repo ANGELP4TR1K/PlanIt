@@ -204,6 +204,13 @@ body.dark-mode .tab-btn:hover {
     height: 18px;
 }
 
+.events-item-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
 .events-item-type {
     display: inline-block;
     padding: 4px 12px;
@@ -212,24 +219,31 @@ body.dark-mode .tab-btn:hover {
     border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
-    margin-top: 8px;
     width: fit-content;
+}
+
+.events-item-type-private {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
 }
 
 .events-item-actions {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .events-item-btn {
-    flex: 1;
-    padding: 10px 16px;
+    flex: 1 1 auto;
+    min-width: 80px;
+    padding: 10px 14px;
     border: none;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .events-item-btn-primary {
@@ -263,6 +277,17 @@ body.dark-mode .tab-btn:hover {
 .events-item-btn-danger:hover {
     background: rgba(220, 53, 69, 0.2);
     border-color: #dc3545;
+}
+
+.events-item-btn-copy {
+    background: rgba(93, 95, 239, 0.1);
+    color: var(--primary-purple);
+    border: 1px solid rgba(93, 95, 239, 0.3);
+}
+
+.events-item-btn-copy:hover {
+    background: rgba(93, 95, 239, 0.2);
+    border-color: var(--primary-purple);
 }
 
 /* ==========================================================================
@@ -549,6 +574,328 @@ body.dark-mode .notification-error {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   CREATE COMMUNITY EVENT MODAL
+   ========================================================================== */
+
+.ce-modal-content {
+    background: var(--card-background);
+    border: 1px solid var(--input-border-color);
+    border-radius: 16px;
+    color: var(--text-color);
+}
+
+.ce-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--input-border-color);
+}
+
+.ce-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.ce-modal-body {
+    padding: 24px;
+}
+
+.ce-modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 16px 24px;
+    border-top: 1px solid var(--input-border-color);
+}
+
+.ce-form-group {
+    margin-bottom: 18px;
+}
+
+.ce-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 6px;
+}
+
+.ce-form-group input[type="text"],
+.ce-form-group input[type="number"],
+.ce-form-group input[type="datetime-local"],
+.ce-form-group textarea,
+.ce-form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 10px;
+    background: var(--input-background);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.ce-form-group input:focus,
+.ce-form-group textarea:focus,
+.ce-form-group select:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+}
+
+.ce-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.ce-form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.ce-form-row > .ce-form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.ce-location-input-wrapper {
+    position: relative;
+}
+
+.ce-location-input-wrapper input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 10px;
+    background: var(--input-background);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.ce-location-input-wrapper input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+}
+
+.ce-location-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-background);
+    border: 1px solid var(--input-border-color);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ce-location-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 14px;
+    border-bottom: 1px solid var(--input-border-color);
+    transition: background 0.2s ease;
+}
+
+.ce-location-item:hover {
+    background: rgba(93, 95, 239, 0.1);
+}
+
+.ce-location-item:last-child {
+    border-bottom: none;
+}
+
+.ce-location-item-new {
+    background: var(--input-background);
+    color: var(--primary-purple);
+    font-weight: 600;
+    border-top: 1px solid var(--primary-purple);
+}
+
+.ce-checkbox-group {
+    margin-bottom: 18px;
+}
+
+.ce-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.ce-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-purple);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.ce-checkbox-hint {
+    font-weight: 400;
+    color: var(--nav-text);
+    font-size: 13px;
+}
+
+.ce-image-upload-area {
+    padding: 24px;
+    border: 2px dashed var(--input-border-color);
+    border-radius: 12px;
+    text-align: center;
+    background: var(--input-background);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.ce-image-upload-area:hover {
+    border-color: var(--primary-purple);
+    background: rgba(93, 95, 239, 0.05);
+}
+
+.ce-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.ce-upload-label:hover {
+    color: var(--primary-purple);
+}
+
+.ce-upload-label svg {
+    color: var(--primary-purple);
+}
+
+.ce-upload-label span {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.ce-upload-label small {
+    font-size: 12px;
+    color: var(--nav-text);
+}
+
+.ce-image-preview-container {
+    position: relative;
+    margin-top: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ce-image-preview-container img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.ce-remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 6px 14px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ce-remove-image-btn:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: translateY(-1px);
+}
+
+.ce-form-error {
+    padding: 12px 16px;
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 10px;
+    color: #dc3545;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.ce-btn-submit {
+    padding: 10px 28px;
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ce-btn-submit:hover {
+    background: var(--primary-purple-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+}
+
+.ce-btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ce-btn-cancel {
+    padding: 10px 28px;
+    background: transparent;
+    color: var(--text-color);
+    border: 2px solid var(--input-border-color);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ce-btn-cancel:hover {
+    background: var(--input-background);
+    border-color: var(--nav-text);
+}
+
+body.dark-mode .ce-form-error {
+    background: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #ff6b6b;
+}
+
+@media (max-width: 576px) {
+    .ce-form-row {
+        flex-direction: column;
+        gap: 0;
     }
 }
 

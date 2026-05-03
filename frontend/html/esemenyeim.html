@@ -443,6 +443,120 @@
         </div>
     </div>
 
+    <!-- Create Community Event Modal -->
+    <div class="modal fade" id="createCommunityEventModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content ce-modal-content">
+                <div class="modal-header ce-modal-header">
+                    <h5 class="ce-modal-title">Új esemény létrehozása</h5>
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body ce-modal-body">
+                    <div id="ce-formError" class="ce-form-error" style="display:none;"></div>
+                    <form id="ce-eventForm" novalidate>
+                        <div class="ce-form-group">
+                            <label for="ce-title">Cím *</label>
+                            <input type="text" id="ce-title" placeholder="Esemény neve" required>
+                        </div>
+                        <div class="ce-form-group">
+                            <label for="ce-description">Leírás *</label>
+                            <textarea id="ce-description" placeholder="Esemény leírása" required></textarea>
+                        </div>
+                        <div class="ce-form-group">
+                            <label for="ce-category">Kategória *</label>
+                            <select id="ce-category" required>
+                                <option value="">Válassz kategóriát...</option>
+                                <option value="Fesztivál">Fesztivál</option>
+                                <option value="Komédia">Komédia</option>
+                                <option value="Koncert">Koncert</option>
+                                <option value="Sport">Sport</option>
+                                <option value="Színház">Színház</option>
+                                <option value="Vásár">Vásár</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Egyéb">Egyéb</option>
+                            </select>
+                        </div>
+                        <div class="ce-form-group">
+                            <label for="ce-locationInput">Helyszín *</label>
+                            <div class="ce-location-input-wrapper">
+                                <input type="text" id="ce-locationInput" placeholder="Helyszín neve vagy keresés..." autocomplete="off">
+                                <input type="hidden" id="ce-selectedLocationId">
+                                <div class="ce-location-dropdown" id="ce-locationDropdown" style="display:none;"></div>
+                            </div>
+                        </div>
+                        <div id="ce-newLocationFields" style="display:none;">
+                            <div class="ce-form-group">
+                                <label for="ce-locationName">Helyszín megnevezése *</label>
+                                <input type="text" id="ce-locationName" placeholder="pl. Városháza">
+                            </div>
+                            <div class="ce-form-row">
+                                <div class="ce-form-group">
+                                    <label for="ce-zipCode">Irányítószám *</label>
+                                    <input type="text" id="ce-zipCode" placeholder="1052">
+                                </div>
+                                <div class="ce-form-group">
+                                    <label for="ce-city">Város *</label>
+                                    <input type="text" id="ce-city" placeholder="Budapest">
+                                </div>
+                            </div>
+                            <div class="ce-form-row">
+                                <div class="ce-form-group">
+                                    <label for="ce-street">Utca *</label>
+                                    <input type="text" id="ce-street" placeholder="Fő utca">
+                                </div>
+                                <div class="ce-form-group">
+                                    <label for="ce-houseNumber">Házszám *</label>
+                                    <input type="text" id="ce-houseNumber" placeholder="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ce-form-row">
+                            <div class="ce-form-group">
+                                <label for="ce-date">Dátum és időpont *</label>
+                                <input type="datetime-local" id="ce-date" required>
+                            </div>
+                            <div class="ce-form-group">
+                                <label for="ce-capacity">Max. létszám *</label>
+                                <input type="number" id="ce-capacity" min="1" placeholder="pl. 50" required>
+                            </div>
+                        </div>
+                        <div class="ce-form-group ce-checkbox-group">
+                            <label class="ce-checkbox-label">
+                                <input type="checkbox" id="ce-isPrivate">
+                                <span>Privát esemény <span class="ce-checkbox-hint">(csak meghívóval csatlakozható)</span></span>
+                            </label>
+                        </div>
+                        <div class="ce-form-group">
+                            <label>Esemény képe</label>
+                            <div class="ce-image-upload-area">
+                                <label for="ce-image" class="ce-upload-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="currentColor">
+                                        <path d="M440-320v-326L336-542l-56-58 200-200 200 200-56 58-104-104v326h-80ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
+                                    </svg>
+                                    <span>Kép feltöltése</span>
+                                    <small>JPG vagy PNG, max 5MB</small>
+                                </label>
+                                <input type="file" id="ce-image" accept="image/jpeg,image/png" style="display:none;">
+                            </div>
+                            <div id="ce-imagePreviewContainer" class="ce-image-preview-container" style="display:none;">
+                                <img id="ce-imagePreview" src="" alt="Előnézet">
+                                <button type="button" id="ce-removeImageBtn" class="ce-remove-image-btn">Kép eltávolítása</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer ce-modal-footer">
+                    <button type="button" class="ce-btn-cancel" data-bs-dismiss="modal">Mégse</button>
+                    <button type="button" class="ce-btn-submit" id="ce-submitBtn">Esemény létrehozása</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Join Event Modal -->
     <div class="modal fade" id="joinEventModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">

@@ -9,7 +9,9 @@ CREATE TABLE locations (
     name VARCHAR(100) NOT NULL,
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
-    link VARCHAR(255) 
+    link VARCHAR(255),
+    is_private BOOLEAN DEFAULT FALSE,
+    created_by INT DEFAULT NULL,
 );
 
 CREATE TABLE events (
@@ -21,7 +23,7 @@ CREATE TABLE events (
     date DATETIME NOT NULL,
     location_id INT,
     is_private BOOLEAN DEFAULT FALSE,
-    created_by INT NOT NULL,
+    capacity INT DEFAULT NULL,
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );
 

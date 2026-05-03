@@ -64,7 +64,8 @@ router.get('/userRole', (request, response) => {
 //?GET /api/locations - Get all locations for autocomplete
 router.get('/locations', async (request, response) => {
     try {
-        const locations = await database.selectAllLocations();
+        const userId = request.session?.user?.id ?? null;
+        const locations = await database.selectAllLocations(userId);
         return response.status(200).json({ locations });
     } catch (error) {
         console.error('Error fetching locations:', error);
@@ -79,7 +80,7 @@ router.get('/userCreatedEvents', async (request, response) => {
     }
 
     try {
-        const events = await database.getUserCreatedOfficialEvents(request.session.user.id);
+        const events = await database.getUserCreatedEvents(request.session.user.id);
         return response.status(200).json({ events });
     } catch (error) {
         console.error('Error fetching user created events:', error);
@@ -265,29 +266,6 @@ router.delete('/profile', async (request, response) => {
     } catch (error) {
         console.error(error);
         response.status(500).json({ message: 'Hiba a profil törléskor' });
-    }
-});
-
-//?POST /api/createEventInvite
-router.post('/createEventInvite', async (request, response) => {
-    const { name, location, date, max_capacity } = request.body;
-    if (!name || !location || !date || !max_capacity) {
-        return response.status(400).json({ message: 'Hiányzó adatok!' });
-    }
-    if (!request.session || !request.session.user) {
-        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
-    }
-    try {
-        const created_by = request.session.user.id;
-        const result = await database.createEventInvite(name, location, date, created_by, max_capacity);
-        if (result && result.token) {
-            return response.status(201).json({ message: 'Sikeres meghívó létrehozás', eventId: result.eventId, token: result.token });
-        } else {
-            return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
-        }
-    } catch (error) {
-        console.error('createEventInvite error:', error);
-        return response.status(500).json({ message: 'Meghívó létrehozása sikertelen.' });
     }
 });
 
@@ -510,6 +488,9 @@ router.post('/events/:id/leave', async (request, response) => {
 
         const result = await database.removeUserFromEvent(id, userId);
         if (result) {
+            if (event[0].is_private) {
+                await database.decrementInviteUses(id);
+            }
             return response.status(200).json({ message: 'Sikeresen elhagytad az eseményt' });
         } else {
             return response.status(400).json({ message: 'Nem tudsz elhagyni egy eseményt, amelyen nem vagy résztvevő' });
@@ -787,6 +768,271 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
     }
 });
 
+//?POST /api/createCommunityEvent - Create community or private event (any logged-in user)
+router.post('/createCommunityEvent', upload.single('image'), async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private } = request.body;
+
+    if (!title || !description || !category || !date || !capacity) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+
+    try {
+        const userId = request.session.user.id;
+        const isPrivate = is_private === '1' || is_private === true || is_private === 'true' ? 1 : 0;
+        let finalLocationId;
+
+        if (isPrivate) {
+            // Private location: store in locations table but marked private, always geocode
+            if (locationId) {
+                finalLocationId = locationId;
+            } else {
+                const privName = locationName || request.body.locationText || '';
+                const searchQuery = zipCode && city && street && houseNumber
+                    ? `${street} ${houseNumber}, ${zipCode} ${city}, Hungary`
+                    : privName;
+
+                if (!searchQuery) {
+                    return response.status(400).json({ message: 'Add meg az esemény helyszínét!' });
+                }
+
+                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchQuery)}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                const geocodeResponse = await fetch(geocodeUrl);
+                const geocodeData = await geocodeResponse.json();
+
+                if (!geocodeData.results || geocodeData.results.length === 0) {
+                    return response.status(400).json({ message: 'A megadott helyszín nem található. Adj meg pontosabb helyszínt!' });
+                }
+
+                const loc = geocodeData.results[0].geometry.location;
+                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, null, userId);
+                finalLocationId = locationResult.insertId;
+            }
+        } else {
+            if (locationId) {
+                finalLocationId = locationId;
+            } else if (locationName && zipCode && city && street && houseNumber) {
+                const fullAddress = `${street} ${houseNumber}, ${zipCode} ${city}, Hungary`;
+                let latitude = null;
+                let longitude = null;
+
+                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                const geocodeResponse = await fetch(geocodeUrl);
+                const geocodeData = await geocodeResponse.json();
+
+                if (geocodeData.results && geocodeData.results.length > 0) {
+                    const loc = geocodeData.results[0].geometry.location;
+                    latitude = loc.lat;
+                    longitude = loc.lng;
+                }
+
+                if (latitude && longitude) {
+                    const existingLocation = await database.selectLocationByCoordinates(latitude, longitude);
+                    if (existingLocation) {
+                        finalLocationId = existingLocation.id;
+                    } else {
+                        const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                        finalLocationId = locationResult.insertId;
+                    }
+                } else {
+                    const locationResult = await database.insertLocation(locationName, null, null, null);
+                    finalLocationId = locationResult.insertId;
+                }
+            } else {
+                return response.status(400).json({ message: 'Válassz egy helyszínt vagy adj meg új helyszín adatokat!' });
+            }
+        }
+
+        const eventResult = await database.insertCommunityEvent('community', description, category, title, date, capacity, finalLocationId, userId, isPrivate);
+        const eventId = eventResult.insertId;
+
+        if (isPrivate) {
+            const locationLabel = locationName || request.body.locationText || '';
+            await database.createInviteForEvent(eventId, title, locationLabel, date, userId, capacity);
+        }
+
+        const imageDirPath = path.join(__dirname, '../uploads/eventImages');
+        if (!require('fs').existsSync(imageDirPath)) {
+            require('fs').mkdirSync(imageDirPath, { recursive: true });
+        }
+
+        const imageId = eventId + 214;
+
+        if (request.file) {
+            const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
+            const oldPath = request.file.path;
+            const newPath = path.join(imageDirPath, `${imageId}${ext}`);
+            require('fs').renameSync(oldPath, newPath);
+        } else {
+            const defaultImagePath = path.join(__dirname, '../uploads/eventImages/default.png');
+            const newPath = path.join(imageDirPath, `${imageId}.png`);
+            try {
+                if (require('fs').existsSync(defaultImagePath)) {
+                    require('fs').copyFileSync(defaultImagePath, newPath);
+                }
+            } catch (copyError) {
+                console.error('Error copying default image:', copyError);
+            }
+        }
+
+        return response.status(201).json({
+            message: 'Esemény sikeresen létrehozva',
+            eventId: eventId
+        });
+
+    } catch (error) {
+        console.error('Error creating community event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény létrehozása során.' });
+    }
+});
+
+//?PUT /api/updateCommunityEvent/:eventId - Update community/private event created by user
+router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    const eventId = parseInt(request.params.eventId);
+    const userId = request.session.user.id;
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private } = request.body;
+
+    if (!title || !description || !category || !date || !capacity) {
+        return response.status(400).json({ message: 'Hiányzó adatok!' });
+    }
+
+    try {
+        const existingEvent = await database.selectEventById(eventId);
+        if (!existingEvent || existingEvent.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+        if (existingEvent[0].created_by !== userId && request.session.user.role !== 'admin') {
+            return response.status(403).json({ message: 'Nincs jogosultságod az esemény szerkesztéséhez' });
+        }
+
+        const isPrivate = is_private === '1' || is_private === true || is_private === 'true' ? 1 : 0;
+        let finalLocationId = existingEvent[0].location_id;
+
+        if (isPrivate) {
+            if (locationId && locationId !== '') {
+                finalLocationId = locationId;
+            } else if (locationName || request.body.locationText) {
+                const privName = locationName || request.body.locationText || '';
+                const searchQuery = zipCode && city && street && houseNumber
+                    ? `${street} ${houseNumber}, ${zipCode} ${city}, Hungary`
+                    : privName;
+
+                if (!searchQuery) {
+                    return response.status(400).json({ message: 'Add meg az esemény helyszínét!' });
+                }
+
+                const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchQuery)}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+                const geocodeResponse = await fetch(geocodeUrl);
+                const geocodeData = await geocodeResponse.json();
+
+                if (!geocodeData.results || geocodeData.results.length === 0) {
+                    return response.status(400).json({ message: 'A megadott helyszín nem található. Adj meg pontosabb helyszínt!' });
+                }
+
+                const loc = geocodeData.results[0].geometry.location;
+                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, null, userId);
+                finalLocationId = locationResult.insertId;
+            }
+        } else if (locationId && locationId !== '') {
+            finalLocationId = locationId;
+        } else if (locationName && zipCode && city && street && houseNumber) {
+            const fullAddress = `${street} ${houseNumber}, ${zipCode} ${city}, Hungary`;
+            let latitude = null;
+            let longitude = null;
+
+            const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+            const geocodeResponse = await fetch(geocodeUrl);
+            const geocodeData = await geocodeResponse.json();
+
+            if (geocodeData.results && geocodeData.results.length > 0) {
+                const loc = geocodeData.results[0].geometry.location;
+                latitude = loc.lat;
+                longitude = loc.lng;
+            }
+
+            if (latitude && longitude) {
+                const existingLocation = await database.selectLocationByCoordinates(latitude, longitude);
+                if (existingLocation) {
+                    finalLocationId = existingLocation.id;
+                } else {
+                    const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                    finalLocationId = locationResult.insertId;
+                }
+            } else {
+                const locationResult = await database.insertLocation(locationName, null, null, null);
+                finalLocationId = locationResult.insertId;
+            }
+        }
+
+        await database.updateEventById(eventId, 'community', description, category, title, date, capacity, finalLocationId);
+
+        if (request.file) {
+            try {
+                const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
+                const imageDirPath = path.join(__dirname, '../uploads/eventImages');
+                if (!require('fs').existsSync(imageDirPath)) require('fs').mkdirSync(imageDirPath, { recursive: true });
+                const imageId = eventId + 214;
+                require('fs').renameSync(request.file.path, path.join(imageDirPath, `${imageId}${ext}`));
+            } catch (fileError) {
+                console.error('Error updating image:', fileError);
+            }
+        }
+
+        return response.status(200).json({ message: 'Esemény sikeresen frissítve', eventId });
+
+    } catch (error) {
+        console.error('Error updating community event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény frissítése során.' });
+    }
+});
+
+//?DELETE /api/deleteCommunityEvent/:eventId - Delete community/private event created by user
+router.delete('/deleteCommunityEvent/:eventId', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    const eventId = parseInt(request.params.eventId);
+    const userId = request.session.user.id;
+
+    try {
+        const existingEvent = await database.selectEventById(eventId);
+        if (!existingEvent || existingEvent.length === 0) {
+            return response.status(404).json({ message: 'Esemény nem található' });
+        }
+        if (existingEvent[0].created_by !== userId && request.session.user.role !== 'admin') {
+            return response.status(403).json({ message: 'Nincs jogosultságod az esemény törléséhez' });
+        }
+
+        await database.deleteEventAndParticipants(eventId);
+
+        const imageDirPath = path.join(__dirname, '../uploads/eventImages');
+        const imageId = eventId + 214;
+        for (const ext of ['.jpg', '.png']) {
+            const imagePath = path.join(imageDirPath, `${imageId}${ext}`);
+            try {
+                if (require('fs').existsSync(imagePath)) require('fs').unlinkSync(imagePath);
+            } catch (fileError) {
+                console.error('Error deleting image:', fileError);
+            }
+        }
+
+        return response.status(200).json({ message: 'Esemény sikeresen törölve', eventId });
+
+    } catch (error) {
+        console.error('Error deleting community event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
+    }
+});
+
+module.exports = router;
 // Admin middleware
 function requireAdmin(request, response, next) {
     if (!request.session || !request.session.user) {
