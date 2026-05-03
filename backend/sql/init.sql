@@ -20,7 +20,7 @@ CREATE TABLE events (
     description TEXT,
     category VARCHAR(100) NOT NULL,
     title VARCHAR(50) NOT NULL,
-    date DATE NOT NULL,
+    date DATETIME NOT NULL,
     location_id INT,
     is_private BOOLEAN DEFAULT FALSE,
     capacity INT DEFAULT NULL,

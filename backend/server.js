@@ -79,6 +79,22 @@ router.get('/esemenyeim', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/esemenyeim.html'));
 });
 
+router.get('/szervezo', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/szervezo.html'));
+});
+
+router.get('/rolunk', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/rolunk.html'));
+ });
+  
+router.get('/aszf', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
+});
+
+router.get('/admin', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/admin.html'));
+});
+
 //?Config endpoint for frontend
 app.get('/config', (req, res) => {
     res.json({

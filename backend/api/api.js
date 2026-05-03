@@ -317,6 +317,39 @@ router.post('/invite/join', async (request, response) => {
     }
 });
 
+//?POST /api/events/:id/join
+router.post('/events/:id/join', async (request, response) => {
+    if (!request.session?.user) return response.status(401).json({ message: 'Bejelentkezés szükséges.' });
+    try {
+        const result = await database.joinEvent(parseInt(request.params.id), request.session.user.id);
+        if (result.success) return response.status(200).json({ message: 'Sikeresen jelentkeztél!' });
+        return response.status(400).json({ message: result.message });
+    } catch (error) {
+        return response.status(500).json({ message: 'Hiba történt.' });
+    }
+});
+
+//?GET /api/events/:id/participants/count
+router.get('/events/:id/participants/count', async (request, response) => {
+    try {
+        const count = await database.getParticipantCount(parseInt(request.params.id));
+        return response.status(200).json({ count });
+    } catch (error) {
+        return response.status(500).json({ count: 0 });
+    }
+});
+
+//?GET /api/events/:id/joined
+router.get('/events/:id/joined', async (request, response) => {
+    if (!request.session?.user) return response.status(200).json({ joined: false });
+    try {
+        const joined = await database.isUserParticipant(parseInt(request.params.id), request.session.user.id);
+        return response.status(200).json({ joined });
+    } catch (error) {
+        return response.status(500).json({ joined: false });
+    }
+});
+
 //?POST /api/forgot-password
 router.post('/forgot-password', async (request, response) => {
     const { email } = request.body;
@@ -996,6 +1029,147 @@ router.delete('/deleteCommunityEvent/:eventId', async (request, response) => {
     } catch (error) {
         console.error('Error deleting community event:', error);
         return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
+    }
+});
+
+module.exports = router;
+// Admin middleware
+function requireAdmin(request, response, next) {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+    if (request.session.user.role !== 'admin') {
+        return response.status(403).json({ message: 'Admin jogosultság szükséges' });
+    }
+    next();
+}
+
+//?GET /api/admin/users
+router.get('/admin/users', requireAdmin, async (request, response) => {
+    try {
+        const users = await database.selectAllUsersAdmin();
+        return response.status(200).json({ users });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        return response.status(500).json({ message: 'Hiba a felhasználók betöltése során.' });
+    }
+});
+
+//?DELETE /api/admin/users/:id
+router.delete('/admin/users/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    if (id === request.session.user.id) {
+        return response.status(400).json({ message: 'Nem törölheted saját fiókodat.' });
+    }
+    try {
+        await database.deleteUserById(id);
+        return response.status(200).json({ message: 'Felhasználó törölve.' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        return response.status(500).json({ message: 'Hiba a felhasználó törlése során.' });
+    }
+});
+
+//?PUT /api/admin/users/:id/role
+router.put('/admin/users/:id/role', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    const { role } = request.body;
+    if (!role || !['user', 'szervezo', 'admin'].includes(role)) {
+        return response.status(400).json({ message: 'Érvénytelen szerepkör.' });
+    }
+    try {
+        await database.updateUserRole(id, role);
+        return response.status(200).json({ message: 'Szerepkör frissítve.' });
+    } catch (error) {
+        console.error('Error updating role:', error);
+        return response.status(500).json({ message: 'Hiba a szerepkör frissítése során.' });
+    }
+});
+
+//?GET /api/admin/events
+router.get('/admin/events', requireAdmin, async (request, response) => {
+    try {
+        const events = await database.selectAllEventsAdmin();
+        return response.status(200).json({ events });
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        return response.status(500).json({ message: 'Hiba az események betöltése során.' });
+    }
+});
+
+//?DELETE /api/admin/events/:id
+router.delete('/admin/events/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    try {
+        await database.deleteEventAndParticipants(id);
+        return response.status(200).json({ message: 'Esemény törölve.' });
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
+    }
+});
+
+//?GET /api/admin/locations
+router.get('/admin/locations', requireAdmin, async (request, response) => {
+    try {
+        const locations = await database.selectAllLocationsAdmin();
+        return response.status(200).json({ locations });
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+        return response.status(500).json({ message: 'Hiba a helyszínek betöltése során.' });
+    }
+});
+
+//?DELETE /api/admin/locations/:id
+router.delete('/admin/locations/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    try {
+        await database.deleteLocationById(id);
+        return response.status(200).json({ message: 'Helyszín törölve.' });
+    } catch (error) {
+        console.error('Error deleting location:', error);
+        return response.status(500).json({ message: 'Hiba a helyszín törlése során.' });
+    }
+});
+
+//?GET /api/admin/invites
+router.get('/admin/invites', requireAdmin, async (request, response) => {
+    try {
+        const invites = await database.selectAllInvitesAdmin();
+        return response.status(200).json({ invites });
+    } catch (error) {
+        console.error('Error fetching invites:', error);
+        return response.status(500).json({ message: 'Hiba a meghívók betöltése során.' });
+    }
+});
+
+//?POST /api/admin/invites
+router.post('/admin/invites', requireAdmin, async (request, response) => {
+    const { eventId, maxCapacity, expiresAt } = request.body;
+    if (!eventId || !maxCapacity || !expiresAt) {
+        return response.status(400).json({ message: 'Hiányzó mezők.' });
+    }
+    try {
+        const token = await database.createInviteAdmin(
+            parseInt(eventId), parseInt(maxCapacity), expiresAt, request.session.user.id
+        );
+        const invites = await database.selectAllInvitesAdmin();
+        return response.status(201).json({ token, invites });
+    } catch (error) {
+        console.error('Error creating invite:', error);
+        return response.status(400).json({ message: error.message || 'Hiba a meghívó létrehozása során.' });
+    }
+});
+
+//?DELETE /api/admin/invites/:id
+router.delete('/admin/invites/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    try {
+        await database.deleteInviteById(id);
+        return response.status(200).json({ message: 'Meghívó törölve.' });
+    } catch (error) {
+        console.error('Error deleting invite:', error);
+        return response.status(500).json({ message: 'Hiba a meghívó törlése során.' });
     }
 });
 

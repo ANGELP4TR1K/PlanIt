@@ -32,7 +32,8 @@ function normalizeEvent(e) {
         type: e.type,
         category: e.category,
         helyszin: e.helyszin,
-        dates: e.dates.map(formatDate)
+        dates: e.dates.map(formatDate),
+        rawDates: e.dates
     };
 }
 
@@ -42,6 +43,8 @@ function formatDate(dateStr) {
 
 function renderCards(eventsToRender) {
     const container = document.getElementById('discoverevents');
+    if (!container) return;
+
     container.innerHTML = '';
     eventsToRender.forEach(event => {
         const card = document.createElement('div');
@@ -62,7 +65,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadGoogleMapsAPI();
     initializeMap();
     setupEventListeners();
-    fetchEvents();
+    await fetchEvents();
+
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('eventId');
+    if (eventId) {
+        window.openEventModal(parseInt(eventId));
+    }
 });
 
 let map;
@@ -92,10 +101,13 @@ async function loadGoogleMapsAPI() {
 }
 
 function initializeMap() {
+    const mapDisplay = document.getElementById('mapDisplay');
+    if (!mapDisplay) return;
+
     const defaultCenter = { lat: 47.4979, lng: 19.0402 };
     const defaultZoom = 13;
 
-    map = new google.maps.Map(document.getElementById('mapDisplay'), {
+    map = new google.maps.Map(mapDisplay, {
         center: defaultCenter,
         zoom: defaultZoom,
         streetViewControl: false,
@@ -105,56 +117,90 @@ function initializeMap() {
     infoWindow = new google.maps.InfoWindow();
 }
 
+// Pin marker SVG generálás – 1 event: kék, több event: lila + szám
+// encodeURIComponent: az SVG-t URL-safe formátumra alakítja (nem kell base64!)
+function makeMarkerSvg(color, label) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42">
+        <path d="M16 2 C24 2 30 8 30 16 C30 28 16 42 16 42 C16 42 2 28 2 16 C2 8 8 2 16 2Z"
+              fill="${color}" stroke="white" stroke-width="2.5"/>
+        <text x="16" y="21" text-anchor="middle" fill="white"
+              font-size="12" font-weight="bold">${label}</text>
+    </svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+// Cluster SVG generálás – kék kör a darabszámmal
+function makeClusterSvg(count) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44">
+        <circle cx="22" cy="22" r="20" fill="#3b82f6" stroke="white" stroke-width="3"/>
+        <text x="22" y="27" text-anchor="middle" fill="white"
+              font-size="14" font-weight="bold">${count > 99 ? '99+' : count}</text>
+    </svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
 // Display markers on map
 function displayMarkers(eventsToShow) {
-    if (clusterer) {
-        clusterer.clearMarkers();
-        clusterer = null;
-    }
+    if (!map) return;
+
+    if (clusterer) { clusterer.clearMarkers(); clusterer = null; }
     markers = [];
 
-    const markerColors = {
-        hivatalos: '#0004ff',
-        kozossegi: '#ff0000'
-    };
+    // Csoportosítás helyszín szerint (ugyanolyan lat/lng = 1 marker)
+    const byLocation = {};
+    eventsToShow.forEach(e => {
+        const key = `${e.lat},${e.lng}`;
+        if (!byLocation[key]) byLocation[key] = [];
+        byLocation[key].push(e);
+    });
 
-    eventsToShow.forEach(event => {
-        const markerColor = markerColors[event.type] || '#5d5fef';
+    Object.values(byLocation).forEach(events => {
+        const { lat, lng } = events[0];
+        const multi = events.length > 1;
+
+        // 1 event → kék pin, több event → lila pin a darabszámmal
+        const color = multi ? '#7c3aed' : '#3b82f6';
+        const label = multi ? String(events.length) : '●';
 
         const marker = new google.maps.Marker({
-            position: { lat: event.lat, lng: event.lng },
-            title: event.name,
+            position: { lat, lng },
             icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: markerColor,
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 2
+                url: makeMarkerSvg(color, label),
+                scaledSize: new google.maps.Size(32, 42),
+                anchor: new google.maps.Point(16, 42)
             }
         });
 
         marker.addListener('click', () => {
-            const contentString = `
-                <div class="map-popup-content">
-                    <h3 class="popup-title">${event.name}</h3>
-                    <div class="popup-details">
-                        <p class="popup-date"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z"/></svg> ${event.dates.join(' • ')}</p>
-                        <p class="popup-type"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z"/></svg> ${getTypeLabel(event.type)}</p>
-                        <p class="popup-category"><svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="m260-520 220-360 220 360H260ZM700-80q-75 0-127.5-52.5T520-260q0-75 52.5-127.5T700-440q75 0 127.5 52.5T880-260q0 75-52.5 127.5T700-80Zm-580-20v-320h320v320H120Z"/></svg> ${getCategoryLabel(event.category)}</p>
-                        <p class="popup-description">${event.helyszin}</p>
-                    </div>
-                    <button class="popup-btn" onclick="openEventModal(${event.id})">Érdekel</button>
-                </div>
-            `;
-            infoWindow.setContent(contentString);
+            infoWindow.setContent(multi ? buildMultiPopup(events) : buildSinglePopup(events[0]));
             infoWindow.open(map, marker);
         });
 
-        markers.push({ marker, event });
+        markers.push({ marker });
     });
 
-    clusterer = new markerClusterer.MarkerClusterer({ map, markers: markers.map(m => m.marker) });
+    // Custom cluster megjelenés: kék kör SVG-vel
+    const renderer = {
+        render: ({ count, position }) => new google.maps.Marker({
+            position,
+            icon: {
+                url: makeClusterSvg(count),
+                scaledSize: new google.maps.Size(50, 50),
+                anchor: new google.maps.Point(25, 25)
+            },
+            zIndex: 1000
+        })
+    };
+
+    // @googlemaps/markerclusterer külső library – unpkg CDN-ről töltjük be a HTML-ben
+    // GridAlgorithm: pixel-alapú négyzetráccsal dönti el mikor vonjon össze markereket
+    // gridSize: 65px – minél nagyobb, annál több markert von össze egy clusterbe
+    clusterer = new markerClusterer.MarkerClusterer({
+        map,
+        markers: markers.map(m => m.marker),
+        renderer,
+        algorithm: new markerClusterer.GridAlgorithm({ gridSize: 65 })
+    });
 
     if (markers.length > 0) {
         const bounds = new google.maps.LatLngBounds();
@@ -163,78 +209,96 @@ function displayMarkers(eventsToShow) {
     }
 }
 
-// Setup event listeners
-function setupEventListeners() {
-    // Search button
-    document.getElementById('searchBtn').addEventListener('click', performSearch);
-    
-    // Real-time search as user types
-    document.getElementById('searchInput').addEventListener('input', performSearch);
-    
-    // Search on Enter key
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
-
-    // Filter changes
-    document.getElementById('typeFilter').addEventListener('change', applyFilters);
-    
-    // Category checkboxes
-    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', applyFilters);
-    });
-
-    // Reset filters
-    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+function buildSinglePopup(e) {
+    return `<div class="map-popup-content">
+        <h3 class="popup-title">${e.name}</h3>
+        <p class="popup-location">📍 ${e.helyszin}</p>
+        <p class="popup-date">🗓 ${e.dates.join(' • ')}</p>
+        <p class="popup-category">🏷 ${e.category}</p>
+        <button class="popup-btn" onclick="infoWindow.close(); openEventModal(${e.id})">Részletek</button>
+    </div>`;
 }
 
-// Perform search
+function buildMultiPopup(events) {
+    const items = events.map(e => `
+        <div class="popup-multi-item">
+            <div class="popup-multi-info">
+                <span class="popup-multi-name">${e.name}</span>
+                <span class="popup-multi-date">${e.dates[0]}${e.dates.length > 1 ? ` (+${e.dates.length - 1})` : ''}</span>
+            </div>
+            <button class="popup-mini-btn" onclick="infoWindow.close(); openEventModal(${e.id})">→</button>
+        </div>`).join('');
+    return `<div class="map-popup-content">
+        <h3 class="popup-title">📍 ${events[0].helyszin}</h3>
+        <p class="popup-subtitle">${events.length} esemény ezen a helyszínen</p>
+        <div class="popup-multi-list">${items}</div>
+    </div>`;
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    document.getElementById('searchBtn')?.addEventListener('click', performSearch);
+    document.getElementById('searchInput')?.addEventListener('input', performSearch);
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') performSearch();
+    });
+    document.querySelectorAll('.category-checkbox').forEach(cb => {
+        cb.addEventListener('change', applyFilters);
+    });
+    document.getElementById('dateFrom')?.addEventListener('change', applyFilters);
+    document.getElementById('dateTo')?.addEventListener('change', applyFilters);
+    document.getElementById('resetFilters')?.addEventListener('click', resetFilters);
+}
+
 function performSearch() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    
     if (!searchTerm) {
         applyFilters();
         return;
     }
-
     const filteredEvents = allEvents.filter(evt =>
         evt.name.toLowerCase().includes(searchTerm) ||
-        evt.description.toLowerCase().includes(searchTerm) ||
-        getTypeLabel(evt.type).toLowerCase().includes(searchTerm) ||
-        getCategoryLabel(evt.category).toLowerCase().includes(searchTerm)
+        evt.helyszin.toLowerCase().includes(searchTerm) ||
+        evt.category.toLowerCase().includes(searchTerm)
     );
-
     renderCards(filteredEvents);
     displayMarkers(filteredEvents);
 }
 
-// Apply filters
 function applyFilters() {
-    const typeFilter = document.getElementById('typeFilter').value;
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    
-    // Get checked categories
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const normalizeStr = str => (str || '').normalize('NFC').toLowerCase().trim();
     const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-        .map(cb => cb.value);
+        .map(cb => normalizeStr(cb.value));
+    const dateFrom = document.getElementById('dateFrom')?.value || '';
+    const dateTo = document.getElementById('dateTo')?.value || '';
 
     let filteredEvents = allEvents;
 
-    if (typeFilter !== 'all') {
-        filteredEvents = filteredEvents.filter(evt => evt.type === typeFilter);
-    }
-
     if (checkedCategories.length > 0) {
-        filteredEvents = filteredEvents.filter(evt => checkedCategories.includes(evt.category));
+        filteredEvents = filteredEvents.filter(evt =>
+            checkedCategories.includes(normalizeStr(evt.category))
+        );
     } else {
         filteredEvents = [];
+    }
+
+    if (dateFrom || dateTo) {
+        filteredEvents = filteredEvents.filter(evt =>
+            evt.rawDates.some(d => {
+                if (dateFrom && dateTo) return d >= dateFrom && d <= dateTo;
+                if (dateFrom) return d >= dateFrom;
+                return d <= dateTo;
+            })
+        );
     }
 
     if (searchTerm) {
         filteredEvents = filteredEvents.filter(evt =>
             evt.name.toLowerCase().includes(searchTerm) ||
-            evt.description.toLowerCase().includes(searchTerm)
+            evt.helyszin.toLowerCase().includes(searchTerm) ||
+            evt.category.toLowerCase().includes(searchTerm)
         );
     }
 
@@ -242,16 +306,15 @@ function applyFilters() {
     displayMarkers(filteredEvents);
 }
 
-// Reset all filters
 function resetFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('typeFilter').value = 'all';
-    
-    // Check all category checkboxes
+    const dateFromEl = document.getElementById('dateFrom');
+    const dateToEl = document.getElementById('dateTo');
+    if (dateFromEl) dateFromEl.value = '';
+    if (dateToEl) dateToEl.value = '';
     document.querySelectorAll('.category-checkbox').forEach(cb => {
         cb.checked = true;
     });
-    
     renderCards(allEvents);
     displayMarkers(allEvents);
     map.setCenter({ lat: 47.4979, lng: 19.0402 });
@@ -448,31 +511,101 @@ window.mapFunctions = {
 };
 
 const categoryHeroImages = {
-    'koncert': '/images/categories/koncert.png',
-    'fesztivál': '/images/categories/fesztival.png',
-    'sport': '/images/categories/sport.png',
-    'színház': '/images/categories/szinhaz.png',
-    'komédia': '/images/categories/komedia.png'
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
 };
 
 window.openEventModal = function(eventId) {
     const event = allEvents.find(e => e.id === eventId);
     if (!event) return;
 
-    document.getElementById('eventModalHero').src = categoryHeroImages[event.category.toLowerCase()] || '/images/categories/default.png';
-    document.getElementById('eventModalImage').src = `/api/images/${event.id+214}`;
-    document.getElementById('eventModalTitle').textContent = event.name;
-    document.getElementById('eventModalCategory').textContent = getCategoryLabel(event.category);
-    document.getElementById('eventModalLocation').textContent = event.helyszin;
-
+    const heroEl = document.getElementById('eventModalHero');
+    const imageEl = document.getElementById('eventModalImage');
+    const titleEl = document.getElementById('eventModalTitle');
+    const categoryEl = document.getElementById('eventModalCategory');
+    const locationEl = document.getElementById('eventModalLocation');
     const datesContainer = document.getElementById('eventModalDates');
+    const modalEl = document.getElementById('eventModal');
+
+    if (!heroEl || !imageEl || !titleEl || !categoryEl || !locationEl || !datesContainer || !modalEl) {
+        window.location.href = `/felfedezes?eventId=${eventId}`;
+        return;
+    }
+
+    heroEl.src = categoryHeroImages[event.category.toLowerCase()] || '/api/categories/default.png';
+    imageEl.src = `/api/images/${event.id+214}`;
+    titleEl.textContent = event.name;
+    categoryEl.textContent = getCategoryLabel(event.category);
+    locationEl.textContent = event.helyszin;
+
+    const countEl = document.getElementById('eventModalParticipantCount');
+    if (countEl) {
+        fetch(`/api/events/${event.id}/participants/count`)
+            .then(r => r.json())
+            .then(data => { countEl.textContent = data.count; });
+    }
+
+    const descEl = document.getElementById('eventModalDescription');
+    if (descEl) {
+        // TODO: jelenleg a DB-ben az events.description mező üres (példa adatok)
+        // Ha majd valódi leírás kerül be, automatikusan azt fogja mutatni
+        descEl.textContent = event.description ||
+            'A részletes leírás és jegyvásárlási lehetőség az esemény oldalán érhető el. Keresd fel a TicketSwap oldalt a jegyekért!';
+    }
+
     datesContainer.innerHTML = event.dates.map((d, i) =>
         `<span class="date-chip ${i === 0 ? 'selected' : ''}" onclick="selectDateChip(this)">${d}</span>`
     ).join('');
 
-    const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+    // Érdekel gomb státusz betöltése
+    const btn = document.getElementById('interestedBtn');
+    if (btn) {
+        btn.dataset.eventId = event.id;
+        btn.textContent = 'Érdekel';
+        btn.disabled = false;
+        btn.classList.remove('btn-joined');
+
+        fetch(`/api/events/${event.id}/joined`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.joined) {
+                    btn.textContent = '✓ Jelentkeztem';
+                    btn.disabled = true;
+                    btn.classList.add('btn-joined');
+                }
+            });
+    }
+
+    const modal = new bootstrap.Modal(modalEl);
     modal.show();
 };
+
+async function handleInterested() {
+    const btn = document.getElementById('interestedBtn');
+    const eventId = btn.dataset.eventId;
+
+    const response = await fetch(`/api/events/${eventId}/join`, { method: 'POST' });
+    const data = await response.json();
+
+    if (response.status === 401) {
+        bootstrap.Modal.getInstance(document.getElementById('eventModal'))?.hide();
+        new bootstrap.Modal(document.getElementById('loginModal')).show();
+        return;
+    }
+
+    if (response.ok) {
+        btn.textContent = '✓ Jelentkeztem';
+        btn.disabled = true;
+        btn.classList.add('btn-joined');
+    } else {
+        alert(data.message);
+    }
+}
 
 function selectDateChip(el) {
     el.closest('.date-chips').querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));

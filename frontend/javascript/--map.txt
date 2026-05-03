@@ -1,0 +1,15 @@
+--Jelenleg ismert hibák / tennivalók
+
+index.html törölni - régi verzió, már nem kell, home.html az aktuális főoldal
+-map.js / felfedezes.js külön!
+-van egy felesleges esemenyeim tab profilnál
+
+-fefeldezésnél nem lehet regisztralni loginolni
+- uj esemeny letrehozas nem akar mukodni az esemenyeim tabnal
+!Óra percet is írjon az eseményhez!
+!érdeklődők száma mindenhova a részletekbe!
+navbar - nem teljesen egyforma minden oldalon, át kéne nézni hogy mindenhol ugyanaz legyen
+
+/szervezo oldal - a route megvan backenden, de a navbarból nem érhető el
+csak role alapján kellene megjeleníteni (admin/szervező)
+főoldal map szekció - kell-e egyáltalán? jelenleg van de üres filterekkel működik

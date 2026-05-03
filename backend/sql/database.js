@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { get } = require('browser-sync');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -26,9 +27,9 @@ async function insertLocation(name, latitude, longitude, link) {
     return rows;
 }
 
-async function insertEvents(type, description, category, title, date, capacity, location_id ) {
-    const query = 'INSERT INTO events (type, description, category, title, date, capacity, location_id) VALUES (?, ?, ?, ?, ?, ?, ?);';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id]);
+async function insertEvents(type, description, category, title, date, location_id, created_by) {
+    const query = 'INSERT INTO events (type, description, category, title, date, location_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?);';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, created_by]);
     return rows;
 }
 
@@ -95,9 +96,9 @@ async function deleteUserById(id) {
 }
 
 //Updatek
-async function updateEventById(id, type, description, category, title, date, capacity, location_id) {
-    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, capacity = ?, location_id = ? WHERE id = ?;';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id, id]);
+async function updateEventById(id, type, description, category, title, date, location_id) {
+    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, location_id = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, id]);
     return rows;
 }
 
@@ -312,6 +313,18 @@ async function insertCommunityEvent(type, description, category, title, date, ca
     return rows;
 }
 
+async function getUserCreatedOfficialEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        WHERE e.created_by = ? AND e.date >= CURDATE() AND e.type = 'Official'
+        ORDER BY e.date ASC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
 async function getEventDetailsById(eventId) {
     const query = `
         SELECT e.*, l.name AS location, l.latitude, l.longitude,
@@ -362,6 +375,43 @@ async function createInviteForEvent(eventId, name, location, date, created_by, m
     const query = 'INSERT INTO event_invites (event_id, name, location, date, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
     await pool.execute(query, [eventId, name, location || '', date, created_by, expires_at, max_capacity, token]);
     return token;
+async function selectAllUsersAdmin() {
+    const query = 'SELECT id, username, email, full_name, role, creation_date FROM users ORDER BY id ASC;';
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
+async function selectAllEventsAdmin() {
+    const query = `
+        SELECT events.id, events.title, events.category, events.type, events.is_private, events.date, events.created_by,
+               locations.name AS helyszin
+        FROM events
+        LEFT JOIN locations ON events.location_id = locations.id
+        ORDER BY events.date DESC;
+    `;
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
+async function updateUserRole(id, role) {
+    const query = 'UPDATE users SET role = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [role, id]);
+    return rows;
+async function getParticipantCount(eventId) {
+    const [rows] = await pool.execute('SELECT COUNT(*) AS count FROM event_participants WHERE event_id = ?', [eventId]);
+    return rows[0].count;
+}
+
+async function joinEvent(eventId, userId) {
+    const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
+    if (existing.length > 0) return { success: false, message: 'Már jelentkeztél erre az eseményre.' };
+    await pool.execute('INSERT INTO event_participants (event_id, user_id) VALUES (?, ?)', [eventId, userId]);
+    return { success: true };
+}
+
+async function isUserParticipant(eventId, userId) {
+    const [rows] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
+    return rows.length > 0;
 }
 
 async function deleteEventAndParticipants(eventId) {
@@ -369,6 +419,70 @@ async function deleteEventAndParticipants(eventId) {
     await pool.execute('DELETE FROM event_invites WHERE event_id = ?', [eventId]);
     await pool.execute('DELETE FROM events WHERE id = ?', [eventId]);
     return true;
+}
+
+async function selectAllLocationsAdmin() {
+    const query = `
+        SELECT l.id, l.name, l.latitude, l.longitude, l.link,
+               l.is_private, l.created_by, u.username AS creator
+        FROM locations l
+        LEFT JOIN users u ON l.created_by = u.id
+        ORDER BY l.id ASC;
+    `;
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
+async function selectAllInvitesAdmin() {
+    const query = `
+        SELECT ei.id, ei.token, ei.name, ei.location, ei.date,
+               ei.max_capacity, ei.uses, ei.expires_at, ei.created_by,
+               u.username AS creator, e.title AS event_title, e.id AS event_id
+        FROM event_invites ei
+        LEFT JOIN users u ON ei.created_by = u.id
+        LEFT JOIN events e ON ei.event_id = e.id
+        ORDER BY ei.id DESC;
+    `;
+    const [rows] = await pool.execute(query);
+    return rows;
+}
+
+async function deleteInviteById(id) {
+    const query = 'DELETE FROM event_invites WHERE id = ?;';
+    const [rows] = await pool.execute(query, [id]);
+    return rows;
+}
+
+async function createInviteAdmin(eventId, maxCapacity, expiresAt, createdBy) {
+    const [eventRows] = await pool.execute(
+        'SELECT e.title, e.is_private, l.name AS location, e.date FROM events e LEFT JOIN locations l ON e.location_id = l.id WHERE e.id = ?',
+        [eventId]
+    );
+    if (!eventRows.length) throw new Error('Esemény nem található');
+    const event = eventRows[0];
+
+    if (!event.is_private) throw new Error('Csak privát eseményhez lehet meghívót létrehozni.');
+
+    const [existing] = await pool.execute('SELECT id FROM event_invites WHERE event_id = ?', [eventId]);
+    if (existing.length) throw new Error('Az eseményhez már tartozik meghívó.');
+
+    let token;
+    let tries = 0;
+    do {
+        token = String(Math.floor(1000000000 + Math.random() * 9000000000));
+        const [existing] = await pool.execute('SELECT id FROM event_invites WHERE token = ?', [token]);
+        if (existing.length === 0) break;
+        tries++;
+    } while (tries < 5);
+
+    const expiresFormatted = new Date(expiresAt).toISOString().slice(0, 19).replace('T', ' ');
+    const eventDateFormatted = new Date(event.date).toISOString().slice(0, 10);
+
+    await pool.execute(
+        'INSERT INTO event_invites (event_id, name, location, date, created_by, expires_at, max_capacity, token) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [eventId, event.title, event.location || '', eventDateFormatted, createdBy, expiresFormatted, maxCapacity, token]
+    );
+    return token;
 }
 
 //!Export
@@ -381,6 +495,8 @@ module.exports = {
     selectUser,
     selectEventById,
     selectLocationById,
+    selectLocationByCoordinates,
+    selectAllLocations,
     deleteEventById,
     deleteLocationById,
     deleteUserById,
@@ -407,6 +523,7 @@ module.exports = {
     getUserCommunityEvents,
     getUserPrivateEvents,
     getUserCreatedEvents,
+    getUserCreatedOfficialEvents,
     getEventDetailsById,
     removeUserFromEvent,
     decrementInviteUses,
@@ -416,4 +533,14 @@ module.exports = {
     selectLocationByCoordinates,
     insertPrivateLocation,
     createInviteForEvent
+    selectAllUsersAdmin,
+    selectAllEventsAdmin,
+    updateUserRole,
+    selectAllLocationsAdmin,
+    selectAllInvitesAdmin,
+    deleteInviteById,
+    createInviteAdmin
+    joinEvent,
+    isUserParticipant,
+    getParticipantCount
 };
