@@ -156,8 +156,9 @@ async function login(email, password) {
 
 //Regisztráció
 async function register(username, email, password, full_name) {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const query = 'INSERT INTO users (username, email, password, role, full_name) VALUES (?, ?, ?, "user", ?);';
-    const [rows] = await pool.execute(query, [username, email, password, full_name]);
+    const [rows] = await pool.execute(query, [username, email, hashedPassword, full_name]);
     return rows;
 }
 
@@ -309,7 +310,7 @@ async function getPastCreatedEvents(userId) {
         FROM events e
         LEFT JOIN locations l ON e.location_id = l.id
         WHERE (
-            (e.created_by = ? AND e.type IN ('community', 'private'))
+            (e.created_by = ? AND e.type LIKE 'community')
             OR
             e.id IN (SELECT event_id FROM event_invites WHERE created_by = ?)
         )
@@ -328,7 +329,7 @@ async function getUserCreatedEvents(userId) {
         FROM events e
         LEFT JOIN locations l ON e.location_id = l.id
         WHERE (
-            (e.created_by = ? AND e.type IN ('community', 'private'))
+            (e.created_by = ? AND e.type LIKE 'community')
             OR
             e.id IN (SELECT event_id FROM event_invites WHERE created_by = ?)
         )
