@@ -880,13 +880,17 @@ a.event-action-btn {
 }
 
 .event-modal-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 30px;
     padding: 20px;
     background: var(--input-background);
     border-radius: 16px;
+}
+
+.event-detail-row {
+    flex: 1 1 200px;
 }
 
 .event-detail-row {
@@ -1259,8 +1263,11 @@ a.event-action-btn {
     }
     
     .event-modal-details {
-        grid-template-columns: 1fr;
         gap: 15px;
+    }
+
+    .event-detail-row {
+        flex: 1 1 100%;
     }
     
     .event-modal-actions {

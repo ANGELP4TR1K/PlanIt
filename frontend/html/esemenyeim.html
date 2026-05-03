@@ -338,8 +338,8 @@
             <h1 class="events-title">Eseményeim</h1>
             <p class="events-subtitle">Kezelje csatlakozott és létrehozott eseményeit</p>
             <div class="events-header-actions">
-                <button class="action-btn action-btn-primary" id="joinEventBtn">Eseményhez csatlakozás</button>
-                <button class="action-btn action-btn-secondary" id="createEventBtn">Új esemény létrehozása</button>
+                <button class="action-btn action-btn-primary" id="joinEventBtn">Privát eseményhez csatlakozás</button>
+                <button class="action-btn action-btn-secondary" id="createEventBtn">Új közösségi esemény létrehozása</button>
             </div>
         </div>
 
@@ -348,6 +348,8 @@
             <button class="tab-btn active" data-tab="official">Hivatalos Eseményeim</button>
             <button class="tab-btn" data-tab="community">Közösségi Eseményeim</button>
             <button class="tab-btn" data-tab="created">Létrehozott Eseményeim</button>
+            <button class="tab-btn" data-tab="past">Korábbi Eseményeim</button>
+            <button class="tab-btn" data-tab="pastCreated">Korábbi Létrehozásaim</button>
         </div>
 
         <!-- Official Events Section -->
@@ -370,8 +372,22 @@
         <div id="created" class="tab-content">
             <div class="events-grid" id="createdEventsGrid">
                 <div class="empty-state">
-                    
+
                 </div>
+            </div>
+        </div>
+
+        <!-- Past Events Section -->
+        <div id="past" class="tab-content">
+            <div class="events-grid" id="pastEventsGrid">
+                <div class="empty-state"></div>
+            </div>
+        </div>
+
+        <!-- Past Created Events Section -->
+        <div id="pastCreated" class="tab-content">
+            <div class="events-grid" id="pastCreatedEventsGrid">
+                <div class="empty-state"></div>
             </div>
         </div>
     </div>
@@ -596,7 +612,7 @@
                 </button>
                 <h2 class="modal-title">Résztvevők</h2>
                 <p class="subtitle" id="participantsModalSubtitle"></p>
-                <div id="participantsList" style="margin-top: 1rem; max-height: 400px; overflow-y: auto;"></div>
+                <div id="participantsList" class="participant-list"></div>
             </div>
         </div>
     </div>

@@ -433,11 +433,15 @@ router.get('/userEvents', async (request, response) => {
         const communityEvents = await database.getUserCommunityEvents(userId);
         const privateEvents = await database.getUserPrivateEvents(userId);
         const createdEvents = await database.getUserCreatedEvents(userId);
+        const pastEvents = await database.getPastUserEvents(userId);
+        const pastCreatedEvents = await database.getPastCreatedEvents(userId);
 
         return response.status(200).json({
             communityEvents: communityEvents || [],
             privateEvents: privateEvents || [],
-            createdEvents: createdEvents || []
+            createdEvents: createdEvents || [],
+            pastEvents: pastEvents || [],
+            pastCreatedEvents: pastCreatedEvents || []
         });
 
     } catch (error) {

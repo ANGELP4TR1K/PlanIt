@@ -259,6 +259,19 @@ async function resetPassword(userId, newPassword) {
 }
 
 // User Events Functions
+async function getPastUserEvents(userId) {
+    const query = `
+        SELECT e.*, l.name AS location, l.latitude, l.longitude
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        JOIN event_participants ep ON e.id = ep.event_id
+        WHERE ep.user_id = ? AND e.date < CURDATE()
+        ORDER BY e.date DESC;
+    `;
+    const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
 async function getUserCommunityEvents(userId) {
     const query = `
         SELECT e.*, l.name AS location, l.latitude, l.longitude
@@ -285,6 +298,25 @@ async function getUserPrivateEvents(userId) {
         ORDER BY e.date ASC;
     `;
     const [rows] = await pool.execute(query, [userId]);
+    return rows;
+}
+
+async function getPastCreatedEvents(userId) {
+    const query = `
+        SELECT DISTINCT e.*, l.name AS location, l.latitude, l.longitude,
+            (SELECT token FROM event_invites WHERE event_id = e.id LIMIT 1) AS invite_token,
+            (SELECT COUNT(*) FROM event_participants WHERE event_id = e.id) AS participant_count
+        FROM events e
+        LEFT JOIN locations l ON e.location_id = l.id
+        WHERE (
+            (e.created_by = ? AND e.type IN ('community', 'private'))
+            OR
+            e.id IN (SELECT event_id FROM event_invites WHERE created_by = ?)
+        )
+        AND e.date < CURDATE()
+        ORDER BY e.date DESC;
+    `;
+    const [rows] = await pool.execute(query, [userId, userId]);
     return rows;
 }
 
@@ -536,6 +568,8 @@ module.exports = {
     createPasswordResetToken,
     verifyPasswordResetToken,
     resetPassword,
+    getPastUserEvents,
+    getPastCreatedEvents,
     getUserCommunityEvents,
     getUserPrivateEvents,
     getUserCreatedEvents,
