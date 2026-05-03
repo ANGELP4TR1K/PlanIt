@@ -82,6 +82,12 @@ async function loadAllEvents() {
         // Display created events
         displayEvents(data.createdEvents, 'createdEventsGrid', 'created');
 
+        // Display past events
+        displayEvents(data.pastEvents, 'pastEventsGrid', 'past');
+
+        // Display past created events
+        displayEvents(data.pastCreatedEvents, 'pastCreatedEventsGrid', 'pastCreated');
+
     } catch (error) {
         console.error('Error loading events:', error);
     }
@@ -122,6 +128,10 @@ function displayEvents(events, gridId, type) {
                 path.setAttribute('d', 'M40-160v-112q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v112H40Zm720 0v-120q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v120H760ZM247-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47Zm466 0q-47 47-113 47-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113q0 66-47 113ZM120-240h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm296.5-343.5Q440-607 440-640t-23.5-56.5Q393-720 360-720t-56.5 23.5Q280-673 280-640t23.5 56.5Q327-560 360-560t56.5-23.5ZM360-240Zm0-400Z');
             } else if (type === 'created') {
                 path.setAttribute('d', 'M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z');
+            } else if (type === 'past') {
+                path.setAttribute('d', 'M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-456v-224h80v192l120 120-48 56Z');
+            } else if (type === 'pastCreated') {
+                path.setAttribute('d', 'M480-120q-138 0-240.5-91.5T122-440h82q14 104 92.5 172T480-200q117 0 198.5-81.5T760-480q0-117-81.5-198.5T480-760q-69 0-129 32t-101 88h110v80H120v-240h80v94q51-64 124.5-99T480-840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840-480q0 75-28.5 140.5t-77 114q-48.5 48.5-114 77T480-120Zm112-192L440-456v-224h80v192l120 120-48 56Z');
             }
 
             svg.appendChild(path);
@@ -137,6 +147,10 @@ function displayEvents(events, gridId, type) {
                 paragraph.appendChild(link);
             } else if (type === 'community') {
                 paragraph.textContent = 'Nem csatlakoztál még közösségi eseményhez.';
+            } else if (type === 'past') {
+                paragraph.textContent = 'Még nem vettél részt eseményen.';
+            } else if (type === 'pastCreated') {
+                paragraph.textContent = 'Még nem hoztál létre eseményt.';
             } else if (type === 'created') {
                 paragraph.textContent = 'Nincsenek létrehozott eseményeid. ';
                 const link = document.createElement('a');
@@ -282,7 +296,7 @@ function createEventCard(event, type) {
             copyBtn.textContent = 'Meghívó másolása';
             copyBtn.addEventListener('click', () => {
                 const inviteUrl = `${window.location.origin}/esemenyeim?invite=${event.invite_token}`;
-                const message = `Meghívlak az ${event.title} eseményemre csatlakozz a következő kóddal vagy csak kattints a linkre!\n\n${event.invite_token}\n\n${inviteUrl}`;
+                const message = `Meghívlak a(z) ${event.title} eseményemre csatlakozz a következő kóddal vagy csak kattints a linkre!\n\n${event.invite_token}\n\n${inviteUrl}`;
                 navigator.clipboard.writeText(message).then(() => {
                     copyBtn.textContent = 'Másolva!';
                     setTimeout(() => { copyBtn.textContent = 'Meghívó link másolása'; }, 2000);
@@ -315,6 +329,20 @@ function createEventCard(event, type) {
         actions.appendChild(attendeesBtn);
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
+    } else if (type === 'past' || type === 'pastCreated') {
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'events-item-btn events-item-btn-secondary';
+        detailsBtn.textContent = 'Részletek';
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        actions.appendChild(detailsBtn);
+
+        if (type === 'pastCreated') {
+            const attendeesBtn = document.createElement('button');
+            attendeesBtn.className = 'events-item-btn events-item-btn-secondary';
+            attendeesBtn.textContent = 'Résztvevők';
+            attendeesBtn.addEventListener('click', () => openParticipantsModal(event.id, event.title, true));
+            actions.appendChild(attendeesBtn);
+        }
     } else {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-primary';
@@ -900,10 +928,10 @@ function setupEventActions() {
     }
 }
 
-async function openParticipantsModal(eventId, eventTitle) {
+async function openParticipantsModal(eventId, eventTitle, readonly = false) {
     const list = document.getElementById('participantsList');
     const subtitle = document.getElementById('participantsModalSubtitle');
-    list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Betöltés...</p>';
+    list.innerHTML = '<p class="participant-empty">Betöltés...</p>';
     subtitle.textContent = eventTitle;
 
     const modal = new bootstrap.Modal(document.getElementById('participantsModal'));
@@ -914,48 +942,50 @@ async function openParticipantsModal(eventId, eventTitle) {
         const data = await response.json();
 
         if (!response.ok) {
-            list.innerHTML = `<p style="color:red">${data.message}</p>`;
+            list.innerHTML = `<p class="participant-empty">${data.message}</p>`;
             return;
         }
 
         if (data.length === 0) {
-            list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Még nincs résztvevő.</p>';
+            list.innerHTML = '<p class="participant-empty">Még nincs résztvevő.</p>';
             return;
         }
 
         list.innerHTML = '';
         data.forEach(participant => {
             const row = document.createElement('div');
-            row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.08);';
+            row.className = 'participant-row';
 
             const info = document.createElement('div');
-            info.innerHTML = `<strong>${participant.full_name}</strong><br><span style="font-size:0.85rem; opacity:0.7">@${participant.username}</span>`;
-
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'events-item-btn events-item-btn-danger';
-            removeBtn.style.cssText = 'padding:0.25rem 0.75rem; font-size:0.8rem; flex-shrink:0;';
-            removeBtn.textContent = 'Eltávolítás';
-            removeBtn.addEventListener('click', async () => {
-                removeBtn.disabled = true;
-                removeBtn.textContent = '...';
-                const res = await fetch(`/api/events/${eventId}/participants/${participant.id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    row.remove();
-                    if (list.children.length === 0) {
-                        list.innerHTML = '<p style="color: var(--text-muted, #aaa);">Még nincs résztvevő.</p>';
-                    }
-                } else {
-                    removeBtn.disabled = false;
-                    removeBtn.textContent = 'Eltávolítás';
-                    showNotification('Nem sikerült eltávolítani a résztvevőt', 'error');
-                }
-            });
+            info.className = 'participant-info';
+            info.innerHTML = `<span class="participant-name">${participant.full_name}</span><span class="participant-username">@${participant.username}</span>`;
 
             row.appendChild(info);
-            row.appendChild(removeBtn);
+
+            if (!readonly) {
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'participant-remove-btn';
+                removeBtn.textContent = 'Eltávolítás';
+                removeBtn.addEventListener('click', async () => {
+                    removeBtn.disabled = true;
+                    removeBtn.textContent = '...';
+                    const res = await fetch(`/api/events/${eventId}/participants/${participant.id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        row.remove();
+                        if (list.children.length === 0) {
+                            list.innerHTML = '<p class="participant-empty">Még nincs résztvevő.</p>';
+                        }
+                    } else {
+                        removeBtn.disabled = false;
+                        removeBtn.textContent = 'Eltávolítás';
+                        showNotification('Nem sikerült eltávolítani a résztvevőt', 'error');
+                    }
+                });
+                row.appendChild(removeBtn);
+            }
             list.appendChild(row);
         });
     } catch (error) {
-        list.innerHTML = '<p style="color:red">Hálózati hiba</p>';
+        list.innerHTML = '<p class="participant-empty">Hálózati hiba</p>';
     }
 }
