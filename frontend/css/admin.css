@@ -409,6 +409,39 @@ body.dark-mode .btn-admin-delete {
     border-color: rgba(239, 68, 68, 0.25);
 }
 
+.btn-admin-edit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: var(--primary-hover);
+    color: var(--primary-purple);
+    border: 1px solid rgba(93, 95, 239, 0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-admin-edit:hover {
+    background: var(--primary-purple);
+    color: white;
+    border-color: rgba(93, 95, 239, 0.35);
+}
+
+body.dark-mode .btn-admin-edit {
+    background: rgba(93, 95, 239, 0.12);
+    border-color: rgba(93, 95, 239, 0.25);
+    color: var(--primary-purple);
+}
+
+body.dark-mode .btn-admin-edit:hover {
+    background: var(--primary-hover);
+    color: var(--primary-purple);
+}
+
 /* Create invite modal select */
 #createInviteModal .input-wrapper {
     padding: 0;
@@ -430,6 +463,52 @@ body.dark-mode .btn-admin-delete {
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 36px;
+}
+
+/* Edit modals select/textarea */
+#editUserModal .input-wrapper,
+#editEventModal .input-wrapper,
+#editLocationModal .input-wrapper {
+    padding: 0;
+}
+
+#editUserModal .input-wrapper select,
+#editEventModal .input-wrapper select {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: var(--input-background);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    cursor: pointer;
+    border-radius: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='20px' viewBox='0 -960 960 960' width='20px' fill='%23888'%3E%3Cpath d='M480-360 280-560h400L480-360Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+#editUserModal .input-wrapper input,
+#editEventModal .input-wrapper input,
+#editLocationModal .input-wrapper input,
+#editEventModal .input-wrapper textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: var(--input-background);
+    color: var(--text-color);
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    border-radius: inherit;
+}
+
+#editEventModal .input-wrapper textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
 }
 
 /* Delete modal */

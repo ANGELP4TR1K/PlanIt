@@ -1130,6 +1130,26 @@ router.delete('/admin/users/:id', requireAdmin, async (request, response) => {
     }
 });
 
+//?PUT /api/admin/users/:id
+router.put('/admin/users/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    const { username, email, full_name, role } = request.body;
+    if (!username || !email) {
+        return response.status(400).json({ message: 'Felhasználónév és e-mail kötelező.' });
+    }
+    if (role && !['user', 'szervezo', 'admin'].includes(role)) {
+        return response.status(400).json({ message: 'Érvénytelen szerepkör.' });
+    }
+    try {
+        await database.updateUserProfile(id, username, email, full_name || null);
+        if (role) await database.updateUserRole(id, role);
+        return response.status(200).json({ message: 'Felhasználó frissítve.' });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        return response.status(500).json({ message: 'Hiba a felhasználó frissítése során.' });
+    }
+});
+
 //?PUT /api/admin/users/:id/role
 router.put('/admin/users/:id/role', requireAdmin, async (request, response) => {
     const id = parseInt(request.params.id);
@@ -1169,6 +1189,25 @@ router.delete('/admin/events/:id', requireAdmin, async (request, response) => {
     }
 });
 
+//?PUT /api/admin/events/:id
+router.put('/admin/events/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    const { title, category, type, description, date, location_id } = request.body;
+    if (!title || !date) {
+        return response.status(400).json({ message: 'Cím és dátum kötelező.' });
+    }
+    if (type && !['official', 'private', 'community'].includes(type)) {
+        return response.status(400).json({ message: 'Érvénytelen típus.' });
+    }
+    try {
+        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null);
+        return response.status(200).json({ message: 'Esemény frissítve.' });
+    } catch (error) {
+        console.error('Error updating event:', error);
+        return response.status(500).json({ message: 'Hiba az esemény frissítése során.' });
+    }
+});
+
 //?GET /api/admin/locations
 router.get('/admin/locations', requireAdmin, async (request, response) => {
     try {
@@ -1189,6 +1228,22 @@ router.delete('/admin/locations/:id', requireAdmin, async (request, response) =>
     } catch (error) {
         console.error('Error deleting location:', error);
         return response.status(500).json({ message: 'Hiba a helyszín törlése során.' });
+    }
+});
+
+//?PUT /api/admin/locations/:id
+router.put('/admin/locations/:id', requireAdmin, async (request, response) => {
+    const id = parseInt(request.params.id);
+    const { name, latitude, longitude } = request.body;
+    if (!name) {
+        return response.status(400).json({ message: 'Név kötelező.' });
+    }
+    try {
+        await database.updateLocationById(id, name, latitude || null, longitude || null);
+        return response.status(200).json({ message: 'Helyszín frissítve.' });
+    } catch (error) {
+        console.error('Error updating location:', error);
+        return response.status(500).json({ message: 'Hiba a helyszín frissítése során.' });
     }
 });
 

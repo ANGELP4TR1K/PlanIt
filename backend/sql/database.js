@@ -418,10 +418,11 @@ async function selectAllUsersAdmin() {
 
 async function selectAllEventsAdmin() {
     const query = `
-        SELECT events.id, events.title, events.category, events.type, events.is_private, events.date, events.created_by,
-               locations.name AS helyszin
+        SELECT events.id, events.title, events.category, events.type, events.is_private, events.date, events.description,
+               events.location_id, events.created_by, locations.name AS helyszin, u.username AS creator
         FROM events
         LEFT JOIN locations ON events.location_id = locations.id
+        LEFT JOIN users u ON events.created_by = u.id
         ORDER BY events.date DESC;
     `;
     const [rows] = await pool.execute(query);
