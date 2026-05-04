@@ -613,7 +613,7 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
         return response.status(403).json({ message: 'Nincs jogosultságod' });
     }
 
-    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date } = request.body;
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, link } = request.body;
 
     if (!title || !description || !category || !date) {
         return response.status(400).json({ message: 'Hiányzó adatok!' });
@@ -656,7 +656,7 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
         }
 
         const userId = request.session.user.id;
-        const eventResult = await database.insertEvents('official', description, category, title, date, finalLocationId, userId);
+        const eventResult = await database.insertEvents('official', description, category, title, date, finalLocationId, userId, link || null);
         const eventId = eventResult.insertId;
 
         const imageDirPath = path.join(__dirname, '../uploads/eventImages');
@@ -705,7 +705,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
     }
 
     const eventId = parseInt(request.params.eventId);
-    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date } = request.body;
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, link } = request.body;
 
     if (!title || !description || !category || !date) {
         return response.status(400).json({ message: 'Hiányzó adatok!' });
@@ -750,7 +750,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
             }
         }
 
-        await database.updateEventById(eventId, 'official', description, category, title, date, finalLocationId);
+        await database.updateEventById(eventId, 'official', description, category, title, date, finalLocationId, link || null);
 
         if (request.file) {
             try {
@@ -838,7 +838,7 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
         return response.status(401).json({ message: 'Bejelentkezés szükséges' });
     }
 
-    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private } = request.body;
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private, link } = request.body;
 
     if (!title || !description || !category || !date || !capacity) {
         return response.status(400).json({ message: 'Hiányzó adatok!' });
@@ -910,7 +910,7 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
             }
         }
 
-        const eventResult = await database.insertCommunityEvent('community', description, category, title, date, capacity, finalLocationId, userId, isPrivate);
+        const eventResult = await database.insertCommunityEvent('community', description, category, title, date, capacity, finalLocationId, userId, isPrivate, link || null);
         const eventId = eventResult.insertId;
 
         if (isPrivate) {
@@ -959,7 +959,7 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
 
     const eventId = parseInt(request.params.eventId);
     const userId = request.session.user.id;
-    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private } = request.body;
+    const { title, description, category, locationId, locationName, zipCode, city, street, houseNumber, date, capacity, is_private, link } = request.body;
 
     if (!title || !description || !category || !date || !capacity) {
         return response.status(400).json({ message: 'Hiányzó adatok!' });
@@ -1033,7 +1033,7 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
             }
         }
 
-        await database.updateEventById(eventId, 'community', description, category, title, date, capacity, finalLocationId);
+        await database.updateEventById(eventId, 'community', description, category, title, date, finalLocationId, link || null);
 
         if (request.file) {
             try {
@@ -1192,7 +1192,7 @@ router.delete('/admin/events/:id', requireAdmin, async (request, response) => {
 //?PUT /api/admin/events/:id
 router.put('/admin/events/:id', requireAdmin, async (request, response) => {
     const id = parseInt(request.params.id);
-    const { title, category, type, description, date, location_id } = request.body;
+    const { title, category, type, description, date, location_id, link } = request.body;
     if (!title || !date) {
         return response.status(400).json({ message: 'Cím és dátum kötelező.' });
     }
@@ -1200,7 +1200,7 @@ router.put('/admin/events/:id', requireAdmin, async (request, response) => {
         return response.status(400).json({ message: 'Érvénytelen típus.' });
     }
     try {
-        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null);
+        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null, link || null);
         return response.status(200).json({ message: 'Esemény frissítve.' });
     } catch (error) {
         console.error('Error updating event:', error);
