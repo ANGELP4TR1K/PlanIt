@@ -1,0 +1,556 @@
+let allLocations = [];
+let editingEventId = null;
+let deletingEventId = null;
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const session = await userRole();
+    if (session && (session.role === 'szervezo' || session.role === 'admin')) {
+        await fetchUserCreatedEvents();
+        setupForm();
+        setupImagePreview();
+        setupLocationAutocomplete();
+        setupDeleteModal();
+    } 
+    else{
+        showAuthError();
+    } 
+});
+
+async function userRole() {
+    try {
+        const response = await fetch('/api/userRole', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        return data.session ? { authenticated: true, role: data.role } : null;
+    } catch (error) {
+        console.error('Session check error:', error);
+        return null;
+    }
+}
+
+async function fetchUserCreatedEvents() {
+    try {
+        const response = await fetch('/api/userCreatedOfficialEvents', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+
+        if (response.ok && data.events && data.events.length > 0) {
+            displayCreatedEvents(data.events);
+            document.getElementById('createdEventsSection').style.display = 'block';
+        } else {
+            showNoEventsMessage();
+        }
+    } catch (error) {
+        console.error('Error fetching created events:', error);
+    }
+}
+
+function displayCreatedEvents(events) {
+    const eventsList = document.getElementById('createdEventsList');
+    eventsList.innerHTML = '';
+
+    const mkSvg = d => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('height', '18px');
+        svg.setAttribute('viewBox', '0 -960 960 960');
+        svg.setAttribute('width', '18px');
+        svg.setAttribute('fill', 'currentColor');
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', d);
+        svg.appendChild(p);
+        return svg;
+    };
+
+    events.forEach(event => {
+        const card = document.createElement('div');
+        card.className = 'events-item';
+
+        const img = document.createElement('img');
+        img.src = `/api/images/${event.id}`;
+        img.alt = event.title;
+        img.className = 'events-item-img';
+        img.onerror = function() { this.onerror = null; };
+        card.appendChild(img);
+
+        const body = document.createElement('div');
+        body.className = 'events-item-body';
+
+        const title = document.createElement('h3');
+        title.className = 'events-item-title';
+        title.textContent = event.title;
+        body.appendChild(title);
+
+        const info = document.createElement('div');
+        info.className = 'events-item-info';
+
+        const dateRow = document.createElement('div');
+        dateRow.className = 'events-item-info-row';
+        dateRow.appendChild(mkSvg('M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-40q0-17 11.5-28.5T280-880q17 0 28.5 11.5T320-840v40h320v-40q0-17 11.5-28.5T680-880q17 0 28.5 11.5T720-840v40h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z'));
+        const dateSpan = document.createElement('span');
+        const dateObj = new Date(event.date);
+        dateSpan.textContent = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' }) +
+            ' ' + dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+        dateRow.appendChild(dateSpan);
+        info.appendChild(dateRow);
+
+        if (event.location) {
+            const locationRow = document.createElement('div');
+            locationRow.className = 'events-item-info-row';
+            locationRow.appendChild(mkSvg('M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-71.5-178.5T480-800q-109 0-180.5 69.5T228-552q0 71 59 162.5T480-186Z'));
+            const locationSpan = document.createElement('span');
+            locationSpan.textContent = event.location;
+            locationRow.appendChild(locationSpan);
+            info.appendChild(locationRow);
+        }
+
+        body.appendChild(info);
+
+        const badgeRow = document.createElement('div');
+        badgeRow.className = 'events-item-badge-row';
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'events-item-type events-item-type-official';
+        typeBadge.textContent = event.category;
+        badgeRow.appendChild(typeBadge);
+        body.appendChild(badgeRow);
+
+        const actions = document.createElement('div');
+        actions.className = 'events-item-actions';
+
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'events-item-btn events-item-btn-secondary';
+        detailsBtn.textContent = 'Részletek';
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'events-item-btn events-item-btn-primary';
+        editBtn.textContent = 'Szerkesztés';
+        editBtn.addEventListener('click', () => editEvent(event));
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'events-item-btn events-item-btn-danger';
+        deleteBtn.textContent = 'Törlés';
+        deleteBtn.addEventListener('click', () => {
+            deletingEventId = event.id;
+            new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
+        });
+
+        actions.appendChild(detailsBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        body.appendChild(actions);
+
+        card.appendChild(body);
+        eventsList.appendChild(card);
+    });
+}
+
+const categoryHeroImages = {
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
+};
+
+async function viewEventDetails(eventId) {
+    try {
+        const res = await fetch(`/api/events/${eventId}`);
+        if (!res.ok) { showNotification('Nem sikerült betölteni az esemény részleteit', 'error'); return; }
+        const event = await res.json();
+
+        const category = (event.category || '').toLowerCase();
+        document.getElementById('eventModalHero').src = categoryHeroImages[category] || '/api/categories/default.png';
+        document.getElementById('eventModalImage').src = `/api/images/${eventId}`;
+        document.getElementById('eventModalTitle').textContent = event.title;
+        document.getElementById('eventModalCategory').textContent = event.category || 'Általános';
+        document.getElementById('eventModalLocation').textContent = event.location;
+        document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
+
+        const d = new Date(event.date);
+        document.getElementById('eventModalDate').textContent =
+            d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+
+        const nav = document.getElementById('navigateBtn');
+        nav.href = event.lat && event.lng
+            ? `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
+
+        fetch(`/api/events/${eventId}/participants/count`)
+            .then(r => r.json())
+            .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count ?? 0; })
+            .catch(() => {});
+
+        new bootstrap.Modal(document.getElementById('eventDetailsModal')).show();
+
+    } catch (err) {
+        console.error(err);
+        showNotification('Hálózati hiba az esemény betöltésekor', 'error');
+    }
+}
+
+function showNoEventsMessage() {
+    const eventsList = document.getElementById('createdEventsList');
+    eventsList.innerHTML = '';
+    const noEvents = document.createElement('div');
+    noEvents.className = 'no-events';
+    noEvents.textContent = 'Még nem hoztál létre eseményt.';
+    eventsList.appendChild(noEvents);
+    document.getElementById('createdEventsSection').style.display = 'block';
+}
+
+function editEvent(event) {
+    editingEventId = event.id;
+
+    document.getElementById('title').value = event.title;
+    document.getElementById('description').value = event.description;
+    document.getElementById('category').value = event.category;
+    document.getElementById('locationInput').value = event.location || '';
+    document.getElementById('selectedLocationId').value = event.location_id || '';
+
+    const dateObj = new Date(event.date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    document.getElementById('date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('link').value = event.link || '';
+
+    document.getElementById('newLocationFields').style.display = 'none';
+    clearNewLocationFields();
+
+    document.getElementById('formTitle').textContent = 'Esemény szerkesztése';
+    document.getElementById('formSubtitle').textContent = 'Módosítsd az esemény adatait';
+
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.textContent = 'Esemény frissítése';
+
+    if (!document.getElementById('cancelBtn')) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancelBtn';
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'btn-cancel';
+        cancelBtn.textContent = 'Mégse';
+        cancelBtn.addEventListener('click', cancelEdit);
+        document.querySelector('.form-actions').appendChild(cancelBtn);
+    }
+
+    window.scrollTo({ top: document.getElementById('createEventForm').offsetTop, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+    editingEventId = null;
+    resetForm();
+    document.getElementById('formTitle').textContent = 'Új hivatalos esemény létrehozása';
+    document.getElementById('formSubtitle').textContent = 'Tölts ki az összes kötelező mezőt az esemény létrehozásához';
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.textContent = 'Esemény létrehozása';
+    const cancelBtn = document.getElementById('cancelBtn');
+    if (cancelBtn) {
+        cancelBtn.remove();
+    }
+}
+
+async function deleteEvent(eventId) {
+    try {
+        const response = await fetch(`/api/deleteOfficialEvent/${eventId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showNotification(data.message || 'Hiba az esemény törlése során.', 'error');
+            return;
+        }
+
+        showNotification('Esemény sikeresen törölve!', 'success');
+        editingEventId = null;
+        resetForm();
+        document.getElementById('formTitle').textContent = 'Új hivatalos esemény létrehozása';
+        document.getElementById('formSubtitle').textContent = 'Tölts ki az összes kötelező mezőt az esemény létrehozásához';
+        const submitBtn = document.querySelector('.btn-submit');
+        submitBtn.textContent = 'Esemény létrehozása';
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) {
+            cancelBtn.remove();
+        }
+        await fetchUserCreatedEvents();
+
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        showNotification('Hálózati hiba az esemény törlése során.', 'error');
+    }
+}
+
+function showAuthError() {
+    document.getElementById('createEventForm').style.display = 'none';
+    document.getElementById('authError').style.display = 'flex';
+}
+
+async function setupLocationAutocomplete() {
+    try {
+        const response = await fetch('/api/locations');
+        const data = await response.json();
+        allLocations = data.locations || [];
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+    }
+
+    const locationInput = document.getElementById('locationInput');
+    const locationDropdown = document.getElementById('locationDropdown');
+    const newLocationFields = document.getElementById('newLocationFields');
+    const selectedLocationId = document.getElementById('selectedLocationId');
+
+    locationInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+
+        if (query.length === 0) {
+            locationDropdown.style.display = 'none';
+            return;
+        }
+
+        const filtered = allLocations.filter(loc =>
+            loc.name.toLowerCase().includes(query)
+        );
+
+        locationDropdown.innerHTML = '';
+
+        if (filtered.length > 0) {
+            filtered.forEach(location => {
+                const item = document.createElement('div');
+                item.className = 'location-item';
+                item.textContent = location.name;
+                item.addEventListener('click', () => selectLocation(location.id, location.name));
+                locationDropdown.appendChild(item);
+            });
+        }
+
+        const newItem = document.createElement('div');
+        newItem.className = 'location-item location-item-new';
+        newItem.textContent = `"${query}" - Új helyszín létrehozása`;
+        newItem.addEventListener('click', () => createNewLocation(query));
+        locationDropdown.appendChild(newItem);
+
+        locationDropdown.style.display = 'block';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target !== locationInput && !locationDropdown.contains(e.target)) {
+            locationDropdown.style.display = 'none';
+        }
+    });
+
+    function selectLocation(locId, locName) {
+        locationInput.value = locName;
+        selectedLocationId.value = locId;
+        newLocationFields.style.display = 'none';
+        locationDropdown.style.display = 'none';
+        clearNewLocationFields();
+    }
+
+    function createNewLocation(name) {
+        locationInput.value = name;
+        selectedLocationId.value = '';
+        newLocationFields.style.display = 'block';
+        locationDropdown.style.display = 'none';
+    }
+}
+
+function clearNewLocationFields() {
+    document.getElementById('locationName').value = '';
+    document.getElementById('zipCode').value = '';
+    document.getElementById('city').value = '';
+    document.getElementById('street').value = '';
+    document.getElementById('houseNumber').value = '';
+}
+
+function setupDeleteModal() {
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+            modal.hide();
+            if (deletingEventId) {
+                await deleteEvent(deletingEventId);
+                deletingEventId = null;
+            }
+        });
+    }
+}
+
+function setupForm() {
+    const form = document.getElementById('eventForm');
+    const createEventForm = document.getElementById('createEventForm');
+
+    if (createEventForm) {
+        createEventForm.style.display = 'block';
+    }
+
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await submitForm();
+        });
+    }
+}
+
+function setupImagePreview() {
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            imageInput.value = '';
+            imagePreviewContainer.style.display = 'none';
+            imagePreview.src = '';
+        });
+    }
+}
+
+async function submitForm() {
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const category = document.getElementById('category').value;
+    const locationInput = document.getElementById('locationInput').value;
+    const selectedLocationId = document.getElementById('selectedLocationId').value;
+    const date = document.getElementById('date').value;
+    const link = document.getElementById('link').value.trim();
+    const imageInput = document.getElementById('image');
+    const formError = document.getElementById('formError');
+
+    formError.style.display = 'none';
+    formError.textContent = '';
+
+    if (!title || !description || !category || !locationInput || !date) {
+        showFormError('Tölts ki az összes kötelező mezőt!');
+        return;
+    }
+
+    if (!selectedLocationId) {
+        const locationName = document.getElementById('locationName').value;
+        const zipCode = document.getElementById('zipCode').value;
+        const city = document.getElementById('city').value;
+        const street = document.getElementById('street').value;
+        const houseNumber = document.getElementById('houseNumber').value;
+
+        if (!locationName || !zipCode || !city || !street || !houseNumber) {
+            showFormError('Tölts ki az összes helyszín adatot vagy válassz egy meglévő helyszínt!');
+            return;
+        }
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('category', category);
+        formData.append('date', date);
+        if (link) formData.append('link', link);
+
+        if (selectedLocationId) {
+            formData.append('locationId', selectedLocationId);
+        } else {
+            formData.append('locationName', document.getElementById('locationName').value);
+            formData.append('zipCode', document.getElementById('zipCode').value);
+            formData.append('city', document.getElementById('city').value);
+            formData.append('street', document.getElementById('street').value);
+            formData.append('houseNumber', document.getElementById('houseNumber').value);
+        }
+
+        if (imageInput.files.length > 0) {
+            formData.append('image', imageInput.files[0]);
+        }
+
+        let endpoint = '/api/createOfficialEvent';
+        let method = 'POST';
+
+        if (editingEventId) {
+            endpoint = `/api/updateOfficialEvent/${editingEventId}`;
+            method = 'PUT';
+        }
+
+        const response = await fetch(endpoint, {
+            method: method,
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const errorMsg = editingEventId ? 'Hiba az esemény frissítése során.' : 'Hiba az esemény létrehozása során.';
+            showFormError(data.message || errorMsg);
+            return;
+        }
+
+        const successMsg = editingEventId ? 'Esemény sikeresen frissítve!' : 'Esemény sikeresen létrehozva!';
+        showNotification(successMsg, 'success');
+
+        editingEventId = null;
+        resetForm();
+        document.getElementById('formTitle').textContent = 'Új hivatalos esemény létrehozása';
+        document.getElementById('formSubtitle').textContent = 'Tölts ki az összes kötelező mezőt az esemény létrehozásához';
+        const submitBtn = document.querySelector('.btn-submit');
+        submitBtn.textContent = 'Esemény létrehozása';
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) {
+            cancelBtn.remove();
+        }
+        await fetchUserCreatedEvents();
+
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        showFormError('Hálózati hiba az esemény létrehozása során.');
+    }
+}
+
+function showFormError(message) {
+    const formError = document.getElementById('formError');
+    formError.textContent = message;
+    formError.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+    document.getElementById('eventForm').reset();
+    document.getElementById('locationInput').value = '';
+    document.getElementById('selectedLocationId').value = '';
+    document.getElementById('newLocationFields').style.display = 'none';
+    clearNewLocationFields();
+    document.getElementById('image').value = '';
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('imagePreview').src = '';
+    document.getElementById('formError').style.display = 'none';
+}
+

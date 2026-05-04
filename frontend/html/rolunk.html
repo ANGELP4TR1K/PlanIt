@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlanIt - Rólunk</title>
+    <!--!Bootstrap-->
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" />
+    <!--?Popper: dropdowns, popovers, tooltips-->
+    <script src="../bootstrap/js/popper.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <!--!CSS-->
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/rolunk.css" />
+    <!--!JavaScript-->
+    <script src="../javascript/index.js"></script>
+</head>
+<body>
+
+    <div class="fixed-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid navbar-container">
+                <div class="logo-container">
+                    <a class="navbar-brand brand-text" href="/">PLAN<span>IT</span></a>
+                </div>
+                <div id="nav-buttons">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Téma váltó mobil nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+
+                <!-- Navbar gombjai -->
+                <div class="collapse navbar-collapse" id="planitNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Főoldal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/felfedezes">Felfedezés</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/esemenyeim">Eseményeim</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/rolunk">Rólunk</a>
+                        </li>
+                    </ul>
+
+                    <div class="dropdown">
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
+                                <button class="dropdown-item login-item" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Bejelentkezés</button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item register-item" data-bs-toggle="modal"
+                                    data-bs-target="#registerModal">Regisztráció</button>
+                            </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
+                        </ul>
+                    </div>
+
+                    <!-- Téma váltó desktop nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Főtartalom -->
+    <div class="rolunk-main">
+
+        <!-- Hero szekció -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <p class="hero-label">PLAN<span>IT</span></p>
+                <h1 class="hero-title">Minden esemény, egy helyen</h1>
+                <p class="hero-subtitle">Fedezd fel a közeledben zajló programokat, csatlakozz közösségi összejövetelekhez, vagy szervezd meg a saját eseményedet – mindezt egyetlen platformon.</p>
+                <a href="/felfedezes" class="hero-btn">Fedezd fel az eseményeket</a>
+            </div>
+        </section>
+
+        <!-- Mi az a PlanIt? -->
+        <section class="about-section">
+            <div class="about-inner">
+                <h2 class="section-heading">Mi az a PlanIt?</h2>
+                <p class="about-text">A PlanIt egy közösségi esemény tervező és felfedező platform, amelynek célja, hogy összehozza az embereket. Nem számít, hogy egy nagyszabású fesztiválra keresel jegyet, egy baráti pikniket szervezel, vagy éppen egy filmes estet tartanál – a PlanIt mindenre megoldást kínál.</p>
+                <p class="about-text">Hisszük, hogy a közösség erejét az összejövetelek adják. Ezért hoztuk létre azt a teret, ahol bárki megtalálhatja a számára legjobb programot, vagy megteremtheti azt.</p>
+            </div>
+        </section>
+
+        <!-- Funkciók -->
+        <section class="features-section">
+            <div class="features-inner">
+                <h2 class="section-heading centered">Mit tehetsz a PlanIt-en?</h2>
+                <p class="section-sub centered">Mindent megtalálsz, amire szükséged van – egy helyen.</p>
+                <div class="features-list">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3 class="feature-title">Fedezd fel az eseményeket</h3>
+                        <p class="feature-desc">Böngéssz a hozzád közel eső programok között. Szűrj kategória – sport, zene, kultúra, technológia és még sok más – vagy dátum szerint, és találd meg a számodra tökéletes eseményt.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎉</div>
+                        <h3 class="feature-title">Szervezz közösségi eseményt</h3>
+                        <p class="feature-desc">Piknik a parkban, kerti buli, filmest vagy spontán összejövetel – hozd létre a saját eseményedet, és hívd meg barátaidat egy egyedi meghívókóddal. Egyszerű, gyors, személyes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <h3 class="feature-title">Csatlakozz eseményekhez</h3>
+                        <p class="feature-desc">Megkaptad a meghívókódot egy eseményre? Add meg, és máris helyet foglaltál. Hivatalos programoknál egyszerűen kattints a "Részt veszek" gombra.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗺️</div>
+                        <h3 class="feature-title">Térképes nézet</h3>
+                        <p class="feature-desc">Lásd az eseményeket térképen is! Nézd meg, melyik program van a legközelebb hozzád, és tervezd meg az utadat előre.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏷️</div>
+                        <h3 class="feature-title">Kategóriák szerint szűrés</h3>
+                        <p class="feature-desc">Sport, zene, kultúra, üzlet, oktatás, közösség, technológia – minden kategóriában megtalálod a hozzád illő eseményeket, pontosan akkor, amikor keresed.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✅</div>
+                        <h3 class="feature-title">Hivatalos szervezők</h3>
+                        <p class="feature-desc">Regisztrált szervezők által létrehozott, ellenőrzött programok is elérhetők. Megbízható, részletes leírású és pontos helyszínű eseményekre iratkozhatsz fel.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hogyan működik? -->
+        <section class="how-section">
+            <div class="how-inner">
+                <h2 class="section-heading centered">Hogyan működik?</h2>
+                <p class="section-sub centered">Három lépés, és máris részese vagy a PlanIt közösségének.</p>
+                <div class="steps-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Regisztrálj</h3>
+                        <p class="step-desc">Hozz létre egy fiókot pár másodperc alatt – teljesen ingyenes. Adj meg egy felhasználónevet, e-mail címet és jelszót.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Böngéssz vagy hozz létre</h3>
+                        <p class="step-desc">Fedezd fel a közeledben elérhető eseményeket, vagy hozd létre a sajátodat néhány kattintással.</p>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Csatlakozz és élvezd</h3>
+                        <p class="step-desc">Iratkozz fel egy eseményre, vagy oszd meg meghívókódodat barátaiddal – és már csak a jó hangulatról kell gondoskodnod!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Csapat -->
+        <section class="team-section">
+            <div class="team-inner">
+                <h2 class="section-heading centered">A csapatunk</h2>
+                <p class="section-sub centered">Az emberek, akik a PlanIt-et életre keltik.</p>
+                <div class="team-list">
+                    <div class="team-card">
+                        <img src="/api/devpictures/kristof.jpg" alt="Bartha Kristóf" class="team-avatar">
+                        <h3 class="team-name">Bartha Kristóf</h3>
+                        <p class="team-role">Alapító &amp; Fejlesztő</p>
+                        <p class="team-bio">Kristóf a PlanIt ötletgazdája. Szenvedélye az emberek összehozása és a közösségi élmények megteremtése technológia segítségével.</p>
+                    </div>
+                    <div class="team-card">
+                        <img src="/api/devpictures/patrik.jpg" alt="Gallai Patrik" class="team-avatar">
+                        <h3 class="team-name">Gallai Patrik</h3>
+                        <p class="team-role">UX / UI Designer</p>
+                        <p class="team-bio">Patrik felelős azért, hogy a PlanIt ne csak jól működjön, hanem szép is legyen. Minden részletet gondosan megtervez a legjobb felhasználói élményért.</p>
+                    </div>
+                    <div class="team-card">
+                        <img src="/api/devpictures/peter.jpg" alt="Gyalog Péter" class="team-avatar">
+                        <h3 class="team-name">Gyalog Péter</h3>
+                        <p class="team-role">Backend Fejlesztő</p>
+                        <p class="team-bio">Péter gondoskodik arról, hogy a platform a háttérben is hibátlanul működjön. Az adatbiztonság és a megbízható infrastruktúra az ő szakterülete.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vélemények -->
+        <section class="testimonials-section">
+            <div class="testimonials-inner">
+                <h2 class="section-heading centered">Mit mondanak a felhasználóink?</h2>
+                <p class="section-sub centered">Igazi élmények, igazi emberektől.</p>
+                <div class="testimonials-list">
+                    <div class="testimonial-card">
+                        <p class="testimonial-quote">"A PlanIt-en keresztül szerveztem az első kerti bulimat. Annyira egyszerű volt meghívókat küldeni a barátaimnak – mindenki megkapta a kódot, és egy gombnyomással csatlakoztak."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">SZ</div>
+                            <div>
+                                <p class="testimonial-name">Szabó Zsófia</p>
+                                <p class="testimonial-meta">Budapest, 2026</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-quote">"Szervezőként a PlanIt teljesen megváltoztatta, hogyan kezelem az eseményeimet. Az eseménylétrehozás perceket vesz igénybe, a résztvevők kezelése pedig automatikus."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">VB</div>
+                            <div>
+                                <p class="testimonial-name">Varga Bálint</p>
+                                <p class="testimonial-meta">Debrecen, 2026</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="testimonial-quote">"Új városba költöztem, és a PlanIt segített megtalálni a helyi programokat. A térképes nézet különösen hasznos volt – rögtön láttam, mi zajlik a környékemen."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">MR</div>
+                            <div>
+                                <p class="testimonial-name">Molnár Réka</p>
+                                <p class="testimonial-meta">Győr, 2026</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Csatlakozz -->
+        <section class="cta-section">
+            <div class="cta-inner">
+                <h2 class="cta-title">Készen állsz?</h2>
+                <p class="cta-sub">Csatlakozz a PlanIt közösségéhez, és soha ne maradj le egy programról sem.</p>
+                <button class="cta-btn" data-bs-toggle="modal" data-bs-target="#registerModal">Regisztrálj ingyen</button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Bejelentkezés</p>
+                <form id="loginForm">
+                    <div class="login-input-field">
+                        <label for="email">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" placeholder="example@example.com" name="email" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="password">Jelszó</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" placeholder="••••••••" name="password" autocomplete="current-password" required>
+                            <button type="button" id="togglePassword" class="eye-btn">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="extra-options">
+                        <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Elfelejtetted a jelszavad?</a>
+                    </div>
+                    <button type="submit" class="login-btn">Bejelentkezés</button>
+                    <div id="loginError" class="error-message"></div>
+                </form>
+                <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Regisztrálj</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Regisztráció</p>
+                <form id="registerForm">
+                    <div class="login-input-field">
+                        <label for="regName">Teljes név</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="userName">Felhasználónév</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="regEmail">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="regEmail" placeholder="example@example.com" name="email" autocomplete="email" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="regPassword">Jelszó</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="regPassword" placeholder="••••••••" name="password" autocomplete="new-password" required>
+                            <button type="button" class="eye-btn toggle-reg-password">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="extra-options">
+                        <label><input type="checkbox" required> Elfogadom az <a href="/aszf">ÁSZF</a>-t</label>
+                    </div>
+                    <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                    <div id="registerError" class="error-message"></div>
+                </form>
+                <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Jelentkezz be</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Jelszó újítása</p>
+                <form id="forgotPasswordForm">
+                    <div class="login-input-field">
+                        <label for="forgotEmail">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="forgotEmail" placeholder="example@example.com" name="email" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn">Jelszó újítási link küldése</button>
+                    <div id="forgotPasswordError" class="error-message"></div>
+                    <div id="forgotPasswordSuccess" class="success-message"></div>
+                </form>
+                <p class="footer-text">Vissza a <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">bejelentkezéshez</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Új jelszó beállítása</p>
+                <form id="resetPasswordForm">
+                    <input type="hidden" id="resetToken" name="token">
+                    <div class="login-input-field">
+                        <label for="newPassword">Új jelszó</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="newPassword" placeholder="••••••••" name="password" required>
+                            <button type="button" class="eye-btn reset-password-eye">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="confirmPassword">Jelszó megerősítése</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirmPassword" placeholder="••••••••" name="confirmPassword" required>
+                            <button type="button" class="eye-btn reset-password-eye-confirm">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn">Jelszó megváltoztatása</button>
+                    <div id="resetPasswordError" class="error-message"></div>
+                    <div id="resetPasswordSuccess" class="success-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">PLAN<span>IT</span></a>
+                <p class="footer-tagline">Fedezd fel a körülötted zajló eseményeket, vagy szervezd meg a sajátodat – mindezt egy helyen.</p>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Oldal</h4>
+                <ul class="footer-links">
+                    <li><a href="/">Főoldal</a></li>
+                    <li><a href="/felfedezes">Felfedezés</a></li>
+                    <li><a href="/esemenyeim">Eseményeim</a></li>
+                    <li><a href="/rolunk">Rólunk</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Fiók</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Bejelentkezés</a></li>
+                    <li><a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Regisztráció</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Kapcsolat</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:planithungary@gmail.com">planithungary@gmail.com</a></li>
+                </ul>
+                <div class="footer-socials">
+                    <a href="https://www.facebook.com/" class="footer-social-btn" title="Facebook" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/" class="footer-social-btn" title="Instagram" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                        </svg>
+                    </a>
+                    <a href="https://twitter.com/" class="footer-social-btn" title="Twitter / X" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.261 5.632 5.902-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-bottom-inner">
+                <p class="footer-copyright">© 2026 PlanIt. Minden jog fenntartva.</p>
+                <div class="footer-bottom-links">
+                    <a href="/aszf">Általános Szerződési Feltételek</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

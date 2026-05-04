@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlanIt - ÁSZF</title>
+    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css" />
+    <script src="../bootstrap/js/popper.min.js"></script>
+    <script src="../bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/aszf.css" />
+    <script src="../javascript/index.js"></script>
+</head>
+<body>
+
+    <div class="fixed-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid navbar-container">
+                <div class="logo-container">
+                    <a class="navbar-brand brand-text" href="/">PLAN<span>IT</span></a>
+                </div>
+                <div id="nav-buttons">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#planitNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Téma váltó mobil nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+
+                <!-- Navbar gombjai -->
+                <div class="collapse navbar-collapse" id="planitNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Főoldal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/felfedezes">Felfedezés</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/esemenyeim">Eseményeim</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/rolunk">Rólunk</a>
+                        </li>
+                    </ul>
+
+                    <div class="dropdown">
+                        <button class="account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Profil</button>
+                        <ul id="profilBtn" class="dropdown-menu dropdown-menu-start account-dropdown-card">
+                            <div id="loggedOut">
+                                <li>
+                                <button class="dropdown-item login-item" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">Bejelentkezés</button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item register-item" data-bs-toggle="modal"
+                                    data-bs-target="#registerModal">Regisztráció</button>
+                            </li>
+                            </div>
+                            <div id="loggedIn">
+                            </div>
+                        </ul>
+                    </div>
+
+                    <!-- Téma váltó desktop nézethez -->
+                    <button id="theme-switcher"><svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path
+                                d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="currentColor">
+                            <path
+                                d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z" />
+                        </svg></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="aszf-main">
+        <div class="aszf-container">
+
+            <div class="aszf-header">
+                <h1 class="aszf-title">Általános Szerződési Feltételek</h1>
+                <p class="aszf-meta">Hatályos: 2026. január 1-től &nbsp;·&nbsp; Verzió: 1.0</p>
+            </div>
+
+            <nav class="aszf-toc">
+                <p class="toc-label">Tartalom</p>
+                <ol class="toc-list">
+                    <li><a href="#altalanos">Általános rendelkezések</a></li>
+                    <li><a href="#szolgaltatas">A szolgáltatás leírása</a></li>
+                    <li><a href="#regisztracio">Regisztráció és fiókkezelés</a></li>
+                    <li><a href="#jogok">A felhasználó jogai és kötelezettségei</a></li>
+                    <li><a href="#tartalom">Felhasználói tartalom</a></li>
+                    <li><a href="#felelosseg">Felelősség korlátozása</a></li>
+                    <li><a href="#adatvedelem">Adatvédelem</a></li>
+                    <li><a href="#modositas">Az ÁSZF módosítása</a></li>
+                    <li><a href="#egyeb">Egyéb rendelkezések</a></li>
+                </ol>
+            </nav>
+
+            <div class="aszf-body">
+
+                <section class="aszf-section" id="altalanos">
+                    <h2>1. Általános rendelkezések</h2>
+                    <p>Jelen Általános Szerződési Feltételek (a továbbiakban: ÁSZF) a PlanIt eseményszervező és -kereső platform (a továbbiakban: Szolgáltató) és a platformot igénybe vevő felhasználók (a továbbiakban: Felhasználó) között létrejövő jogviszony feltételeit rögzítik.</p>
+                    <p>A PlanIt platform használatával a Felhasználó elfogadja a jelen ÁSZF-ben foglalt feltételeket. Amennyiben a Felhasználó nem ért egyet a feltételekkel, kérjük, ne vegye igénybe a szolgáltatást.</p>
+                    <p>A Szolgáltató fenntartja a jogot, hogy a jelen ÁSZF-et bármikor módosítsa. A módosításokról a Felhasználókat értesítjük, és a módosított ÁSZF a közzétételét követően lép hatályba.</p>
+                </section>
+
+                <section class="aszf-section" id="szolgaltatas">
+                    <h2>2. A szolgáltatás leírása</h2>
+                    <p>A PlanIt egy ingyenesen igénybe vehető online platform, amelynek célja, hogy összehozza az eseményeket kereső és szervező embereket. A platform az alábbi funkciókat biztosítja:</p>
+                    <ul>
+                        <li>Nyilvános és hivatalos események böngészése kategória, dátum és helyszín szerint</li>
+                        <li>Közösségi (privát) események létrehozása és kezelése meghívókód rendszeren keresztül</li>
+                        <li>Eseményekhez való csatlakozás meghívókód megadásával</li>
+                        <li>Térképes eseménynézet a közeli programok felfedezéséhez</li>
+                        <li>Felhasználói profil kezelése</li>
+                    </ul>
+                    <p>A Szolgáltató nem vállal felelősséget az egyes események tartalmáért, lebonyolításáért vagy megtartásáért – ezekért kizárólag az adott esemény szervezője felel.</p>
+                </section>
+
+                <section class="aszf-section" id="regisztracio">
+                    <h2>3. Regisztráció és fiókkezelés</h2>
+                    <p>A platform egyes funkcióinak használatához regisztráció szükséges. A regisztráció során a Felhasználó köteles valódi adatokat megadni, különösen:</p>
+                    <ul>
+                        <li>Teljes név</li>
+                        <li>Felhasználónév (egyedi azonosító)</li>
+                        <li>Érvényes e-mail cím</li>
+                        <li>Jelszó</li>
+                    </ul>
+                    <p>A Felhasználó felelős a fiókjához tartozó belépési adatok biztonságos tárolásáért. Amennyiben a Felhasználó tudomást szerez fiókja jogosulatlan használatáról, köteles azt haladéktalanul jelezni a Szolgáltatónak.</p>
+                    <p>Egy személy csak egy fiókot regisztrálhat. A Szolgáltató jogosult a duplikált vagy hamis adatokkal létrehozott fiókokat törölni.</p>
+                </section>
+
+                <section class="aszf-section" id="jogok">
+                    <h2>4. A felhasználó jogai és kötelezettségei</h2>
+                    <h3>4.1 Jogok</h3>
+                    <p>A Felhasználó jogosult:</p>
+                    <ul>
+                        <li>A platformon elérhető nyilvános eseményeket megtekinteni</li>
+                        <li>Regisztrált felhasználóként eseményekhez csatlakozni</li>
+                        <li>Közösségi eseményeket létrehozni és meghívókat küldeni</li>
+                        <li>Saját profiljának adatait módosítani</li>
+                        <li>Fiókját bármikor törölni</li>
+                    </ul>
+                    <h3>4.2 Kötelezettségek</h3>
+                    <p>A Felhasználó köteles:</p>
+                    <ul>
+                        <li>A platform használata során tiszteletteljes magatartást tanúsítani</li>
+                        <li>Valódi, pontos adatokat megadni</li>
+                        <li>Tartózkodni minden jogellenes, megtévesztő vagy káros tevékenységtől</li>
+                        <li>Mások személyes adatait, magánéletét tiszteletben tartani</li>
+                        <li>Nem visszaélni a meghívókód rendszerrel</li>
+                    </ul>
+                </section>
+
+                <section class="aszf-section" id="tartalom">
+                    <h2>5. Felhasználói tartalom</h2>
+                    <p>A Felhasználó által feltöltött tartalmak (eseményleírások, képek stb.) tekintetében a Felhasználó szavatolja, hogy:</p>
+                    <ul>
+                        <li>Rendelkezik a szükséges jogokkal az adott tartalom közzétételéhez</li>
+                        <li>A tartalom nem sérti harmadik személyek jogait</li>
+                        <li>A tartalom nem tartalmaz jogellenes, gyűlöletkeltő, erőszakos vagy obszcén elemeket</li>
+                    </ul>
+                    <p>A Szolgáltató fenntartja a jogot, hogy az irányelveket sértő tartalmakat értesítés nélkül eltávolítsa, és az ezzel összefüggő fiókot felfüggessze vagy törölje.</p>
+                </section>
+
+                <section class="aszf-section" id="felelosseg">
+                    <h2>6. Felelősség korlátozása</h2>
+                    <p>A Szolgáltató nem vállal felelősséget:</p>
+                    <ul>
+                        <li>A platform esetleges üzemszüneteiért vagy technikai hibáiért</li>
+                        <li>A Felhasználók által közzétett tartalmak valóságtartalmáért</li>
+                        <li>Az eseményeken bekövetkezett károkért, balesetekért</li>
+                        <li>Harmadik felek által okozott közvetlen vagy közvetett károkért</li>
+                        <li>Az internetkapcsolat megszakadásából eredő adatvesztésért</li>
+                    </ul>
+                    <p>A platform „adott állapotban" (as-is) kerül biztosításra. A Szolgáltató törekszik a folyamatos és zavartalan működésre, de nem garantálja azt.</p>
+                </section>
+
+                <section class="aszf-section" id="adatvedelem">
+                    <h2>7. Adatvédelem</h2>
+                    <p>A Felhasználók személyes adatainak kezelése az Európai Unió Általános Adatvédelmi Rendeletével (GDPR – 2016/679/EU rendelet) összhangban történik.</p>
+                    <p>A Szolgáltató által kezelt adatok köre:</p>
+                    <ul>
+                        <li>Teljes név és felhasználónév</li>
+                        <li>E-mail cím</li>
+                        <li>Titkosított jelszó</li>
+                        <li>Az eseményekhez kapcsolódó tevékenységi adatok</li>
+                    </ul>
+                    <p>Az adatok kizárólag a szolgáltatás nyújtásához szükséges mértékben kerülnek felhasználásra, és harmadik félnek nem kerülnek átadásra. A Felhasználó bármikor kérheti adatai törlését a Szolgáltató elérhetőségein.</p>
+                    <p>A jelszavak bcrypt algoritmussal titkosítva tárolódnak, egyszerű szöveges formában soha nem kerülnek mentésre.</p>
+                </section>
+
+                <section class="aszf-section" id="modositas">
+                    <h2>8. Az ÁSZF módosítása</h2>
+                    <p>A Szolgáltató fenntartja a jogot, hogy jelen ÁSZF-et bármikor, egyoldalúan módosítsa. A módosítás tényéről és hatálybalépésének időpontjáról a Felhasználókat a platformon keresztül értesítjük.</p>
+                    <p>A módosított ÁSZF hatálybalépése után a platform további használata az új feltételek elfogadásának minősül. Amennyiben a Felhasználó nem fogadja el a módosított feltételeket, jogában áll fiókját törölni.</p>
+                </section>
+
+                <section class="aszf-section" id="egyeb">
+                    <h2>9. Egyéb rendelkezések</h2>
+                    <p>Jelen ÁSZF-re a magyar jog az irányadó. Az esetleges jogviták rendezésére a felek elsősorban békés úton törekednek. Ennek sikertelensége esetén a hatáskörrel és illetékességgel rendelkező magyar bíróság jár el.</p>
+                    <p>Amennyiben jelen ÁSZF valamely rendelkezése érvénytelennek vagy végrehajthatatlannak bizonyulna, az a többi rendelkezés érvényességét nem érinti.</p>
+                    <p>Kapcsolat és kérdések esetén: <a href="mailto:planithungary@gmail.com">planithungary@gmail.com</a></p>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">PLAN<span>IT</span></a>
+                <p class="footer-tagline">Fedezd fel a körülötted zajló eseményeket, vagy szervezd meg a sajátodat – mindezt egy helyen.</p>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Oldal</h4>
+                <ul class="footer-links">
+                    <li><a href="/">Főoldal</a></li>
+                    <li><a href="/felfedezes">Felfedezés</a></li>
+                    <li><a href="/esemenyeim">Eseményeim</a></li>
+                    <li><a href="/rolunk">Rólunk</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Fiók</h4>
+                <ul class="footer-links">
+                    <li><a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Bejelentkezés</a></li>
+                    <li><a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Regisztráció</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-group-title">Kapcsolat</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:planithungary@gmail.com">planithungary@gmail.com</a></li>
+                </ul>
+                <div class="footer-socials">
+                    <a href="https://www.facebook.com/" class="footer-social-btn" title="Facebook" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/" class="footer-social-btn" title="Instagram" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                        </svg>
+                    </a>
+                    <a href="https://twitter.com/" class="footer-social-btn" title="Twitter / X" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.261 5.632 5.902-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-bottom-inner">
+                <p class="footer-copyright">© 2026 PlanIt. Minden jog fenntartva.</p>
+                <div class="footer-bottom-links">
+                    <a href="/aszf">Általános Szerződési Feltételek</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Bejelentkezés</p>
+                <form id="loginForm">
+                    <div class="login-input-field">
+                        <label for="email">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" placeholder="example@example.com" name="email" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="password">Jelszó</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" placeholder="••••••••" name="password" autocomplete="current-password" required>
+                            <button type="button" id="togglePassword" class="eye-btn">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="extra-options">
+                        <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Elfelejtetted a jelszavad?</a>
+                    </div>
+                    <button type="submit" class="login-btn">Bejelentkezés</button>
+                    <div id="loginError" class="error-message"></div>
+                </form>
+                <p class="footer-text">Nincs még profilod? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal">Regisztrálj</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Regisztráció</p>
+                <form id="registerForm">
+                    <div class="login-input-field">
+                        <label for="regName">Teljes név</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="regName" placeholder="John Doe" name="name" autocomplete="name" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="userName">Felhasználónév</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="userName" placeholder="johndoe67" name="username" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="regEmail">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="regEmail" placeholder="example@example.com" name="email" autocomplete="email" required>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="regPassword">Jelszó</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="regPassword" placeholder="••••••••" name="password" autocomplete="new-password" required>
+                            <button type="button" class="eye-btn toggle-reg-password">
+                                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z" />
+                                </svg>
+                                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                                    <path d="M792-56 624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-56 736 736-56 56ZM480-320q11 0 20.5-1t20.5-4L305-541q-3 11-4 20.5t-1 20.5q0 75 52.5 127.5T480-320Zm292 18L645-428q7-17 11-34.5t4-37.5q0-75-52.5-127.5T480-680q-20 0-37.5 4T408-664L306-766q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302ZM587-486 467-606q28-5 51.5 4.5T559-574q17 18 24.5 41.5T587-486Z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="extra-options">
+                        <label><input type="checkbox" required> Elfogadom az <a href="/aszf" target="_blank">ÁSZF</a>-et</label>
+                    </div>
+                    <button type="submit" id="account-create-btn" class="account-create-btn">Fiók Létrehozása</button>
+                    <div id="registerError" class="error-message"></div>
+                </form>
+                <p class="footer-text">Már van profilod? <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Jelentkezz be</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                    </svg>
+                </button>
+                <h2 class="modal-title">Plan<span>It</span></h2>
+                <p class="subtitle">Jelszó újítása</p>
+                <form id="forgotPasswordForm">
+                    <div class="login-input-field">
+                        <label for="forgotEmail">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="forgotEmail" placeholder="example@example.com" name="email" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn">Jelszó újítási link küldése</button>
+                    <div id="forgotPasswordError" class="error-message"></div>
+                    <div id="forgotPasswordSuccess" class="success-message"></div>
+                </form>
+                <p class="footer-text">Vissza a <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal">bejelentkezéshez</a></p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
