@@ -182,8 +182,10 @@ async function viewEventDetails(eventId) {
             ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
 
         const nav = document.getElementById('navigateBtn');
-        nav.href = event.lat && event.lng
-            ? `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`
+        const lat = event.lat ?? event.latitude;
+        const lng = event.lng ?? event.longitude;
+        nav.href = lat && lng
+            ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
             : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
         fetch(`/api/events/${eventId}/participants/count`)
