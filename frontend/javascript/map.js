@@ -74,6 +74,7 @@ function initializeMap() {
         center: { lat: 47.4979, lng: 19.0402 },
         zoom: 13,
         streetViewControl: false,
+        gestureHandling: 'greedy',
         styles: document.body.classList.contains('dark-mode') ? getDarkModeStyles() : getHidePOIStyles()
     });
 
