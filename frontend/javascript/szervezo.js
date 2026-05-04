@@ -225,6 +225,7 @@ function editEvent(event) {
     const hours = String(dateObj.getHours()).padStart(2, '0');
     const minutes = String(dateObj.getMinutes()).padStart(2, '0');
     document.getElementById('date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('link').value = event.link || '';
 
     document.getElementById('newLocationFields').style.display = 'none';
     clearNewLocationFields();
@@ -445,6 +446,7 @@ async function submitForm() {
     const locationInput = document.getElementById('locationInput').value;
     const selectedLocationId = document.getElementById('selectedLocationId').value;
     const date = document.getElementById('date').value;
+    const link = document.getElementById('link').value.trim();
     const imageInput = document.getElementById('image');
     const formError = document.getElementById('formError');
 
@@ -475,6 +477,7 @@ async function submitForm() {
         formData.append('description', description);
         formData.append('category', category);
         formData.append('date', date);
+        if (link) formData.append('link', link);
 
         if (selectedLocationId) {
             formData.append('locationId', selectedLocationId);

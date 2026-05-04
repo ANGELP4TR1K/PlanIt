@@ -445,6 +445,7 @@ function editEvent(event) {
     document.getElementById('ce-locationInput').value = event.location || '';
     document.getElementById('ce-selectedLocationId').value = event.location_id || '';
     document.getElementById('ce-capacity').value = event.capacity || '';
+    document.getElementById('ce-link').value = event.link || '';
     document.getElementById('ce-isPrivate').checked = !!event.is_private;
 
     if (event.date) {
@@ -740,6 +741,7 @@ async function submitCommunityEventForm() {
     const selectedLocationId = document.getElementById('ce-selectedLocationId').value;
     const date = document.getElementById('ce-date').value;
     const capacity = document.getElementById('ce-capacity').value;
+    const link = document.getElementById('ce-link').value.trim();
     const isPrivate = document.getElementById('ce-isPrivate').checked;
     const imageInput = document.getElementById('ce-image');
 
@@ -779,6 +781,7 @@ async function submitCommunityEventForm() {
         formData.append('date', date);
         formData.append('capacity', capacity);
         formData.append('is_private', isPrivate ? '1' : '0');
+        if (link) formData.append('link', link);
 
         formData.append('locationText', locationInput);
 
