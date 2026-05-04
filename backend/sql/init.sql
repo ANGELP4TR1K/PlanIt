@@ -297,4 +297,6 @@ INSERT INTO events (type, description, category, title, date, location_id, link,
 
 INSERT INTO users (username, email, password, role, full_name) VALUES
 ('admin', 'admin@gmail.com', '$2b$10$D1HKMzMp5mCOOItebqrLHuygqoh09y73T9bbhtZuoK8QnFBIQh0jW', 'admin', 'Admin User'),
-('Proba Peter', 'proba@gmail.com', '$2b$10$ZuE1osyQD3lFoXT.C0xoE..5kOYOLshEg1JwwyzvO.jdR.7Uj5N36', 'user', 'Proba Peter');
+('Proba Peter', 'proba@gmail.com', '$2b$10$ZuE1osyQD3lFoXT.C0xoE..5kOYOLshEg1JwwyzvO.jdR.7Uj5N36', 'szervezo', 'Proba Peter'),
+('patrik', 'gallaipatrik@gmail.com', '$2b$10$uq1R5ct3JaauvKX61qD4Wu9IwCjKOlKHrqqMYUK3fSPZqH703dmVO', 'user', 'Gallai Patrik'),
+('johndoe', 'johndoe@gmail.com', '$2b$10$71ofm1RGtIHBMP3hG1fJ7u5GFTwAVog89Y7JQOvIdUq7jMRanql2.', 'user', 'John Doe');
