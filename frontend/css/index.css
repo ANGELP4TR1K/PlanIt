@@ -591,9 +591,9 @@ body.dark-mode .gm-style .gm-style-iw-d::-webkit-scrollbar-thumb {
 }
 
 body.dark-mode .map-popup-content {
-    /* background: var(--card-bg-dark-mode); */
-    margin: -1px;
-    padding: 20px 16px 16px;
+    padding: 20px 15px 15px 15px;
+    min-width: 280px;
+    max-width: 320px;
 }
 
 
