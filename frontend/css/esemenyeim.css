@@ -213,21 +213,6 @@ body.dark-mode .tab-btn:hover {
     margin: 8px 0;
 }
 
-.events-item-type {
-    display: inline-block;
-    padding: 4px 12px;
-    background: var(--primary-hover);
-    color: var(--primary-purple);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    width: fit-content;
-}
-
-.events-item-type-private {
-    background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
-}
 
 .events-item-actions {
     display: flex;
@@ -531,9 +516,6 @@ body.dark-mode .tab-btn:hover {
 
 
 
-body.dark-mode .events-item-type {
-    background: rgba(93, 95, 239, 0.15);
-}
 
 
 /* ==========================================================================

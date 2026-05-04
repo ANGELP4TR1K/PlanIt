@@ -303,17 +303,6 @@
     margin: 6px 0;
 }
 
-.events-scroll .events-item-type {
-    display: inline-block;
-    padding: 3px 10px;
-    background: var(--primary-hover);
-    color: var(--primary-purple);
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    width: fit-content;
-}
-
 .events-scroll .events-item-actions {
     display: flex;
     gap: 8px;
@@ -341,10 +330,6 @@
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
-}
-
-body.dark-mode .events-scroll .events-item-type {
-    background: rgba(93, 95, 239, 0.15);
 }
 
 .discovery-map {

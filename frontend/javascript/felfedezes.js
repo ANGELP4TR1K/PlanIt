@@ -74,8 +74,8 @@ function renderCards(eventsToRender) {
         const badgeRow = document.createElement('div');
         badgeRow.className = 'events-item-badge-row';
         const typeBadge = document.createElement('span');
-        typeBadge.className = 'events-item-type';
-        typeBadge.textContent = 'Hivatalos';
+        typeBadge.className = 'events-item-type events-item-type-'+event.type;
+        typeBadge.textContent = event.type === 'official' ? 'Hivatalos' :'Közösségi';
         badgeRow.appendChild(typeBadge);
         body.appendChild(badgeRow);
 

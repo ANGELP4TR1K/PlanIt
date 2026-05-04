@@ -1699,9 +1699,34 @@ body.dark-mode .carousel-wrapper .events-item-type {
     width: fit-content;
 }
 
+.type-official, .type-Official {
+    background: rgba(93, 95, 239, 0.15);
+    color: var(--primary-purple);
+}
+
+.events-item-type-community, .events-item-type-Community {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+}
+
 .events-item-type-private {
     background: rgba(220, 53, 69, 0.1);
     color: #dc3545;
+}
+
+
+.events-item-type-community, .events-item-type-Community {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+}
+
+.events-item-type-private {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+body.dark-mode .events-item-type-official, body.dark-mode .events-item-type-Official {
+    background: rgba(93, 95, 239, 0.15);
 }
 
 .events-item-actions {
@@ -1770,9 +1795,6 @@ body.dark-mode .carousel-wrapper .events-item-type {
     border-color: var(--primary-purple);
 }
 
-body.dark-mode .events-item-type {
-    background: rgba(93, 95, 239, 0.15);
-}
 
 @media (max-width: 1200px) {
     .events-grid .events-item { width: calc(33.333% - 16px); }
