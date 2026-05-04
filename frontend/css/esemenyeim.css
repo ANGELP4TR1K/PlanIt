@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    ESEMÉNYEIM PAGE STYLES
    ========================================================================== */
 
@@ -51,7 +51,7 @@
 .action-btn-primary:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .action-btn-secondary {
@@ -241,7 +241,7 @@ body.dark-mode .tab-btn:hover {
 .events-item-btn-primary:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .events-item-btn-secondary {
@@ -257,23 +257,23 @@ body.dark-mode .tab-btn:hover {
 
 .events-item-btn-danger {
     background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
+    color: var(--color-danger);
     border: 1px solid rgba(220, 53, 69, 0.3);
 }
 
 .events-item-btn-danger:hover {
     background: rgba(220, 53, 69, 0.2);
-    border-color: #dc3545;
+    border-color: var(--color-danger);
 }
 
 .events-item-btn-copy {
-    background: rgba(93, 95, 239, 0.1);
+    background: rgba(var(--primary-purple-rgb), 0.1);
     color: var(--primary-purple);
-    border: 1px solid rgba(93, 95, 239, 0.3);
+    border: 1px solid rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .events-item-btn-copy:hover {
-    background: rgba(93, 95, 239, 0.2);
+    background: rgba(var(--primary-purple-rgb), 0.2);
     border-color: var(--primary-purple);
 }
 
@@ -447,7 +447,7 @@ body.dark-mode .tab-btn:hover {
     font-size: 0.8rem;
     border-radius: 8px;
     background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
+    color: var(--color-danger);
     border: 1px solid rgba(220, 53, 69, 0.3);
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -456,7 +456,7 @@ body.dark-mode .tab-btn:hover {
 
 .participant-remove-btn:hover:not(:disabled) {
     background: rgba(220, 53, 69, 0.2);
-    border-color: #dc3545;
+    border-color: var(--color-danger);
 }
 
 .participant-remove-btn:disabled {
@@ -592,12 +592,12 @@ body.dark-mode .tab-btn:hover {
 }
 
 .confirmation-btn-confirm {
-    background: #dc3545;
+    background: var(--color-danger);
     color: white;
 }
 
 .confirmation-btn-confirm:hover:not(:disabled) {
-    background: #c82333;
+    background: var(--color-danger-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
@@ -687,7 +687,7 @@ body.dark-mode .tab-btn:hover {
 .ce-form-group select:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .ce-form-group textarea {
@@ -725,7 +725,7 @@ body.dark-mode .tab-btn:hover {
 .ce-location-input-wrapper input[type="text"]:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .ce-location-dropdown {
@@ -753,7 +753,7 @@ body.dark-mode .tab-btn:hover {
 }
 
 .ce-location-item:hover {
-    background: rgba(93, 95, 239, 0.1);
+    background: rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .ce-location-item:last-child {
@@ -807,7 +807,7 @@ body.dark-mode .tab-btn:hover {
 
 .ce-image-upload-area:hover {
     border-color: var(--primary-purple);
-    background: rgba(93, 95, 239, 0.05);
+    background: rgba(var(--primary-purple-rgb), 0.05);
 }
 
 .ce-upload-label {
@@ -877,7 +877,7 @@ body.dark-mode .tab-btn:hover {
     background: rgba(220, 53, 69, 0.1);
     border: 1px solid rgba(220, 53, 69, 0.3);
     border-radius: 10px;
-    color: #dc3545;
+    color: var(--color-danger);
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 16px;
@@ -898,7 +898,7 @@ body.dark-mode .tab-btn:hover {
 .ce-btn-submit:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .ce-btn-submit:disabled {
@@ -944,33 +944,3 @@ body.dark-mode .ce-form-error {
     }
 }
 
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    to {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-}
-
-@keyframes slideOut {
-    to {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-}

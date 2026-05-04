@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    ROLUNK PAGE STYLES
    ========================================================================== */
 
@@ -154,7 +154,7 @@ body.dark-mode .hero-section {
 
 .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(93, 95, 239, 0.12);
+    box-shadow: 0 10px 30px rgba(var(--primary-purple-rgb), 0.12);
     border-color: var(--primary-purple);
 }
 
@@ -279,7 +279,7 @@ body.dark-mode .hero-section {
 
 .team-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 32px rgba(93, 95, 239, 0.1);
+    box-shadow: 0 12px 32px rgba(var(--primary-purple-rgb), 0.1);
     border-color: var(--primary-purple);
 }
 

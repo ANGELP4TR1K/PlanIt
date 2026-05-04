@@ -1,4 +1,4 @@
-/* Profile Page Styling - Using PlanIt Color Scheme */
+﻿/* Profile Page Styling - Using PlanIt Color Scheme */
 
 .profile-container {
     max-width: 900px;
@@ -76,7 +76,7 @@
     background: var(--primary-purple);
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 /* Profile Display Mode */
@@ -151,7 +151,7 @@
     outline: none;
     border-color: var(--primary-purple);
     background: var(--card-background);
-    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .form-group .form-control::placeholder {
@@ -218,7 +218,7 @@
 .form-actions .btn-success:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .form-actions .btn-secondary {
@@ -235,10 +235,10 @@
 /* Error and Success Messages */
 .error-message {
     background: rgba(220, 53, 69, 0.1);
-    color: #dc3545;
+    color: var(--color-danger);
     padding: 15px;
     border-radius: 12px;
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid var(--color-danger);
     margin-top: 10px;
     display: none;
     font-weight: 500;
@@ -256,10 +256,10 @@ body.dark-mode .error-message {
 
 .success-message {
     background: rgba(40, 167, 69, 0.1);
-    color: #28a745;
+    color: var(--color-success);
     padding: 15px;
     border-radius: 12px;
-    border-left: 4px solid #28a745;
+    border-left: 4px solid var(--color-success);
     margin-top: 10px;
     display: none;
     font-weight: 500;
@@ -295,7 +295,7 @@ body.dark-mode .success-message {
 
 /* Danger Zone Section */
 .danger-zone {
-    border: 2px solid #dc3545;
+    border: 2px solid var(--color-danger);
     background: rgba(220, 53, 69, 0.05);
 }
 
@@ -317,8 +317,8 @@ body.dark-mode .danger-zone {
 }
 
 .danger-zone .btn-danger {
-    background: #dc3545;
-    border-color: #dc3545;
+    background: var(--color-danger);
+    border-color: var(--color-danger);
     color: white;
     font-weight: 700;
     padding: 12px 28px;
@@ -328,7 +328,7 @@ body.dark-mode .danger-zone {
 }
 
 .danger-zone .btn-danger:hover {
-    background: #c82333;
+    background: var(--color-danger-dark);
     border-color: #bd2130;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
@@ -469,7 +469,7 @@ body.dark-mode .danger-zone {
 }
 
 .delete-confirmation-modal .btn-danger {
-    background: #dc3545;
+    background: var(--color-danger);
     border: none;
     color: white;
     font-weight: 600;
@@ -479,7 +479,7 @@ body.dark-mode .danger-zone {
 }
 
 .delete-confirmation-modal .btn-danger:hover {
-    background: #c82333;
+    background: var(--color-danger-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }

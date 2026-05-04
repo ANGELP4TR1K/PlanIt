@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    Discovery / Felfedezés page styles
    ========================================================================== */
 
@@ -48,7 +48,7 @@
 .search-input:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--primary-purple-rgb), 0.12);
 }
 
 .search-btn {
@@ -68,7 +68,7 @@
 .search-btn:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .filter-group {
@@ -164,7 +164,7 @@
 .date-input:focus {
     outline: none;
     border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(93, 95, 239, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .reset-btn {
@@ -329,7 +329,7 @@
 .events-scroll .events-item-btn-primary:hover {
     background: var(--primary-purple-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 .discovery-map {
