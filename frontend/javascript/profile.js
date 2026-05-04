@@ -51,7 +51,6 @@ async function loadProfileData() {
         document.getElementById('displayUsername').textContent = userData.username;
         document.getElementById('displayFullName').textContent = userData.full_name;
         document.getElementById('displayEmail').textContent = userData.email;
-        console.log(userData.created_at);
         // Display created date if available
         if (userData.created_at) {
             const createdDate = new Date(userData.created_at);
