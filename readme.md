@@ -93,6 +93,7 @@ Nyisd meg a böngésződben a **http://localhost:3000** címet.
 `express-mysql-session`<br>
 `bcrypt`<br>
 `nodemailer`<br>
+`dotenv`<br>
 
 ## nodemon.json felépítése:<br>
 
