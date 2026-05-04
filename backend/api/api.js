@@ -120,7 +120,6 @@ router.post('/login', async (request, response) => {
                 id: rows.id,
                 role: rows.role
             }
-            console.log('Bejelentkezett:', request.session.user);
             return response.status(200).json({ message: 'Bejelentkezve', user: request.session.user });
         }
 
@@ -386,7 +385,6 @@ router.post('/forgot-password', async (request, response) => {
                 pass: process.env.EMAIL_PASS
             }
         });
-        console.log('Password reset token created:', token);
         const resetLink = `http://localhost:3000/reset-password?token=${token}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -588,7 +586,6 @@ router.delete('/events/:id', async (request, response) => {
         if (!event || event.length === 0) {
             return response.status(404).json({ message: 'Esemény nem található' });
         }
-        console.log('Esemény részletei:', event[0]);
         // Check if user is the creator of the event
         if (event[0].created_by !== userId) {
             return response.status(403).json({ message: 'Nincs jogosultságod ezt az eseményt törölni' });
@@ -675,7 +672,6 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
             try {
                 if (fs.existsSync(defaultImagePath)) {
                     fs.copyFileSync(defaultImagePath, newPath);
-                    console.log(`Alapértelmezett kép másolva az eseményhez ${eventId}: ${newPath}`);
                 } else {
                     console.warn(`Alapértelmezett kép nem található a következő helyen: ${defaultImagePath}`);
                 }
@@ -814,7 +810,6 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
             try {
                 if (fs.existsSync(imagePath)) {
                     fs.unlinkSync(imagePath);
-                    console.log(`Image deleted: ${imagePath}`);
                 }
             } catch (fileError) {
                 console.error('Hiba a kép törlése során:', fileError);
