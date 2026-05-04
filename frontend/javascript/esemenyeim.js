@@ -180,7 +180,7 @@ function createEventCard(event, type) {
     card.setAttribute('data-event-id', event.id);
 
     const imageUrl = `/api/images/${event.id}`;
-    const eventType = event.type == 'private' ? 'Közösségi' : 'Hivatalos';
+    const eventType = event.type == 'community' ? 'Közösségi' : 'Hivatalos';
     const dateObj = new Date(event.date);
     const dateStr = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
     const timeStr = dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
@@ -270,7 +270,7 @@ function createEventCard(event, type) {
     badgeRow.className = 'events-item-badge-row';
 
     const typeBadge = document.createElement('span');
-    typeBadge.className = 'events-item-type';
+    typeBadge.className = `events-item-type events-item-type-${event.type}`;
     typeBadge.textContent = eventType;
     badgeRow.appendChild(typeBadge);
 
