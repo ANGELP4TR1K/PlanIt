@@ -667,6 +667,7 @@ body.dark-mode .tab-btn:hover {
 .ce-form-group input[type="text"],
 .ce-form-group input[type="number"],
 .ce-form-group input[type="datetime-local"],
+.ce-form-group input[type="url"],
 .ce-form-group textarea,
 .ce-form-group select {
     width: 100%;
