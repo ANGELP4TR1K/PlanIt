@@ -86,8 +86,9 @@ async function fetchHomeEvents() {
             const badgeRow = document.createElement('div');
             badgeRow.className = 'events-item-badge-row';
             const typeBadge = document.createElement('span');
-            typeBadge.className = 'events-item-type';
-            typeBadge.textContent = 'Hivatalos';
+            const isPrivate = event.is_private == 1 || event.is_private === true;
+            typeBadge.className = 'events-item-type events-item-type-' + (event.type === 'official' ? 'official' : isPrivate ? 'private' : 'community');
+            typeBadge.textContent = event.type === 'official' ? 'Hivatalos' : isPrivate ? 'Privát' : 'Közösségi';
             badgeRow.appendChild(typeBadge);
             body.appendChild(badgeRow);
 

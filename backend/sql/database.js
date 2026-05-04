@@ -180,6 +180,18 @@ async function getEventParticipants(eventId) {
 async function joinEvent(eventId, userId) {
     const [existing] = await pool.execute('SELECT id FROM event_participants WHERE event_id = ? AND user_id = ?', [eventId, userId]);
     if (existing.length > 0) return { success: false, message: 'Már jelentkeztél erre az eseményre.' };
+
+    const [eventRows] = await pool.execute('SELECT capacity, created_by FROM events WHERE id = ?', [eventId]);
+    if (!eventRows.length) return { success: false, message: 'Az esemény nem található.' };
+    const event = eventRows[0];
+
+    if (event.created_by === userId) return { success: false, message: 'Nem csatlakozhatsz a saját eseményedhez.' };
+
+    if (event.capacity != null) {
+        const [countRows] = await pool.execute('SELECT COUNT(*) AS count FROM event_participants WHERE event_id = ?', [eventId]);
+        if (countRows[0].count >= event.capacity) return { success: false, message: 'Az esemény elérte a maximális kapacitást.' };
+    }
+
     await pool.execute('INSERT INTO event_participants (event_id, user_id) VALUES (?, ?)', [eventId, userId]);
     return { success: true };
 }
@@ -500,6 +512,10 @@ async function deleteInviteById(id) {
     return rows;
 }
 
+async function deleteInviteByEventId(eventId) {
+    await pool.execute('DELETE FROM event_invites WHERE event_id = ?', [eventId]);
+}
+
 async function deleteLocationById(id) {
     const query = 'DELETE FROM locations WHERE id = ?;';
     const [rows] = await pool.execute(query, [id]);
@@ -555,6 +571,7 @@ module.exports = {
     selectAllLocationsAdmin,
     selectAllInvitesAdmin,
     deleteInviteById,
+    deleteInviteByEventId,
     createInviteAdmin,
     joinEvent,
     isUserParticipant,

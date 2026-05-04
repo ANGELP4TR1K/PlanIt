@@ -750,7 +750,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
             }
         }
 
-        await database.updateEventById(eventId, 'official', description, category, title, date, finalLocationId, link || null);
+        await database.updateEventById(eventId, 'official', description, category, title, date, finalLocationId, link || null, 0);
 
         if (request.file) {
             try {
@@ -1033,7 +1033,15 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
             }
         }
 
-        await database.updateEventById(eventId, 'community', description, category, title, date, finalLocationId, link || null, is_private);
+        await database.updateEventById(eventId, 'community', description, category, title, date, finalLocationId, link || null, isPrivate);
+
+        const wasPrivate = existingEvent[0].is_private == 1 || existingEvent[0].is_private === true;
+        if (wasPrivate && !isPrivate) {
+            await database.deleteInviteByEventId(eventId);
+        } else if (!wasPrivate && isPrivate) {
+            const locationLabel = locationName || request.body.locationText || '';
+            await database.createInviteForEvent(eventId, title, locationLabel, date, userId, capacity);
+        }
 
         if (request.file) {
             try {
@@ -1199,7 +1207,7 @@ router.put('/admin/events/:id', requireAdmin, async (request, response) => {
         return response.status(400).json({ message: 'Érvénytelen típus.' });
     }
     try {
-        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null, link || null, is_private);
+        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null, link || null, is_private != null ? (is_private ? 1 : 0) : 0);
         return response.status(200).json({ message: 'Esemény frissítve.' });
     } catch (error) {
         console.error('Error updating event:', error);

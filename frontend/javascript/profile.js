@@ -1,3 +1,5 @@
+let currentUserData = null;
+
 document.addEventListener('DOMContentLoaded', async function () {
     if (window.location.pathname === '/profile') {
         if (await userSessionCheck())
@@ -66,7 +68,7 @@ async function loadProfileData() {
         document.getElementById('editFullName').value = userData.full_name;
 
         // Store current user data for comparison
-        window.currentUserData = userData;
+        currentUserData = userData;
 
     } catch (error) {
         console.error('Hiba a profil betöltésekor:', error);
@@ -146,8 +148,8 @@ async function handleUsernameSubmit(e) {
             },
             body: JSON.stringify({
                 username,
-                full_name: window.currentUserData.full_name,
-                email: window.currentUserData.email
+                full_name: currentUserData.full_name,
+                email: currentUserData.email
             })
         });
 
@@ -161,7 +163,7 @@ async function handleUsernameSubmit(e) {
 
         // Update display
         document.getElementById('displayUsername').textContent = username;
-        window.currentUserData.username = username;
+        currentUserData.username = username;
 
         // Hide form, show display
         document.getElementById('usernameDisplay').style.display = 'block';
@@ -200,9 +202,9 @@ async function handleFullNameSubmit(e) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: window.currentUserData.username,
+                username: currentUserData.username,
                 full_name,
-                email: window.currentUserData.email
+                email: currentUserData.email
             })
         });
 
@@ -216,7 +218,7 @@ async function handleFullNameSubmit(e) {
 
         // Update display
         document.getElementById('displayFullName').textContent = full_name;
-        window.currentUserData.full_name = full_name;
+        currentUserData.full_name = full_name;
 
         // Hide form, show display
         document.getElementById('fullNameDisplay').style.display = 'block';

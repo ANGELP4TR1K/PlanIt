@@ -467,7 +467,7 @@ body.dark-mode .modal-backdrop {
     padding: 60px 20px;
     max-width: 1400px;
     margin: 0 auto;
-    height: 300px;
+    min-height: 300px;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -1523,8 +1523,6 @@ body.dark-mode .success-message {
 .carousel-wrapper .events-item-type {
     display: inline-block;
     padding: 3px 10px;
-    background: var(--primary-hover);
-    color: var(--primary-purple);
     border-radius: 8px;
     font-size: 11px;
     font-weight: 600;
@@ -1564,7 +1562,7 @@ body.dark-mode .success-message {
     color: white;
 }
 
-body.dark-mode .carousel-wrapper .events-item-type {
+body.dark-mode .carousel-wrapper .events-item-type-official, body.dark-mode .carousel-wrapper .events-item-type-Official {
     background: rgba(93, 95, 239, 0.15);
 }
 

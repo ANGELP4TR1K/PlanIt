@@ -207,7 +207,7 @@ async function loadEvents() {
         renderEvents(allEvents);
     } catch {
         document.getElementById('eventsTableBody').innerHTML =
-            '<tr><td colspan="8" class="loading-cell">Hiba az események betöltése során.</td></tr>';
+            '<tr><td colspan="9" class="loading-cell">Hiba az események betöltése során.</td></tr>';
     }
 }
 
@@ -219,7 +219,7 @@ function renderEvents(events) {
     if (events.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 8;
+        td.colSpan = 9;
         td.className = 'loading-cell';
         td.textContent = 'Nincs találat.';
         tr.appendChild(td);
@@ -243,8 +243,9 @@ function renderEvents(events) {
 
         const tdType = document.createElement('td');
         const badge = document.createElement('span');
-        badge.className = 'event-type-badge type-' + e.type;
-        badge.textContent = e.type == 'official' ? 'Hivatalos' : e.type == 'community' ? 'Közösségi' : 'Privát';
+        const isPrivate = e.is_private == 1 || e.is_private === true;
+        badge.className = 'event-type-badge type-' + (isPrivate ? 'private' : e.type);
+        badge.textContent = e.type === 'official' ? 'Hivatalos' : isPrivate ? 'Privát' : 'Közösségi';
         tdType.appendChild(badge);
 
         const tdDate = document.createElement('td');
@@ -252,6 +253,11 @@ function renderEvents(events) {
 
         const tdLocation = document.createElement('td');
         tdLocation.textContent = e.helyszin || '–';
+
+        const tdDesc = document.createElement('td');
+        const desc = e.description || '';
+        tdDesc.textContent = desc.length > 60 ? desc.slice(0, 60) + '…' : (desc || '–');
+        tdDesc.title = desc;
 
         const tdCreator = document.createElement('td');
         tdCreator.textContent = e.creator || '–';
@@ -270,7 +276,7 @@ function renderEvents(events) {
         div.append(btnEditEv, btn);
         tdActions.appendChild(div);
 
-        tr.append(tdId, tdTitle, tdCategory, tdType, tdDate, tdLocation, tdCreator, tdActions);
+        tr.append(tdId, tdTitle, tdCategory, tdType, tdDate, tdLocation, tdDesc, tdCreator, tdActions);
         tbody.appendChild(tr);
     });
 }
@@ -610,18 +616,50 @@ function openEditUserModal(u) {
     new bootstrap.Modal(document.getElementById('editUserModal')).show();
 }
 
-function openEditEventModal(e) {
+async function openEditEventModal(e) {
     document.getElementById('editEventId').value = e.id;
-    document.getElementById('editEventLocationId').value = e.location_id || '';
     document.getElementById('editEventTitle').value = e.title;
     const cat = document.getElementById('editEventCategory');
     cat.value = e.category || 'Egyéb';
     if (!cat.value) cat.value = 'Egyéb';
-    document.getElementById('editEventType').value = e.type || 'official';
+    const isPrivateEvent = e.is_private == 1 || e.is_private === true;
+    document.getElementById('editEventType').value = isPrivateEvent ? 'private' : (e.type || 'official');
     document.getElementById('editEventDescription').value = e.description || '';
     document.getElementById('editEventLink').value = e.link || '';
     const d = e.date ? new Date(e.date) : null;
     document.getElementById('editEventDate').value = d && !isNaN(d) ? d.toISOString().slice(0, 16) : '';
+
+    const locSelect = document.getElementById('editEventLocationId');
+    locSelect.replaceChildren();
+    const loadingOpt = document.createElement('option');
+    loadingOpt.value = '';
+    loadingOpt.textContent = '– Betöltés… –';
+    locSelect.appendChild(loadingOpt);
+
+    try {
+        const res = await fetch('/api/admin/locations');
+        const data = await res.json();
+        const locations = data.locations || [];
+        locSelect.replaceChildren();
+        const noneOpt = document.createElement('option');
+        noneOpt.value = '';
+        noneOpt.textContent = '– Nincs helyszín –';
+        locSelect.appendChild(noneOpt);
+        locations.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = String(l.id);
+            opt.textContent = l.name;
+            locSelect.appendChild(opt);
+        });
+        locSelect.value = e.location_id ? String(e.location_id) : '';
+    } catch {
+        locSelect.replaceChildren();
+        const errOpt = document.createElement('option');
+        errOpt.value = '';
+        errOpt.textContent = '– Hiba a betöltés során –';
+        locSelect.appendChild(errOpt);
+    }
+
     document.getElementById('editEventError').textContent = '';
     new bootstrap.Modal(document.getElementById('editEventModal')).show();
 }
@@ -682,15 +720,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/admin/events/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, category, type, description, date, location_id: location_id || null, link: link || null })
+                body: JSON.stringify({ title, category, type: type === 'private' ? 'community' : type, description, date, location_id: location_id || null, link: link || null, is_private: type === 'private' ? 1 : 0 })
             });
             const data = await res.json();
             if (res.ok) {
-                const event = allEvents.find(e => e.id === parseInt(id));
-                if (event) { event.title = title; event.category = category; event.type = type; event.description = description; event.link = link; event.date = date; }
-                filterEvents();
                 bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
                 showNotification('Esemény sikeresen frissítve.', 'success');
+                await loadEvents();
             } else {
                 errorEl.textContent = data.message || 'Hiba a mentés során.';
             }
