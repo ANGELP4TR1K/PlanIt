@@ -516,8 +516,10 @@ function redirectToLogin(contentContainer, text = 'Az oldal megtekintéséhez be
 }
 
 function formatDate(dateStr) {
-    const [datePart, timePart] = dateStr.split('T');
-    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
+    if (!dateStr) return '';
+    const [datePart, timePart] = dateStr.split(/T| /);
+    const [year, month, day] = datePart.split('-');
     const time = timePart ? timePart.substring(0, 5) : null;
+    const date = `${year}. ${month}. ${day}.`;
     return time && time !== '00:00' ? `${date} ${time}` : date;
 }

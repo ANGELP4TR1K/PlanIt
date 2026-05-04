@@ -385,10 +385,7 @@ async function viewEventDetails(eventId, type = '') {
         document.getElementById('eventModalLocation').textContent = event.location;
         document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
 
-        const d = new Date(event.date);
-        document.getElementById('eventModalDate').textContent =
-            d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }) +
-            ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('eventModalDate').textContent = formatDate(event.date);
 
         const nav = document.getElementById('navigateBtn');
         const lat = event.lat ?? event.latitude;
