@@ -244,7 +244,7 @@ function renderEvents(events) {
         const tdType = document.createElement('td');
         const badge = document.createElement('span');
         badge.className = 'event-type-badge type-' + e.type;
-        badge.textContent = e.type == 'official' ? 'Hivatalos' : 'Közösségi' ;
+        badge.textContent = e.type == 'official' ? 'Hivatalos' : e.type == 'community' ? 'Közösségi' : 'Privát';
         tdType.appendChild(badge);
 
         const tdDate = document.createElement('td');
