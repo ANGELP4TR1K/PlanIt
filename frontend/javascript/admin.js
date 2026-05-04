@@ -7,6 +7,10 @@ let pendingDeleteFn = null;
 document.addEventListener('DOMContentLoaded', () => {
     checkAdminAccess();
     initTabs();
+    editUserSetup();
+    editEventSetup();
+    editLocationSetup();
+    createInviteSetup();
 });
 
 async function checkAdminAccess() {
@@ -534,7 +538,7 @@ function openCreateInviteModal() {
     new bootstrap.Modal(document.getElementById('createInviteModal')).show();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function createInviteSetup() {
     document.getElementById('createInviteForm').addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const eventId = document.getElementById('inviteEventSelect').value;
@@ -562,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorEl.textContent = 'Hiba a létrehozás során.';
         }
     });
-});
+}
 
 function filterInvites() {
     const q = document.getElementById('inviteSearch').value.toLowerCase().trim();
@@ -673,8 +677,8 @@ function openEditLocationModal(l) {
     new bootstrap.Modal(document.getElementById('editLocationModal')).show();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('editUserForm').addEventListener('submit', async (ev) => {
+async function editUserSetup() {
+        document.getElementById('editUserForm').addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const id = document.getElementById('editUserId').value;
         const username = document.getElementById('editUserUsername').value.trim();
@@ -703,8 +707,10 @@ document.addEventListener('DOMContentLoaded', () => {
             errorEl.textContent = 'Hiba a mentés során.';
         }
     });
+};
 
-    document.getElementById('editEventForm').addEventListener('submit', async (ev) => {
+async function editEventSetup() {
+        document.getElementById('editEventForm').addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const id = document.getElementById('editEventId').value;
         const location_id = document.getElementById('editEventLocationId').value;
@@ -734,8 +740,10 @@ document.addEventListener('DOMContentLoaded', () => {
             errorEl.textContent = 'Hiba a mentés során.';
         }
     });
+};
 
-    document.getElementById('editLocationForm').addEventListener('submit', async (ev) => {
+async function editLocationSetup() {
+        document.getElementById('editLocationForm').addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const id = document.getElementById('editLocationId').value;
         const name = document.getElementById('editLocationName').value.trim();
@@ -763,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorEl.textContent = 'Hiba a mentés során.';
         }
     });
-});
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
