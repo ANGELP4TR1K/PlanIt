@@ -57,88 +57,98 @@ function displayCreatedEvents(events) {
     const eventsList = document.getElementById('createdEventsList');
     eventsList.innerHTML = '';
 
+    const mkSvg = d => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('height', '18px');
+        svg.setAttribute('viewBox', '0 -960 960 960');
+        svg.setAttribute('width', '18px');
+        svg.setAttribute('fill', 'currentColor');
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', d);
+        svg.appendChild(p);
+        return svg;
+    };
+
     events.forEach(event => {
-        const eventCard = document.createElement('div');
-        eventCard.className = 'event-card';
+        const card = document.createElement('div');
+        card.className = 'events-item';
 
         const img = document.createElement('img');
-        img.alt = event.title;
-        img.className = 'event-card-image';
         img.src = `/api/images/${event.id}`;
-        img.onerror = () => { img.style.display = 'none'; };
+        img.alt = event.title;
+        img.className = 'events-item-img';
+        img.onerror = function() { this.onerror = null; };
+        card.appendChild(img);
 
-        const content = document.createElement('div');
-        content.className = 'event-card-content';
+        const body = document.createElement('div');
+        body.className = 'events-item-body';
 
         const title = document.createElement('h3');
-        title.className = 'event-card-title';
+        title.className = 'events-item-title';
         title.textContent = event.title;
+        body.appendChild(title);
 
-        const category = document.createElement('span');
-        category.className = 'event-card-category';
-        category.textContent = event.category;
+        const info = document.createElement('div');
+        info.className = 'events-item-info';
 
-        const eventDate = new Date(event.date);
-        const formattedDate = eventDate.toLocaleDateString('hu-HU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'event-card-date';
-        dateDiv.textContent = '📅 ' + formattedDate;
-
-        const description = document.createElement('div');
-        description.className = 'event-card-description';
-        description.textContent = event.description;
-
-        content.appendChild(title);
-        content.appendChild(category);
-        content.appendChild(dateDiv);
+        const dateRow = document.createElement('div');
+        dateRow.className = 'events-item-info-row';
+        dateRow.appendChild(mkSvg('M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-40q0-17 11.5-28.5T280-880q17 0 28.5 11.5T320-840v40h320v-40q0-17 11.5-28.5T680-880q17 0 28.5 11.5T720-840v40h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z'));
+        const dateSpan = document.createElement('span');
+        const dateObj = new Date(event.date);
+        dateSpan.textContent = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' }) +
+            ' ' + dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+        dateRow.appendChild(dateSpan);
+        info.appendChild(dateRow);
 
         if (event.location) {
-            const locationDiv = document.createElement('div');
-            locationDiv.className = 'event-card-location';
-            locationDiv.textContent = '📍 ' + event.location;
-            content.appendChild(locationDiv);
+            const locationRow = document.createElement('div');
+            locationRow.className = 'events-item-info-row';
+            locationRow.appendChild(mkSvg('M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-71.5-178.5T480-800q-109 0-180.5 69.5T228-552q0 71 59 162.5T480-186Z'));
+            const locationSpan = document.createElement('span');
+            locationSpan.textContent = event.location;
+            locationRow.appendChild(locationSpan);
+            info.appendChild(locationRow);
         }
 
-        content.appendChild(description);
-        eventCard.appendChild(img);
-        eventCard.appendChild(content);
+        body.appendChild(info);
 
-        eventCard.style.cursor = 'pointer';
-        eventCard.addEventListener('click', () => {
-            editEvent(event);
-        });
+        const badgeRow = document.createElement('div');
+        badgeRow.className = 'events-item-badge-row';
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'events-item-type';
+        typeBadge.textContent = event.category;
+        badgeRow.appendChild(typeBadge);
+        body.appendChild(badgeRow);
+
+        const actions = document.createElement('div');
+        actions.className = 'events-item-actions';
 
         const detailsBtn = document.createElement('button');
-        detailsBtn.className = 'event-details-btn';
-        detailsBtn.type = 'button';
+        detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            viewEventDetails(event.id);
-        });
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'events-item-btn events-item-btn-primary';
+        editBtn.textContent = 'Szerkesztés';
+        editBtn.addEventListener('click', () => editEvent(event));
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'event-delete-btn';
-        deleteBtn.type = 'button';
-        deleteBtn.innerHTML = '🗑️';
-        deleteBtn.title = 'Esemény törlése';
-        deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        deleteBtn.className = 'events-item-btn events-item-btn-danger';
+        deleteBtn.textContent = 'Törlés';
+        deleteBtn.addEventListener('click', () => {
             deletingEventId = event.id;
-            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
         });
 
-        eventCard.appendChild(detailsBtn);
-        eventCard.appendChild(deleteBtn);
-        eventsList.appendChild(eventCard);
+        actions.appendChild(detailsBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        body.appendChild(actions);
+
+        card.appendChild(body);
+        eventsList.appendChild(card);
     });
 }
 
@@ -208,8 +218,7 @@ function editEvent(event) {
     document.getElementById('locationInput').value = event.location || '';
     document.getElementById('selectedLocationId').value = event.location_id || '';
 
-    const dateStr = event.date.includes('T') ? event.date : event.date.replace(' ', 'T');
-    const dateObj = new Date(dateStr);
+    const dateObj = new Date(event.date);
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');

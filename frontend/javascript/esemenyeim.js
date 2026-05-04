@@ -286,7 +286,6 @@ function createEventCard(event, type) {
     // Create actions container
     const actions = document.createElement('div');
     actions.className = 'events-item-actions';
-
     if (type === 'created') {
         if (event.is_private && event.invite_token) {
             const copyBtn = document.createElement('button');
@@ -306,7 +305,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, 'created'));
 
         const attendeesBtn = document.createElement('button');
         attendeesBtn.className = 'events-item-btn events-item-btn-secondary';
@@ -331,7 +330,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, type));
         actions.appendChild(detailsBtn);
 
         if (type === 'pastCreated') {
@@ -345,7 +344,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-primary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, type));
 
         const leaveBtn = document.createElement('button');
         leaveBtn.className = 'events-item-btn events-item-btn-danger';
@@ -372,7 +371,7 @@ const categoryHeroImages = {
     'workshop': '/api/categories/workshop.png'
 };
 
-async function viewEventDetails(eventId) {
+async function viewEventDetails(eventId, type = '') {
     try {
         const res = await fetch(`/api/events/${eventId}`);
         if (!res.ok) { showNotification('Nem sikerült betölteni az esemény részleteit', 'error'); return; }
@@ -382,7 +381,7 @@ async function viewEventDetails(eventId) {
         document.getElementById('eventModalHero').src = categoryHeroImages[category] || '/api/categories/default.png';
         document.getElementById('eventModalImage').src = `/api/images/${eventId}`;
         document.getElementById('eventModalTitle').textContent = event.title;
-        document.getElementById('eventModalCategory').textContent = event.category || 'Általános';
+        document.getElementById('eventModalCategory').textContent = event.category || 'Egyéb';
         document.getElementById('eventModalLocation').textContent = event.location;
         document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
 
@@ -401,7 +400,7 @@ async function viewEventDetails(eventId) {
             .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count ?? 0; })
             .catch(() => {});
 
-        setupModalActions(event);
+        setupModalActions(event, type);
         new bootstrap.Modal(document.getElementById('eventDetailsModal')).show();
 
     } catch (err) {
@@ -410,7 +409,7 @@ async function viewEventDetails(eventId) {
     }
 }
 
-function setupModalActions(event) {
+function setupModalActions(event, type) {
     const actionsContainer = document.getElementById('modalActions');
     actionsContainer.innerHTML = '';
 
@@ -420,7 +419,8 @@ function setupModalActions(event) {
     closeBtn.setAttribute('data-bs-dismiss', 'modal');
     actionsContainer.appendChild(closeBtn);
 
-    if (!event.is_private) {
+    const isCreatorOrPast = type === 'created' || type === 'past' || type === 'pastCreated';
+    if (!isCreatorOrPast && !event.is_private) {
         const leaveBtn = document.createElement('button');
         leaveBtn.className = 'event-action-btn primary-btn';
         leaveBtn.textContent = 'Elhagyás';
@@ -447,9 +447,8 @@ function editEvent(event) {
     document.getElementById('ce-capacity').value = event.capacity || '';
     document.getElementById('ce-isPrivate').checked = !!event.is_private;
 
-    const dateStr = event.date ? (event.date.includes('T') ? event.date : event.date.replace(' ', 'T')) : '';
-    if (dateStr) {
-        const d = new Date(dateStr);
+    if (event.date) {
+        const d = new Date(event.date);
         const pad = n => String(n).padStart(2, '0');
         document.getElementById('ce-date').value =
             `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
