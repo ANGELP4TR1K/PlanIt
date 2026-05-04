@@ -294,3 +294,7 @@ INSERT INTO events (type, description, category, title, date, location_id, link,
 ('official', 'Lurdy Konferencia és Rendezvényközpont, Budapest', 'Komédia', 'Aki a szakítás után leszel - SHOW WORKSHOP', '2026-06-14 07:00:00', 54, 'https://www.ticketswap.hu/comedy-show-tickets/aki-a-szakitas-utan-leszel-show-workshop-budapest-lurdy-konferencia-es-rendezvenykozpont-2026-06-14-CZj39h7uirDcW6sXAjbCa', 0),
 ('official', 'VOKE József Attila Művelődési Központ, Dunakeszi', 'Komédia', 'Megjöttem - Lakatos László önálló estje, előzeneka', '2026-06-10 15:00:00', 49, 'https://www.ticketswap.hu/comedy-show-tickets/megjottem-lakatos-laszlo-onallo-estje-elozenekar-oliver-wolf-dunakeszi-voke-jozsef-attila-muvelodesi-kozpont-2026-06-10-CZrcT2g1Bg3LZ2LyaTypu', 0),
 ('official', 'Casa Pomo D\'Oro, Budapest', 'Komédia', 'Olaszul l\'enni jó: Risotto // Az olasz rizottó tit', '2026-07-05 07:00:00', 59, 'https://www.ticketswap.hu/comedy-show-tickets/olaszul-lenni-jo-risotto-az-olasz-rizotto-titka-budapest-casa-pomo-doro-2026-07-05-CZwx9Ca9sdJ75i2zqZeCe', 0);
+
+INSERT INTO users (username, email, password, role, full_name) VALUES
+('admin', 'admin@gmail.com', '$2b$10$D1HKMzMp5mCOOItebqrLHuygqoh09y73T9bbhtZuoK8QnFBIQh0jW', 'admin', 'Admin User'),
+('Proba Peter', 'proba@gmail.com', '$2b$10$ZuE1osyQD3lFoXT.C0xoE..5kOYOLshEg1JwwyzvO.jdR.7Uj5N36', 'user', 'Proba Peter');

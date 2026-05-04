@@ -87,6 +87,21 @@ router.get('/userCreatedEvents', async (request, response) => {
     }
 });
 
+//?GET /api/userCreatedOfficialEvents - Get official events created by the logged-in szervezo
+router.get('/userCreatedOfficialEvents', async (request, response) => {
+    if (!request.session || !request.session.user) {
+        return response.status(401).json({ message: 'Bejelentkezés szükséges' });
+    }
+
+    try {
+        const events = await database.getUserCreatedOfficialEvents(request.session.user.id);
+        return response.status(200).json({ events });
+    } catch (error) {
+        console.error('Error fetching user created official events:', error);
+        return response.status(500).json({ message: 'Hiba az események betöltése során.' });
+    }
+});
+
 //?POST /api/login
 router.post('/login', async (request, response) => {
     const { email, password } = request.body;
@@ -629,11 +644,11 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
                 if (existingLocation) {
                     finalLocationId = existingLocation.id;
                 } else {
-                    const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                    const locationResult = await database.insertLocation(locationName, latitude, longitude);
                     finalLocationId = locationResult.insertId;
                 }
             } else {
-                const locationResult = await database.insertLocation(locationName, null, null, null);
+                const locationResult = await database.insertLocation(locationName, null, null);
                 finalLocationId = locationResult.insertId;
             }
         } else {
@@ -649,16 +664,14 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
             require('fs').mkdirSync(imageDirPath, { recursive: true });
         }
 
-        const imageId = eventId + 214;
-
         if (request.file) {
             const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
             const oldPath = request.file.path;
-            const newPath = path.join(imageDirPath, `${imageId}${ext}`);
+            const newPath = path.join(imageDirPath, `${eventId}${ext}`);
             require('fs').renameSync(oldPath, newPath);
         } else {
             const defaultImagePath = path.join(__dirname, '../uploads/eventImages/default.png');
-            const newPath = path.join(imageDirPath, `${imageId}.png`);
+            const newPath = path.join(imageDirPath, `${eventId}.png`);
             try {
                 if (require('fs').existsSync(defaultImagePath)) {
                     require('fs').copyFileSync(defaultImagePath, newPath);
@@ -728,11 +741,11 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
                 if (existingLocation) {
                     finalLocationId = existingLocation.id;
                 } else {
-                    const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                    const locationResult = await database.insertLocation(locationName, latitude, longitude);
                     finalLocationId = locationResult.insertId;
                 }
             } else {
-                const locationResult = await database.insertLocation(locationName, null, null, null);
+                const locationResult = await database.insertLocation(locationName, null, null);
                 finalLocationId = locationResult.insertId;
             }
         }
@@ -756,8 +769,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
                     require('fs').mkdirSync(imageDirPath, { recursive: true });
                 }
 
-                const imageId = eventId + 214;
-                const newPath = path.join(imageDirPath, `${imageId}${ext}`);
+                const newPath = path.join(imageDirPath, `${eventId}${ext}`);
                 require('fs').renameSync(oldPath, newPath);
             } catch (fileError) {
                 console.error('Error updating image:', fileError);
@@ -795,11 +807,10 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
         await database.deleteEventAndParticipants(eventId);
 
         const imageDirPath = path.join(__dirname, '../uploads/eventImages');
-        const imageId = eventId + 214;
         const extensions = ['.jpg', '.png'];
 
         for (const ext of extensions) {
-            const imagePath = path.join(imageDirPath, `${imageId}${ext}`);
+            const imagePath = path.join(imageDirPath, `${eventId}${ext}`);
             try {
                 if (require('fs').existsSync(imagePath)) {
                     require('fs').unlinkSync(imagePath);
@@ -861,7 +872,7 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
                 }
 
                 const loc = geocodeData.results[0].geometry.location;
-                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, null, userId);
+                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, userId);
                 finalLocationId = locationResult.insertId;
             }
         } else {
@@ -887,11 +898,11 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
                     if (existingLocation) {
                         finalLocationId = existingLocation.id;
                     } else {
-                        const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                        const locationResult = await database.insertLocation(locationName, latitude, longitude);
                         finalLocationId = locationResult.insertId;
                     }
                 } else {
-                    const locationResult = await database.insertLocation(locationName, null, null, null);
+                    const locationResult = await database.insertLocation(locationName, null, null);
                     finalLocationId = locationResult.insertId;
                 }
             } else {
@@ -912,16 +923,14 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
             require('fs').mkdirSync(imageDirPath, { recursive: true });
         }
 
-        const imageId = eventId + 214;
-
         if (request.file) {
             const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
             const oldPath = request.file.path;
-            const newPath = path.join(imageDirPath, `${imageId}${ext}`);
+            const newPath = path.join(imageDirPath, `${eventId}${ext}`);
             require('fs').renameSync(oldPath, newPath);
         } else {
             const defaultImagePath = path.join(__dirname, '../uploads/eventImages/default.png');
-            const newPath = path.join(imageDirPath, `${imageId}.png`);
+            const newPath = path.join(imageDirPath, `${eventId}.png`);
             try {
                 if (require('fs').existsSync(defaultImagePath)) {
                     require('fs').copyFileSync(defaultImagePath, newPath);
@@ -990,7 +999,7 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
                 }
 
                 const loc = geocodeData.results[0].geometry.location;
-                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, null, userId);
+                const locationResult = await database.insertPrivateLocation(privName, loc.lat, loc.lng, userId);
                 finalLocationId = locationResult.insertId;
             }
         } else if (locationId && locationId !== '') {
@@ -1015,11 +1024,11 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
                 if (existingLocation) {
                     finalLocationId = existingLocation.id;
                 } else {
-                    const locationResult = await database.insertLocation(locationName, latitude, longitude, null);
+                    const locationResult = await database.insertLocation(locationName, latitude, longitude);
                     finalLocationId = locationResult.insertId;
                 }
             } else {
-                const locationResult = await database.insertLocation(locationName, null, null, null);
+                const locationResult = await database.insertLocation(locationName, null, null);
                 finalLocationId = locationResult.insertId;
             }
         }
@@ -1031,8 +1040,7 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
                 const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
                 const imageDirPath = path.join(__dirname, '../uploads/eventImages');
                 if (!require('fs').existsSync(imageDirPath)) require('fs').mkdirSync(imageDirPath, { recursive: true });
-                const imageId = eventId + 214;
-                require('fs').renameSync(request.file.path, path.join(imageDirPath, `${imageId}${ext}`));
+                require('fs').renameSync(request.file.path, path.join(imageDirPath, `${eventId}${ext}`));
             } catch (fileError) {
                 console.error('Error updating image:', fileError);
             }
@@ -1067,9 +1075,8 @@ router.delete('/deleteCommunityEvent/:eventId', async (request, response) => {
         await database.deleteEventAndParticipants(eventId);
 
         const imageDirPath = path.join(__dirname, '../uploads/eventImages');
-        const imageId = eventId + 214;
         for (const ext of ['.jpg', '.png']) {
-            const imagePath = path.join(imageDirPath, `${imageId}${ext}`);
+            const imagePath = path.join(imageDirPath, `${eventId}${ext}`);
             try {
                 if (require('fs').existsSync(imagePath)) require('fs').unlinkSync(imagePath);
             } catch (fileError) {

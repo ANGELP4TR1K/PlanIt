@@ -1,7 +1,6 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const { get } = require('browser-sync');
 
 const pool = mysql.createPool({
     host: '127.0.0.1',
@@ -21,9 +20,9 @@ async function selectallUser() {
 }
 
 //Insertek
-async function insertLocation(name, latitude, longitude, link) {
-    const query = 'INSERT INTO locations (name, latitude, longitude, link) VALUES (?, ?, ?, ?);';
-    const [rows] = await pool.execute(query, [name, latitude, longitude, link]);
+async function insertLocation(name, latitude, longitude) {
+    const query = 'INSERT INTO locations (name, latitude, longitude) VALUES (?, ?, ?);';
+    const [rows] = await pool.execute(query, [name, latitude, longitude]);
     return rows;
 }
 
@@ -70,9 +69,9 @@ async function selectAllLocations(userId = null) {
     return rows;
 }
 
-async function insertPrivateLocation(name, latitude, longitude, link, created_by) {
-    const query = 'INSERT INTO locations (name, latitude, longitude, link, is_private, created_by) VALUES (?, ?, ?, ?, 1, ?);';
-    const [rows] = await pool.execute(query, [name, latitude, longitude, link, created_by]);
+async function insertPrivateLocation(name, latitude, longitude, created_by) {
+    const query = 'INSERT INTO locations (name, latitude, longitude, is_private, created_by) VALUES (?, ?, ?, 1, ?);';
+    const [rows] = await pool.execute(query, [name, latitude, longitude, created_by]);
     return rows;
 }
 
@@ -102,9 +101,9 @@ async function updateEventById(id, type, description, category, title, date, loc
     return rows;
 }
 
-async function updateLocationById(id, name, latitude, longitude, link) {
-    const query = 'UPDATE locations SET name = ?, latitude = ?, longitude = ?, link = ? WHERE id = ?;';
-    const [rows] = await pool.execute(query, [name, latitude, longitude, link, id]);
+async function updateLocationById(id, name, latitude, longitude) {
+    const query = 'UPDATE locations SET name = ?, latitude = ?, longitude = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [name, latitude, longitude, id]);
     return rows;
 }
 
@@ -351,7 +350,7 @@ async function getUserCreatedOfficialEvents(userId) {
         SELECT e.*, l.name AS location, l.latitude, l.longitude
         FROM events e
         LEFT JOIN locations l ON e.location_id = l.id
-        WHERE e.created_by = ? AND e.date >= CURDATE() AND e.type = 'Official'
+        WHERE e.created_by = ? AND e.date >= CURDATE() AND e.type = 'official'
         ORDER BY e.date ASC;
     `;
     const [rows] = await pool.execute(query, [userId]);
@@ -473,7 +472,7 @@ async function deleteEventAndParticipants(eventId) {
 
 async function selectAllLocationsAdmin() {
     const query = `
-        SELECT l.id, l.name, l.latitude, l.longitude, l.link,
+        SELECT l.id, l.name, l.latitude, l.longitude,
                l.is_private, l.created_by, u.username AS creator
         FROM locations l
         LEFT JOIN users u ON l.created_by = u.id
@@ -546,7 +545,6 @@ module.exports = {
     selectEventById,
     selectLocationById,
     selectLocationByCoordinates,
-    selectAllLocations,
     deleteEventById,
     deleteLocationById,
     deleteUserById,
@@ -582,7 +580,6 @@ module.exports = {
     deleteEventAndParticipants,
     getPrivateEvent,
     insertCommunityEvent,
-    selectLocationByCoordinates,
     insertPrivateLocation,
     createInviteForEvent,
     selectAllUsersAdmin,

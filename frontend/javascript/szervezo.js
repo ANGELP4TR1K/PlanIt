@@ -34,7 +34,7 @@ async function userRole() {
 
 async function fetchUserCreatedEvents() {
     try {
-        const response = await fetch('/api/userCreatedEvents', {
+        const response = await fetch('/api/userCreatedOfficialEvents', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -58,32 +58,14 @@ function displayCreatedEvents(events) {
     eventsList.innerHTML = '';
 
     events.forEach(event => {
-        const imageId = event.id + 214;
-
         const eventCard = document.createElement('div');
         eventCard.className = 'event-card';
 
         const img = document.createElement('img');
         img.alt = event.title;
         img.className = 'event-card-image';
-
-        let extensionIndex = 0;
-        const extensions = ['.jpg', '.png'];
-
-        function loadImage() {
-            if (extensionIndex < extensions.length) {
-                img.src = `/uploads/eventImages/${imageId}${extensions[extensionIndex]}`;
-                extensionIndex++;
-            } else {
-                img.style.display = 'none';
-            }
-        }
-
-        img.onerror = () => {
-            loadImage();
-        };
-
-        loadImage();
+        img.src = `/api/images/${event.id}`;
+        img.onerror = () => { img.style.display = 'none'; };
 
         const content = document.createElement('div');
         content.className = 'event-card-content';
@@ -133,6 +115,15 @@ function displayCreatedEvents(events) {
             editEvent(event);
         });
 
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'event-details-btn';
+        detailsBtn.type = 'button';
+        detailsBtn.textContent = 'Részletek';
+        detailsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            viewEventDetails(event.id);
+        });
+
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'event-delete-btn';
         deleteBtn.type = 'button';
@@ -145,9 +136,57 @@ function displayCreatedEvents(events) {
             modal.show();
         });
 
+        eventCard.appendChild(detailsBtn);
         eventCard.appendChild(deleteBtn);
         eventsList.appendChild(eventCard);
     });
+}
+
+const categoryHeroImages = {
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
+};
+
+async function viewEventDetails(eventId) {
+    try {
+        const res = await fetch(`/api/events/${eventId}`);
+        if (!res.ok) { showNotification('Nem sikerült betölteni az esemény részleteit', 'error'); return; }
+        const event = await res.json();
+
+        const category = (event.category || '').toLowerCase();
+        document.getElementById('eventModalHero').src = categoryHeroImages[category] || '/api/categories/default.png';
+        document.getElementById('eventModalImage').src = `/api/images/${eventId}`;
+        document.getElementById('eventModalTitle').textContent = event.title;
+        document.getElementById('eventModalCategory').textContent = event.category || 'Általános';
+        document.getElementById('eventModalLocation').textContent = event.location;
+        document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
+
+        const d = new Date(event.date);
+        document.getElementById('eventModalDate').textContent =
+            d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+
+        const nav = document.getElementById('navigateBtn');
+        nav.href = event.lat && event.lng
+            ? `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
+
+        fetch(`/api/events/${eventId}/participants/count`)
+            .then(r => r.json())
+            .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count ?? 0; })
+            .catch(() => {});
+
+        new bootstrap.Modal(document.getElementById('eventDetailsModal')).show();
+
+    } catch (err) {
+        console.error(err);
+        showNotification('Hálózati hiba az esemény betöltésekor', 'error');
+    }
 }
 
 function showNoEventsMessage() {
@@ -503,14 +542,3 @@ function resetForm() {
     document.getElementById('formError').style.display = 'none';
 }
 
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}

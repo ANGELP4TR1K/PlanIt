@@ -55,6 +55,55 @@
 }
 
 
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 99999;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    animation: notifSlideIn 0.3s ease;
+    max-width: 360px;
+}
+
+.notification-success {
+    background: #e6f9ed;
+    color: #1a7a3a;
+    border-left: 4px solid #28a745;
+}
+
+.notification-error {
+    background: #fdecea;
+    color: #b91c1c;
+    border-left: 4px solid #dc3545;
+}
+
+body.dark-mode .notification-success {
+    background: #14532d;
+    color: #86efac;
+    border-left-color: #22c55e;
+}
+
+body.dark-mode .notification-error {
+    background: #450a0a;
+    color: #fca5a5;
+    border-left-color: #ef4444;
+}
+
+@keyframes notifSlideIn {
+    from { opacity: 0; transform: translateX(100px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes notifSlideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(100px); }
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -1189,58 +1238,63 @@ a.event-action-btn {
 }
 
 /* ==========================================================================
-   LOGIN REQUIRED PAGE
+   ACCESS DENIED / LOGIN REQUIRED SCREEN
    ========================================================================== */
 
-.login-required-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+.access-denied-screen {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background-color: var(--bg-color);
-    z-index: 1000;
+    min-height: 60vh;
+    padding: 40px 24px;
 }
 
-.login-required-box {
+.access-denied-card {
     text-align: center;
-}
-
-.login-required-title {
-    color: var(--text-color);
-    margin-bottom: 20px;
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-}
-
-.login-required-text {
+    background: var(--card-background);
+    border: 1px solid var(--input-border-color);
+    border-radius: 24px;
+    padding: 48px 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 20px var(--nav-shadow);
     color: var(--nav-text);
-    margin-bottom: 30px;
-    margin: 0 0 30px 0;
-    font-size: 16px;
-    line-height: 1.6;
 }
 
-.login-required-btn {
-    padding: 12px 30px;
+.access-denied-card svg {
+    color: var(--primary-purple);
+    margin-bottom: 16px;
+}
+
+.access-denied-card h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0 0 10px;
+}
+
+.access-denied-card p {
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+}
+
+.btn-back-home {
+    display: inline-block;
+    padding: 11px 28px;
     background: var(--primary-purple);
     color: white;
     border: none;
     border-radius: 12px;
     font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
     cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
-.login-required-btn:hover {
+.btn-back-home:hover {
     background: var(--primary-purple-dark);
-    transform: translateY(-2px);
+    color: white;
     box-shadow: 0 4px 12px rgba(93, 95, 239, 0.3);
 }
 

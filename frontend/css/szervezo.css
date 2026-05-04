@@ -324,38 +324,6 @@ body.dark-mode .btn-cancel:hover {
     margin-bottom: 20px;
 }
 
-/* Authorization Error Panel */
-.auth-error-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    background-color: var(--bg-color);
-}
-
-.auth-error-content {
-    text-align: center;
-    max-width: 400px;
-}
-
-.auth-error-content svg {
-    color: var(--primary-purple);
-    margin-bottom: 20px;
-}
-
-.auth-error-content h2 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-bottom: 10px;
-}
-
-.auth-error-content p {
-    font-size: 16px;
-    color: var(--nav-text);
-    margin: 0;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -450,7 +418,7 @@ body.dark-mode .btn-cancel:hover {
 }
 
 .event-card-content {
-    padding: 16px;
+    padding: 16px 16px 48px;
 }
 
 .event-card-title {
@@ -492,6 +460,27 @@ body.dark-mode .btn-cancel:hover {
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.event-details-btn {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 6px 14px;
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.event-details-btn:hover {
+    background: var(--primary-purple-dark);
+    transform: translateY(-1px);
 }
 
 .event-delete-btn {
@@ -598,52 +587,6 @@ body.dark-mode .modal-header .btn-close {
     color: white;
 }
 
-/* Toast Notifications */
-.notification {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 16px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    animation: slideInRight 0.3s ease;
-    max-width: 400px;
-}
-
-.notification-success {
-    background: #10b981;
-    color: white;
-}
-
-.notification-error {
-    background: #ef4444;
-    color: white;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(400px);
-        opacity: 0;
-    }
-}
 
 /* Dark mode adjustments */
 body.dark-mode .szervezo-container {
