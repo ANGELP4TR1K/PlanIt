@@ -110,12 +110,17 @@ function renderUsers(users) {
         });
         select.addEventListener('change', () => changeRole(u.id, select.value, select));
 
+        const btnEdit = document.createElement('button');
+        btnEdit.className = 'btn-admin-edit';
+        btnEdit.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>Szerkesztés';
+        btnEdit.addEventListener('click', () => openEditUserModal(u));
+
         const btnDelete = document.createElement('button');
         btnDelete.className = 'btn-admin-delete';
         btnDelete.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360Z"/></svg>Törlés';
         btnDelete.addEventListener('click', () => confirmDeleteUser(u.id, u.username));
 
-        div.append(select, btnDelete);
+        div.append(select, btnEdit, btnDelete);
         tdActions.appendChild(div);
 
         tr.append(tdId, tdUsername, tdEmail, tdFullName, tdRole, tdActions);
@@ -202,7 +207,7 @@ async function loadEvents() {
         renderEvents(allEvents);
     } catch {
         document.getElementById('eventsTableBody').innerHTML =
-            '<tr><td colspan="7" class="loading-cell">Hiba az események betöltése során.</td></tr>';
+            '<tr><td colspan="8" class="loading-cell">Hiba az események betöltése során.</td></tr>';
     }
 }
 
@@ -214,7 +219,7 @@ function renderEvents(events) {
     if (events.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 7;
+        td.colSpan = 8;
         td.className = 'loading-cell';
         td.textContent = 'Nincs találat.';
         tr.appendChild(td);
@@ -248,17 +253,24 @@ function renderEvents(events) {
         const tdLocation = document.createElement('td');
         tdLocation.textContent = e.helyszin || '–';
 
+        const tdCreator = document.createElement('td');
+        tdCreator.textContent = e.creator || '–';
+
         const tdActions = document.createElement('td');
         const div = document.createElement('div');
         div.className = 'action-buttons';
+        const btnEditEv = document.createElement('button');
+        btnEditEv.className = 'btn-admin-edit';
+        btnEditEv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>Szerkesztés';
+        btnEditEv.addEventListener('click', () => openEditEventModal(e));
         const btn = document.createElement('button');
         btn.className = 'btn-admin-delete';
         btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360Z"/></svg>Törlés';
         btn.addEventListener('click', () => confirmDeleteEvent(e.id, e.title));
-        div.appendChild(btn);
+        div.append(btnEditEv, btn);
         tdActions.appendChild(div);
 
-        tr.append(tdId, tdTitle, tdCategory, tdType, tdDate, tdLocation, tdActions);
+        tr.append(tdId, tdTitle, tdCategory, tdType, tdDate, tdLocation, tdCreator, tdActions);
         tbody.appendChild(tr);
     });
 }
@@ -368,11 +380,15 @@ function renderLocations(locations) {
         const tdActions = document.createElement('td');
         const div = document.createElement('div');
         div.className = 'action-buttons';
+        const btnEditLoc = document.createElement('button');
+        btnEditLoc.className = 'btn-admin-edit';
+        btnEditLoc.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>Szerkesztés';
+        btnEditLoc.addEventListener('click', () => openEditLocationModal(l));
         const btn = document.createElement('button');
         btn.className = 'btn-admin-delete';
         btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360Z"/></svg>Törlés';
         btn.addEventListener('click', () => confirmDeleteLocation(l.id, l.name));
-        div.appendChild(btn);
+        div.append(btnEditLoc, btn);
         tdActions.appendChild(div);
 
         tr.append(tdId, tdName, tdCoords, tdPrivate, tdCreator, tdActions);
@@ -581,6 +597,135 @@ async function deleteInvite(id) {
         showNotification('Hiba a törlés során.', 'error');
     }
 }
+
+// ── Edit modals ───────────────────────────────────────────────────────────────
+
+function openEditUserModal(u) {
+    document.getElementById('editUserId').value = u.id;
+    document.getElementById('editUserUsername').value = u.username;
+    document.getElementById('editUserEmail').value = u.email;
+    document.getElementById('editUserFullName').value = u.full_name || '';
+    document.getElementById('editUserRole').value = u.role;
+    document.getElementById('editUserError').textContent = '';
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+function openEditEventModal(e) {
+    document.getElementById('editEventId').value = e.id;
+    document.getElementById('editEventLocationId').value = e.location_id || '';
+    document.getElementById('editEventTitle').value = e.title;
+    const cat = document.getElementById('editEventCategory');
+    cat.value = e.category || 'Egyéb';
+    if (!cat.value) cat.value = 'Egyéb';
+    document.getElementById('editEventType').value = e.type || 'official';
+    document.getElementById('editEventDescription').value = e.description || '';
+    const d = e.date ? new Date(e.date) : null;
+    document.getElementById('editEventDate').value = d && !isNaN(d) ? d.toISOString().slice(0, 16) : '';
+    document.getElementById('editEventError').textContent = '';
+    new bootstrap.Modal(document.getElementById('editEventModal')).show();
+}
+
+function openEditLocationModal(l) {
+    document.getElementById('editLocationId').value = l.id;
+    document.getElementById('editLocationName').value = l.name;
+    document.getElementById('editLocationLat').value = l.latitude ?? '';
+    document.getElementById('editLocationLng').value = l.longitude ?? '';
+    document.getElementById('editLocationError').textContent = '';
+    new bootstrap.Modal(document.getElementById('editLocationModal')).show();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('editUserForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const id = document.getElementById('editUserId').value;
+        const username = document.getElementById('editUserUsername').value.trim();
+        const email = document.getElementById('editUserEmail').value.trim();
+        const full_name = document.getElementById('editUserFullName').value.trim();
+        const role = document.getElementById('editUserRole').value;
+        const errorEl = document.getElementById('editUserError');
+        errorEl.textContent = '';
+        try {
+            const res = await fetch(`/api/admin/users/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, full_name, role })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const user = allUsers.find(u => u.id === parseInt(id));
+                if (user) { user.username = username; user.email = email; user.full_name = full_name; user.role = role; }
+                filterUsers();
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                showNotification('Felhasználó sikeresen frissítve.', 'success');
+            } else {
+                errorEl.textContent = data.message || 'Hiba a mentés során.';
+            }
+        } catch {
+            errorEl.textContent = 'Hiba a mentés során.';
+        }
+    });
+
+    document.getElementById('editEventForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const id = document.getElementById('editEventId').value;
+        const location_id = document.getElementById('editEventLocationId').value;
+        const title = document.getElementById('editEventTitle').value.trim();
+        const category = document.getElementById('editEventCategory').value;
+        const type = document.getElementById('editEventType').value;
+        const description = document.getElementById('editEventDescription').value.trim();
+        const date = document.getElementById('editEventDate').value;
+        const errorEl = document.getElementById('editEventError');
+        errorEl.textContent = '';
+        try {
+            const res = await fetch(`/api/admin/events/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, category, type, description, date, location_id: location_id || null })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const event = allEvents.find(e => e.id === parseInt(id));
+                if (event) { event.title = title; event.category = category; event.type = type; event.description = description; event.date = date; }
+                filterEvents();
+                bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
+                showNotification('Esemény sikeresen frissítve.', 'success');
+            } else {
+                errorEl.textContent = data.message || 'Hiba a mentés során.';
+            }
+        } catch {
+            errorEl.textContent = 'Hiba a mentés során.';
+        }
+    });
+
+    document.getElementById('editLocationForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const id = document.getElementById('editLocationId').value;
+        const name = document.getElementById('editLocationName').value.trim();
+        const latitude = document.getElementById('editLocationLat').value;
+        const longitude = document.getElementById('editLocationLng').value;
+        const errorEl = document.getElementById('editLocationError');
+        errorEl.textContent = '';
+        try {
+            const res = await fetch(`/api/admin/locations/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, latitude: latitude || null, longitude: longitude || null })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                const loc = allLocations.find(l => l.id === parseInt(id));
+                if (loc) { loc.name = name; loc.latitude = latitude; loc.longitude = longitude; }
+                filterLocations();
+                bootstrap.Modal.getInstance(document.getElementById('editLocationModal')).hide();
+                showNotification('Helyszín sikeresen frissítve.', 'success');
+            } else {
+                errorEl.textContent = data.message || 'Hiba a mentés során.';
+            }
+        } catch {
+            errorEl.textContent = 'Hiba a mentés során.';
+        }
+    });
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

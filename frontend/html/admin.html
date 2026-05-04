@@ -233,11 +233,12 @@
                             <th>Típus</th>
                             <th>Dátum</th>
                             <th>Helyszín</th>
+                            <th>Létrehozó</th>
                             <th>Műveletek</th>
                         </tr>
                     </thead>
                     <tbody id="eventsTableBody">
-                        <tr><td colspan="7" class="loading-cell">Betöltés…</td></tr>
+                        <tr><td colspan="8" class="loading-cell">Betöltés…</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -345,6 +346,129 @@
                     </div>
                     <div id="createInviteError" class="error-message"></div>
                     <button type="submit" class="login-btn">Létrehozás</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+                </button>
+                <h2 class="modal-title">Felhasználó szerkesztése</h2>
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="login-input-field">
+                        <label for="editUserUsername">Felhasználónév</label>
+                        <div class="input-wrapper"><input type="text" id="editUserUsername" required></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editUserEmail">E-mail</label>
+                        <div class="input-wrapper"><input type="email" id="editUserEmail" required></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editUserFullName">Teljes név</label>
+                        <div class="input-wrapper"><input type="text" id="editUserFullName"></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editUserRole">Szerepkör</label>
+                        <div class="input-wrapper">
+                            <select id="editUserRole">
+                                <option value="user">user</option>
+                                <option value="szervezo">szervező</option>
+                                <option value="admin">admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="editUserError" class="error-message"></div>
+                    <button type="submit" class="login-btn">Mentés</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+                </button>
+                <h2 class="modal-title">Esemény szerkesztése</h2>
+                <form id="editEventForm">
+                    <input type="hidden" id="editEventId">
+                    <input type="hidden" id="editEventLocationId">
+                    <div class="login-input-field">
+                        <label for="editEventTitle">Cím</label>
+                        <div class="input-wrapper"><input type="text" id="editEventTitle" required></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editEventCategory">Kategória</label>
+                        <div class="input-wrapper">
+                            <select id="editEventCategory">
+                                <option value="Fesztivál">Fesztivál</option>
+                                <option value="Komédia">Komédia</option>
+                                <option value="Koncert">Koncert</option>
+                                <option value="Sport">Sport</option>
+                                <option value="Színház">Színház</option>
+                                <option value="Vásár">Vásár</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Egyéb">Egyéb</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editEventType">Típus</label>
+                        <div class="input-wrapper">
+                            <select id="editEventType">
+                                <option value="official">official</option>
+                                <option value="community">community</option>
+                                <option value="private">private</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editEventDate">Dátum</label>
+                        <div class="input-wrapper"><input type="datetime-local" id="editEventDate" required></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editEventDescription">Leírás</label>
+                        <div class="input-wrapper"><textarea id="editEventDescription" rows="3"></textarea></div>
+                    </div>
+                    <div id="editEventError" class="error-message"></div>
+                    <button type="submit" class="login-btn">Mentés</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Location Modal -->
+    <div class="modal fade" id="editLocationModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-card">
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+                </button>
+                <h2 class="modal-title">Helyszín szerkesztése</h2>
+                <form id="editLocationForm">
+                    <input type="hidden" id="editLocationId">
+                    <div class="login-input-field">
+                        <label for="editLocationName">Név</label>
+                        <div class="input-wrapper"><input type="text" id="editLocationName" required></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editLocationLat">Szélesség (lat)</label>
+                        <div class="input-wrapper"><input type="number" step="any" id="editLocationLat"></div>
+                    </div>
+                    <div class="login-input-field">
+                        <label for="editLocationLng">Hosszúság (lng)</label>
+                        <div class="input-wrapper"><input type="number" step="any" id="editLocationLng"></div>
+                    </div>
+                    <div id="editLocationError" class="error-message"></div>
+                    <button type="submit" class="login-btn">Mentés</button>
                 </form>
             </div>
         </div>
