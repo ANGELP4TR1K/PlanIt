@@ -34,7 +34,7 @@ async function userRole() {
 
 async function fetchUserCreatedEvents() {
     try {
-        const response = await fetch('/api/userCreatedEvents', {
+        const response = await fetch('/api/userCreatedOfficialEvents', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,97 +57,146 @@ function displayCreatedEvents(events) {
     const eventsList = document.getElementById('createdEventsList');
     eventsList.innerHTML = '';
 
-    events.forEach(event => {
-        const imageId = event.id + 214;
+    const mkSvg = d => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('height', '18px');
+        svg.setAttribute('viewBox', '0 -960 960 960');
+        svg.setAttribute('width', '18px');
+        svg.setAttribute('fill', 'currentColor');
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', d);
+        svg.appendChild(p);
+        return svg;
+    };
 
-        const eventCard = document.createElement('div');
-        eventCard.className = 'event-card';
+    events.forEach(event => {
+        const card = document.createElement('div');
+        card.className = 'events-item';
 
         const img = document.createElement('img');
+        img.src = `/api/images/${event.id}`;
         img.alt = event.title;
-        img.className = 'event-card-image';
+        img.className = 'events-item-img';
+        img.onerror = function() { this.onerror = null; };
+        card.appendChild(img);
 
-        let extensionIndex = 0;
-        const extensions = ['.jpg', '.png'];
-
-        function loadImage() {
-            if (extensionIndex < extensions.length) {
-                img.src = `/uploads/eventImages/${imageId}${extensions[extensionIndex]}`;
-                extensionIndex++;
-            } else {
-                img.style.display = 'none';
-            }
-        }
-
-        img.onerror = () => {
-            loadImage();
-        };
-
-        loadImage();
-
-        const content = document.createElement('div');
-        content.className = 'event-card-content';
+        const body = document.createElement('div');
+        body.className = 'events-item-body';
 
         const title = document.createElement('h3');
-        title.className = 'event-card-title';
+        title.className = 'events-item-title';
         title.textContent = event.title;
+        body.appendChild(title);
 
-        const category = document.createElement('span');
-        category.className = 'event-card-category';
-        category.textContent = event.category;
+        const info = document.createElement('div');
+        info.className = 'events-item-info';
 
-        const eventDate = new Date(event.date);
-        const formattedDate = eventDate.toLocaleDateString('hu-HU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-
-        const dateDiv = document.createElement('div');
-        dateDiv.className = 'event-card-date';
-        dateDiv.textContent = '📅 ' + formattedDate;
-
-        const description = document.createElement('div');
-        description.className = 'event-card-description';
-        description.textContent = event.description;
-
-        content.appendChild(title);
-        content.appendChild(category);
-        content.appendChild(dateDiv);
+        const dateRow = document.createElement('div');
+        dateRow.className = 'events-item-info-row';
+        dateRow.appendChild(mkSvg('M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-40q0-17 11.5-28.5T280-880q17 0 28.5 11.5T320-840v40h320v-40q0-17 11.5-28.5T680-880q17 0 28.5 11.5T720-840v40h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Z'));
+        const dateSpan = document.createElement('span');
+        const dateObj = new Date(event.date);
+        dateSpan.textContent = dateObj.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' }) +
+            ' ' + dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+        dateRow.appendChild(dateSpan);
+        info.appendChild(dateRow);
 
         if (event.location) {
-            const locationDiv = document.createElement('div');
-            locationDiv.className = 'event-card-location';
-            locationDiv.textContent = '📍 ' + event.location;
-            content.appendChild(locationDiv);
+            const locationRow = document.createElement('div');
+            locationRow.className = 'events-item-info-row';
+            locationRow.appendChild(mkSvg('M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-71.5-178.5T480-800q-109 0-180.5 69.5T228-552q0 71 59 162.5T480-186Z'));
+            const locationSpan = document.createElement('span');
+            locationSpan.textContent = event.location;
+            locationRow.appendChild(locationSpan);
+            info.appendChild(locationRow);
         }
 
-        content.appendChild(description);
-        eventCard.appendChild(img);
-        eventCard.appendChild(content);
+        body.appendChild(info);
 
-        eventCard.style.cursor = 'pointer';
-        eventCard.addEventListener('click', () => {
-            editEvent(event);
-        });
+        const badgeRow = document.createElement('div');
+        badgeRow.className = 'events-item-badge-row';
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'events-item-type';
+        typeBadge.textContent = event.category;
+        badgeRow.appendChild(typeBadge);
+        body.appendChild(badgeRow);
+
+        const actions = document.createElement('div');
+        actions.className = 'events-item-actions';
+
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'events-item-btn events-item-btn-secondary';
+        detailsBtn.textContent = 'Részletek';
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'events-item-btn events-item-btn-primary';
+        editBtn.textContent = 'Szerkesztés';
+        editBtn.addEventListener('click', () => editEvent(event));
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'event-delete-btn';
-        deleteBtn.type = 'button';
-        deleteBtn.innerHTML = '🗑️';
-        deleteBtn.title = 'Esemény törlése';
-        deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        deleteBtn.className = 'events-item-btn events-item-btn-danger';
+        deleteBtn.textContent = 'Törlés';
+        deleteBtn.addEventListener('click', () => {
             deletingEventId = event.id;
-            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
         });
 
-        eventCard.appendChild(deleteBtn);
-        eventsList.appendChild(eventCard);
+        actions.appendChild(detailsBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        body.appendChild(actions);
+
+        card.appendChild(body);
+        eventsList.appendChild(card);
     });
+}
+
+const categoryHeroImages = {
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
+};
+
+async function viewEventDetails(eventId) {
+    try {
+        const res = await fetch(`/api/events/${eventId}`);
+        if (!res.ok) { showNotification('Nem sikerült betölteni az esemény részleteit', 'error'); return; }
+        const event = await res.json();
+
+        const category = (event.category || '').toLowerCase();
+        document.getElementById('eventModalHero').src = categoryHeroImages[category] || '/api/categories/default.png';
+        document.getElementById('eventModalImage').src = `/api/images/${eventId}`;
+        document.getElementById('eventModalTitle').textContent = event.title;
+        document.getElementById('eventModalCategory').textContent = event.category || 'Általános';
+        document.getElementById('eventModalLocation').textContent = event.location;
+        document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
+
+        const d = new Date(event.date);
+        document.getElementById('eventModalDate').textContent =
+            d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+
+        const nav = document.getElementById('navigateBtn');
+        nav.href = event.lat && event.lng
+            ? `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
+
+        fetch(`/api/events/${eventId}/participants/count`)
+            .then(r => r.json())
+            .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count ?? 0; })
+            .catch(() => {});
+
+        new bootstrap.Modal(document.getElementById('eventDetailsModal')).show();
+
+    } catch (err) {
+        console.error(err);
+        showNotification('Hálózati hiba az esemény betöltésekor', 'error');
+    }
 }
 
 function showNoEventsMessage() {
@@ -169,8 +218,7 @@ function editEvent(event) {
     document.getElementById('locationInput').value = event.location || '';
     document.getElementById('selectedLocationId').value = event.location_id || '';
 
-    const dateStr = event.date.includes('T') ? event.date : event.date.replace(' ', 'T');
-    const dateObj = new Date(dateStr);
+    const dateObj = new Date(event.date);
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
@@ -503,14 +551,3 @@ function resetForm() {
     document.getElementById('formError').style.display = 'none';
 }
 
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}

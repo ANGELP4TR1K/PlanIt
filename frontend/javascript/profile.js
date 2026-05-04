@@ -12,39 +12,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 });
 
-function showNotification(message, type = 'success', duration = 3000) {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-
-    container.appendChild(notification);
-
-    setTimeout(() => {
-        notification.classList.add('hide');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, duration);
-}
-
 function showProfileAuthError() {
-    const errorContainer = document.querySelector('.auth-error-container');
-    if (errorContainer) {
-        errorContainer.classList.add('show');
-    }
+    const screen = document.getElementById('tiltas');
+    if (screen) screen.style.display = 'flex';
 
     const loginBtn = document.getElementById('authErrorLoginBtn');
     if (loginBtn) {
         loginBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const loginModalEl = document.getElementById('loginModal');
-            const modal = new bootstrap.Modal(loginModalEl);
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
             modal.show();
-            loginModal();
-            registerModal();
         });
     }
 }

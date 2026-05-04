@@ -158,12 +158,12 @@ async function deleteUser(id) {
             allUsers = allUsers.filter(u => u.id !== id);
             document.getElementById('totalUsers').textContent = allUsers.length;
             filterUsers();
-            showAdminNotification('Felhasználó sikeresen törölve.', 'success');
+            showNotification('Felhasználó sikeresen törölve.', 'success');
         } else {
-            showAdminNotification(data.message || 'Hiba a törlés során.', 'error');
+            showNotification(data.message || 'Hiba a törlés során.', 'error');
         }
     } catch {
-        showAdminNotification('Hiba a törlés során.', 'error');
+        showNotification('Hiba a törlés során.', 'error');
     }
 }
 
@@ -180,14 +180,14 @@ async function changeRole(id, newRole, selectEl) {
             const user = allUsers.find(u => u.id === id);
             if (user) user.role = newRole;
             filterUsers();
-            showAdminNotification('Szerepkör sikeresen frissítve.', 'success');
+            showNotification('Szerepkör sikeresen frissítve.', 'success');
         } else {
             if (selectEl && previousRole) selectEl.value = previousRole;
-            showAdminNotification(data.message || 'Hiba a szerepkör frissítése során.', 'error');
+            showNotification(data.message || 'Hiba a szerepkör frissítése során.', 'error');
         }
     } catch {
         if (selectEl && previousRole) selectEl.value = previousRole;
-        showAdminNotification('Hiba a szerepkör frissítése során.', 'error');
+        showNotification('Hiba a szerepkör frissítése során.', 'error');
     }
 }
 
@@ -298,12 +298,12 @@ async function deleteEvent(id) {
             allEvents = allEvents.filter(e => e.id !== id);
             document.getElementById('totalEvents').textContent = allEvents.length;
             filterEvents();
-            showAdminNotification('Esemény sikeresen törölve.', 'success');
+            showNotification('Esemény sikeresen törölve.', 'success');
         } else {
-            showAdminNotification(data.message || 'Hiba a törlés során.', 'error');
+            showNotification(data.message || 'Hiba a törlés során.', 'error');
         }
     } catch {
-        showAdminNotification('Hiba a törlés során.', 'error');
+        showNotification('Hiba a törlés során.', 'error');
     }
 }
 
@@ -410,12 +410,12 @@ async function deleteLocation(id) {
             allLocations = allLocations.filter(l => l.id !== id);
             document.getElementById('totalLocations').textContent = allLocations.length;
             filterLocations();
-            showAdminNotification('Helyszín sikeresen törölve.', 'success');
+            showNotification('Helyszín sikeresen törölve.', 'success');
         } else {
-            showAdminNotification(data.message || 'Hiba a törlés során.', 'error');
+            showNotification(data.message || 'Hiba a törlés során.', 'error');
         }
     } catch {
-        showAdminNotification('Hiba a törlés során.', 'error');
+        showNotification('Hiba a törlés során.', 'error');
     }
 }
 
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('totalInvites').textContent = allInvites.length;
                 filterInvites();
                 bootstrap.Modal.getInstance(document.getElementById('createInviteModal')).hide();
-                showAdminNotification('Meghívó létrehozva. Token: ' + data.token, 'success');
+                showNotification('Meghívó létrehozva. Token: ' + data.token, 'success');
             } else {
                 errorEl.textContent = data.message || 'Hiba a létrehozás során.';
             }
@@ -573,12 +573,12 @@ async function deleteInvite(id) {
             allInvites = allInvites.filter(i => i.id !== id);
             document.getElementById('totalInvites').textContent = allInvites.length;
             filterInvites();
-            showAdminNotification('Meghívó sikeresen törölve.', 'success');
+            showNotification('Meghívó sikeresen törölve.', 'success');
         } else {
-            showAdminNotification(data.message || 'Hiba a törlés során.', 'error');
+            showNotification(data.message || 'Hiba a törlés során.', 'error');
         }
     } catch {
-        showAdminNotification('Hiba a törlés során.', 'error');
+        showNotification('Hiba a törlés során.', 'error');
     }
 }
 
@@ -600,16 +600,3 @@ function formatDate(dateStr) {
     return d.toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' });
 }
 
-let notifTimeout = null;
-function showAdminNotification(message, type) {
-    const existing = document.querySelector('.admin-notification');
-    if (existing) existing.remove();
-    if (notifTimeout) clearTimeout(notifTimeout);
-
-    const el = document.createElement('div');
-    el.className = `admin-notification ${type}`;
-    el.textContent = message;
-    document.body.appendChild(el);
-
-    notifTimeout = setTimeout(() => el.remove(), 3500);
-}

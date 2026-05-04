@@ -12,7 +12,6 @@ let ceEditingEventId = null;
 function setupEventPage() {
     setupTabNavigation();
     loadAllEvents();
-    setupEventDetailsModal();
     setupEventActions();
     setupCommunityEventForm();
     handleInviteLink();
@@ -245,7 +244,7 @@ function createEventCard(event, type) {
     locationRow.appendChild(locationSpan);
     info.appendChild(locationRow);
 
-    if ((type === 'community' || type === 'created') && event.capacity) {
+    if ((type === 'community') && event.capacity) {
         const capacityRow = document.createElement('div');
         capacityRow.className = 'events-item-info-row';
         const capacitySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -287,7 +286,6 @@ function createEventCard(event, type) {
     // Create actions container
     const actions = document.createElement('div');
     actions.className = 'events-item-actions';
-
     if (type === 'created') {
         if (event.is_private && event.invite_token) {
             const copyBtn = document.createElement('button');
@@ -307,7 +305,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, 'created'));
 
         const attendeesBtn = document.createElement('button');
         attendeesBtn.className = 'events-item-btn events-item-btn-secondary';
@@ -332,7 +330,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-secondary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, type));
         actions.appendChild(detailsBtn);
 
         if (type === 'pastCreated') {
@@ -346,7 +344,7 @@ function createEventCard(event, type) {
         const detailsBtn = document.createElement('button');
         detailsBtn.className = 'events-item-btn events-item-btn-primary';
         detailsBtn.textContent = 'Részletek';
-        detailsBtn.addEventListener('click', () => viewEventDetails(event.id));
+        detailsBtn.addEventListener('click', () => viewEventDetails(event.id, type));
 
         const leaveBtn = document.createElement('button');
         leaveBtn.className = 'events-item-btn events-item-btn-danger';
@@ -363,80 +361,75 @@ function createEventCard(event, type) {
     return card;
 }
 
-function setupEventDetailsModal() {
-    const modal = document.getElementById('eventDetailsModal');
-    const closeBtn = modal.querySelector('.btn-close-custom');
+const categoryHeroImages = {
+    'koncert': '/api/categories/koncert.png',
+    'fesztivál': '/api/categories/fesztival.png',
+    'sport': '/api/categories/sport.png',
+    'színház': '/api/categories/szinhaz.png',
+    'komédia': '/api/categories/komedia.png',
+    'vásár': '/api/categories/vasar.png',
+    'workshop': '/api/categories/workshop.png'
+};
 
-    closeBtn.addEventListener('click', () => {
-        const bootstrapModal = bootstrap.Modal.getInstance(modal);
-        if (bootstrapModal) bootstrapModal.hide();
-    });
-}
-
-async function viewEventDetails(eventId) {
+async function viewEventDetails(eventId, type = '') {
     try {
-        const response = await fetch(`/api/events/${eventId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const res = await fetch(`/api/events/${eventId}`);
+        if (!res.ok) { showNotification('Nem sikerült betölteni az esemény részleteit', 'error'); return; }
+        const event = await res.json();
 
-        if (!response.ok) {
-            alert('Nem sikerült betölteni az esemény részleteit');
-            return;
-        }
+        const category = (event.category || '').toLowerCase();
+        document.getElementById('eventModalHero').src = categoryHeroImages[category] || '/api/categories/default.png';
+        document.getElementById('eventModalImage').src = `/api/images/${eventId}`;
+        document.getElementById('eventModalTitle').textContent = event.title;
+        document.getElementById('eventModalCategory').textContent = event.category || 'Egyéb';
+        document.getElementById('eventModalLocation').textContent = event.location;
+        document.getElementById('eventModalDescription').textContent = event.description || 'Nincs leírás';
 
-        const event = await response.json();
+        const d = new Date(event.date);
+        document.getElementById('eventModalDate').textContent =
+            d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }) +
+            ' – ' + d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
 
-        // Populate modal
-        document.getElementById('detailsEventTitle').textContent = event.title;
-        document.getElementById('detailsLocation').textContent = event.location;
-        document.getElementById('detailsCategory').textContent = event.category || 'Általános';
-        document.getElementById('detailsType').textContent = event.is_private ? 'Közösségi' : 'Hivatalos';
-        document.getElementById('detailsDescription').textContent = event.description || 'Nincs leírás';
+        const nav = document.getElementById('navigateBtn');
+        nav.href = event.lat && event.lng
+            ? `https://www.google.com/maps/dir/?api=1&destination=${event.lat},${event.lng}`
+            : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`;
 
-        const dateObj = new Date(event.date);
-        const dateStr = dateObj.toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' });
-        const timeStr = dateObj.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('detailsDate').textContent = `${dateStr} - ${timeStr}`;
+        fetch(`/api/events/${eventId}/participants/count`)
+            .then(r => r.json())
+            .then(data => { document.getElementById('eventModalParticipantCount').textContent = data.count ?? 0; })
+            .catch(() => {});
 
-        // Set up action buttons
-        setupModalActions(event);
+        setupModalActions(event, type);
+        new bootstrap.Modal(document.getElementById('eventDetailsModal')).show();
 
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
-        modal.show();
-
-    } catch (error) {
-        console.error('Error loading event details:', error);
-        alert('Hálózati hiba az esemény betöltésekor');
+    } catch (err) {
+        console.error(err);
+        showNotification('Hálózati hiba az esemény betöltésekor', 'error');
     }
 }
 
-function setupModalActions(event) {
+function setupModalActions(event, type) {
     const actionsContainer = document.getElementById('modalActions');
     actionsContainer.innerHTML = '';
 
     const closeBtn = document.createElement('button');
     closeBtn.className = 'event-action-btn secondary-btn';
     closeBtn.textContent = 'Bezárás';
-    closeBtn.addEventListener('click', () => {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal'));
-        modal.hide();
-    });
-
-    const leaveBtn = document.createElement('button');
-    leaveBtn.className = 'event-action-btn primary-btn';
-    leaveBtn.textContent = 'Elhagyás';
-    leaveBtn.addEventListener('click', () => {
-        const detailsModal = bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal'));
-        detailsModal.hide();
-        leaveEvent(event.id);
-    });
-
-    actionsContainer.appendChild(leaveBtn);
+    closeBtn.setAttribute('data-bs-dismiss', 'modal');
     actionsContainer.appendChild(closeBtn);
+
+    const isCreatorOrPast = type === 'created' || type === 'past' || type === 'pastCreated';
+    if (!isCreatorOrPast && !event.is_private) {
+        const leaveBtn = document.createElement('button');
+        leaveBtn.className = 'event-action-btn primary-btn';
+        leaveBtn.textContent = 'Elhagyás';
+        leaveBtn.addEventListener('click', () => {
+            bootstrap.Modal.getInstance(document.getElementById('eventDetailsModal')).hide();
+            leaveEvent(event.id);
+        });
+        actionsContainer.appendChild(leaveBtn);
+    }
 }
 
 async function leaveEvent(eventId) {
@@ -454,9 +447,8 @@ function editEvent(event) {
     document.getElementById('ce-capacity').value = event.capacity || '';
     document.getElementById('ce-isPrivate').checked = !!event.is_private;
 
-    const dateStr = event.date ? (event.date.includes('T') ? event.date : event.date.replace(' ', 'T')) : '';
-    if (dateStr) {
-        const d = new Date(dateStr);
+    if (event.date) {
+        const d = new Date(event.date);
         const pad = n => String(n).padStart(2, '0');
         document.getElementById('ce-date').value =
             `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -474,16 +466,6 @@ function editEvent(event) {
 
 
 
-async function userSessionCheck() {
-    const res = await fetch('/api/userSession', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    const data = await res.json();
-    return data.session;
-}
 
 function showLeaveConfirmationModal(eventId) {
     const overlay = document.createElement('div');
@@ -854,18 +836,6 @@ function resetCEForm() {
     document.getElementById('ce-imagePreview').src = '';
     document.getElementById('ce-image').value = '';
     document.getElementById('ce-formError').style.display = 'none';
-}
-
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
 }
 
 function setupEventActions() {

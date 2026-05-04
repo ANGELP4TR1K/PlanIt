@@ -535,65 +535,6 @@ body.dark-mode .events-item-type {
     background: rgba(93, 95, 239, 0.15);
 }
 
-/* ==========================================================================
-   NOTIFICATIONS
-   ========================================================================== */
-
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 16px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    z-index: 9999;
-    animation: slideInRight 0.3s ease;
-}
-
-.notification-success {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border-left: 4px solid #28a745;
-}
-
-.notification-error {
-    background: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-    border-left: 4px solid #dc3545;
-}
-
-body.dark-mode .notification-success {
-    background: rgba(40, 167, 69, 0.15);
-    color: #5fff5f;
-}
-
-body.dark-mode .notification-error {
-    background: rgba(220, 53, 69, 0.2);
-    color: #ff6b6b;
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideOutRight {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100px);
-    }
-}
-
 
 /* ==========================================================================
    CONFIRMATION MODAL

@@ -1,3 +1,21 @@
+let _notifTimeout = null;
+
+function showNotification(message, type = 'success', duration = 3000) {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+    if (_notifTimeout) clearTimeout(_notifTimeout);
+
+    const el = document.createElement('div');
+    el.className = `notification notification-${type}`;
+    el.textContent = message;
+    document.body.appendChild(el);
+
+    _notifTimeout = setTimeout(() => {
+        el.style.animation = 'notifSlideOut 0.3s ease forwards';
+        setTimeout(() => el.remove(), 300);
+    }, duration);
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     navActive();
     darkMode();
@@ -460,36 +478,39 @@ function resetPasswordModal() {
     });
 }
 
-function redirectToLogin(contentContainer) {
+function redirectToLogin(contentContainer, text = 'Az oldal megtekintéséhez be kell jelentkezned.') {
     if (contentContainer) {
         contentContainer.innerHTML = '';
     }
 
-    const container = document.createElement('div');
-    container.className = 'login-required-container';
+    const screen = document.createElement('div');
+    screen.className = 'access-denied-screen';
 
-    const contentBox = document.createElement('div');
-    contentBox.className = 'login-required-box';
+    const card = document.createElement('div');
+    card.className = 'access-denied-card';
 
-    const heading = document.createElement('h2');
-    heading.className = 'login-required-title';
-    heading.textContent = 'Bejelentkezés szükséges';
-
-    const description = document.createElement('p');
-    description.className = 'login-required-text';
-    description.textContent = 'Az eseményeid megtekintéséhez be kell jelentkezned.';
+    card.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="64px" viewBox="0 -960 960 960" width="64px" fill="currentColor">
+            <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5L228-676q-33 42-50.5 92T160-480q0 134 93 227t227 93Zm252-140q33-42 50.5-92T800-480q0-134-93-227t-227-93q-54 0-104 17.5T284-732l448 432Z"/>
+        </svg>
+        <h2>Bejelentkezés szükséges</h2>
+        <p>${text}</p>
+    `;
 
     const button = document.createElement('button');
-    button.className = 'login-required-btn';
+    button.className = 'btn-back-home';
     button.textContent = 'Bejelentkezés';
     button.addEventListener('click', () => {
         const modal = new bootstrap.Modal(document.getElementById('loginModal'));
         modal.show();
     });
 
-    contentBox.appendChild(heading);
-    contentBox.appendChild(description);
-    contentBox.appendChild(button);
-    container.appendChild(contentBox);
-    document.body.appendChild(container);
+    card.appendChild(button);
+    screen.appendChild(card);
+
+    if (contentContainer) {
+        contentContainer.appendChild(screen);
+    } else {
+        document.body.appendChild(screen);
+    }
 }
