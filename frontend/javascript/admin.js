@@ -619,6 +619,7 @@ function openEditEventModal(e) {
     if (!cat.value) cat.value = 'Egyéb';
     document.getElementById('editEventType').value = e.type || 'official';
     document.getElementById('editEventDescription').value = e.description || '';
+    document.getElementById('editEventLink').value = e.link || '';
     const d = e.date ? new Date(e.date) : null;
     document.getElementById('editEventDate').value = d && !isNaN(d) ? d.toISOString().slice(0, 16) : '';
     document.getElementById('editEventError').textContent = '';
@@ -673,6 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const category = document.getElementById('editEventCategory').value;
         const type = document.getElementById('editEventType').value;
         const description = document.getElementById('editEventDescription').value.trim();
+        const link = document.getElementById('editEventLink').value.trim();
         const date = document.getElementById('editEventDate').value;
         const errorEl = document.getElementById('editEventError');
         errorEl.textContent = '';
@@ -680,12 +682,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`/api/admin/events/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, category, type, description, date, location_id: location_id || null })
+                body: JSON.stringify({ title, category, type, description, date, location_id: location_id || null, link: link || null })
             });
             const data = await res.json();
             if (res.ok) {
                 const event = allEvents.find(e => e.id === parseInt(id));
-                if (event) { event.title = title; event.category = category; event.type = type; event.description = description; event.date = date; }
+                if (event) { event.title = title; event.category = category; event.type = type; event.description = description; event.link = link; event.date = date; }
                 filterEvents();
                 bootstrap.Modal.getInstance(document.getElementById('editEventModal')).hide();
                 showNotification('Esemény sikeresen frissítve.', 'success');

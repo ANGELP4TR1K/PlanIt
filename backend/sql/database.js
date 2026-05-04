@@ -26,9 +26,9 @@ async function insertLocation(name, latitude, longitude) {
     return rows;
 }
 
-async function insertEvents(type, description, category, title, date, location_id, created_by) {
-    const query = 'INSERT INTO events (type, description, category, title, date, location_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?);';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, created_by]);
+async function insertEvents(type, description, category, title, date, location_id, created_by, link) {
+    const query = 'INSERT INTO events (type, description, category, title, date, location_id, created_by, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?);';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, created_by, link || null]);
     return rows;
 }
 
@@ -95,9 +95,9 @@ async function deleteUserById(id) {
 }
 
 //Updatek
-async function updateEventById(id, type, description, category, title, date, location_id) {
-    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, location_id = ? WHERE id = ?;';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, id]);
+async function updateEventById(id, type, description, category, title, date, location_id, link) {
+    const query = 'UPDATE events SET type = ?, description = ?, category = ?, title = ?, date = ?, location_id = ?, link = ? WHERE id = ?;';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, location_id, link || null, id]);
     return rows;
 }
 
@@ -339,9 +339,9 @@ async function getUserCreatedEvents(userId) {
     return rows;
 }
 
-async function insertCommunityEvent(type, description, category, title, date, capacity, location_id, created_by, is_private) {
-    const query = 'INSERT INTO events (type, description, category, title, date, capacity, location_id, created_by, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);';
-    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id, created_by, is_private]);
+async function insertCommunityEvent(type, description, category, title, date, capacity, location_id, created_by, is_private, link) {
+    const query = 'INSERT INTO events (type, description, category, title, date, capacity, location_id, created_by, is_private, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+    const [rows] = await pool.execute(query, [type, description, category, title, date, capacity, location_id, created_by, is_private, link || null]);
     return rows;
 }
 
