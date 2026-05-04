@@ -514,3 +514,10 @@ function redirectToLogin(contentContainer, text = 'Az oldal megtekintéséhez be
         document.body.appendChild(screen);
     }
 }
+
+function formatDate(dateStr) {
+    const [datePart, timePart] = dateStr.split('T');
+    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
+    const time = timePart ? timePart.substring(0, 5) : null;
+    return time && time !== '00:00' ? `${date} ${time}` : date;
+}

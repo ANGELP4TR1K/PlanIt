@@ -739,11 +739,3 @@ function esc(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
-
-function formatDate(dateStr) {
-    if (!dateStr) return '–';
-    const d = new Date(dateStr);
-    if (isNaN(d)) return dateStr;
-    return d.toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' });
-}
-

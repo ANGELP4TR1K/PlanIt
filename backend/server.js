@@ -5,7 +5,6 @@ const session = require('express-session'); //?npm install express-session
 const MySQLStore = require('express-mysql-session')(session); //?npm install express-mysql-session
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config(); //?npm install dotenv
 
 //!Beállítások
 const app = express();

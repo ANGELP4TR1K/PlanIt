@@ -38,13 +38,6 @@ function normalizeEvent(e) {
     };
 }
 
-// Dátum + idő formázása: "2026-06-11T12:00:00" → "2026. 06. 11. 12:00"
-function formatDate(dateStr) {
-    const [datePart, timePart] = dateStr.split('T');
-    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
-    const time = timePart ? timePart.substring(0, 5) : null;
-    return time && time !== '00:00' ? `${date} ${time}` : date;
-}
 
 // Google Maps API betöltése a backendről lekért API kulccsal
 async function loadGoogleMapsAPI() {

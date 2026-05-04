@@ -12,13 +12,6 @@ function groupEvents(data) {
     return Object.values(groups);
 }
 
-function formatDate(dateStr) {
-    const [datePart, timePart] = dateStr.split('T');
-    const date = datePart.replace('-', '. ').replace('-', '. ') + '.';
-    const time = timePart ? timePart.substring(0, 5) : null;
-    return time && time !== '00:00' ? `${date} ${time}` : date;
-}
-
 async function fetchHomeEvents() {
     try {
         const response = await fetch('/api/events');

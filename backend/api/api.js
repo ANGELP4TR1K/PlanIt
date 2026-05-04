@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt'); //?npm install bcrypt
 const router = express.Router();
 const database = require('../sql/database.js');
-const fs = require('fs/promises');
+const fs = require('fs');
 const nodemailer = require('nodemailer'); //?npm install nodemailer
 
 //!Multer
@@ -660,21 +660,21 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
         const eventId = eventResult.insertId;
 
         const imageDirPath = path.join(__dirname, '../uploads/eventImages');
-        if (!require('fs').existsSync(imageDirPath)) {
-            require('fs').mkdirSync(imageDirPath, { recursive: true });
+        if (!fs.existsSync(imageDirPath)) {
+            fs.mkdirSync(imageDirPath, { recursive: true });
         }
 
         if (request.file) {
             const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
             const oldPath = request.file.path;
             const newPath = path.join(imageDirPath, `${eventId}${ext}`);
-            require('fs').renameSync(oldPath, newPath);
+            fs.renameSync(oldPath, newPath);
         } else {
             const defaultImagePath = path.join(__dirname, '../uploads/eventImages/default.png');
             const newPath = path.join(imageDirPath, `${eventId}.png`);
             try {
-                if (require('fs').existsSync(defaultImagePath)) {
-                    require('fs').copyFileSync(defaultImagePath, newPath);
+                if (fs.existsSync(defaultImagePath)) {
+                    fs.copyFileSync(defaultImagePath, newPath);
                     console.log(`Alapértelmezett kép másolva az eseményhez ${eventId}: ${newPath}`);
                 } else {
                     console.warn(`Alapértelmezett kép nem található a következő helyen: ${defaultImagePath}`);
@@ -765,12 +765,12 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
                 const oldPath = request.file.path;
                 const imageDirPath = path.join(__dirname, '../uploads/eventImages');
 
-                if (!require('fs').existsSync(imageDirPath)) {
-                    require('fs').mkdirSync(imageDirPath, { recursive: true });
+                if (!fs.existsSync(imageDirPath)) {
+                    fs.mkdirSync(imageDirPath, { recursive: true });
                 }
 
                 const newPath = path.join(imageDirPath, `${eventId}${ext}`);
-                require('fs').renameSync(oldPath, newPath);
+                fs.renameSync(oldPath, newPath);
             } catch (fileError) {
                 console.error('Hiba a kép frissítése során:', fileError);
             }
@@ -812,8 +812,8 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
         for (const ext of extensions) {
             const imagePath = path.join(imageDirPath, `${eventId}${ext}`);
             try {
-                if (require('fs').existsSync(imagePath)) {
-                    require('fs').unlinkSync(imagePath);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
                     console.log(`Image deleted: ${imagePath}`);
                 }
             } catch (fileError) {
@@ -919,21 +919,21 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
         }
 
         const imageDirPath = path.join(__dirname, '../uploads/eventImages');
-        if (!require('fs').existsSync(imageDirPath)) {
-            require('fs').mkdirSync(imageDirPath, { recursive: true });
+        if (!fs.existsSync(imageDirPath)) {
+            fs.mkdirSync(imageDirPath, { recursive: true });
         }
 
         if (request.file) {
             const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
             const oldPath = request.file.path;
             const newPath = path.join(imageDirPath, `${eventId}${ext}`);
-            require('fs').renameSync(oldPath, newPath);
+            fs.renameSync(oldPath, newPath);
         } else {
             const defaultImagePath = path.join(__dirname, '../uploads/eventImages/default.png');
             const newPath = path.join(imageDirPath, `${eventId}.png`);
             try {
-                if (require('fs').existsSync(defaultImagePath)) {
-                    require('fs').copyFileSync(defaultImagePath, newPath);
+                if (fs.existsSync(defaultImagePath)) {
+                    fs.copyFileSync(defaultImagePath, newPath);
                 }
             } catch (copyError) {
                 console.error('Hiba az alapértelmezett kép másolása során:', copyError);
@@ -1039,8 +1039,8 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
             try {
                 const ext = request.file.mimetype === 'image/jpeg' ? '.jpg' : '.png';
                 const imageDirPath = path.join(__dirname, '../uploads/eventImages');
-                if (!require('fs').existsSync(imageDirPath)) require('fs').mkdirSync(imageDirPath, { recursive: true });
-                require('fs').renameSync(request.file.path, path.join(imageDirPath, `${eventId}${ext}`));
+                if (!fs.existsSync(imageDirPath)) fs.mkdirSync(imageDirPath, { recursive: true });
+                fs.renameSync(request.file.path, path.join(imageDirPath, `${eventId}${ext}`));
             } catch (fileError) {
                 console.error('Hiba a kép frissítése során:', fileError);
             }
@@ -1078,7 +1078,7 @@ router.delete('/deleteCommunityEvent/:eventId', async (request, response) => {
         for (const ext of ['.jpg', '.png']) {
             const imagePath = path.join(imageDirPath, `${eventId}${ext}`);
             try {
-                if (require('fs').existsSync(imagePath)) require('fs').unlinkSync(imagePath);
+                if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
             } catch (fileError) {
                 console.error('Hiba a kép törlése során:', fileError);
             }
