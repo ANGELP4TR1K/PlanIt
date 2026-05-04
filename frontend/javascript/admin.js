@@ -572,7 +572,7 @@ function filterInvites() {
 function confirmDeleteInvite(id, token) {
     document.getElementById('deleteModalTitle').textContent = 'Meghívó törlése';
     document.getElementById('deleteModalBody').textContent =
-        'Biztosan törölni szeretnéd a(z) „' + token + '" tokenjű meghívót? Ez a művelet nem vonható vissza.';
+        'Biztosan törölni szeretnéd a(z) „' + token + '" tokennel rendelkező meghívót? Ez a művelet nem vonható vissza.';
     pendingDeleteFn = () => deleteInvite(id);
     document.getElementById('confirmDeleteBtn').onclick = () => {
         pendingDeleteFn();

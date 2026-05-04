@@ -52,7 +52,7 @@ async function handleInviteToken(token) {
         const res = await fetch(`/api/invite/${token}`);
         const data = await res.json();
         if (!res.ok) {
-            alert(data.message || 'Meghívó nem található');
+           showNotification(data.message || 'Meghívó nem található', 'error');
             return;
         }
 
@@ -109,7 +109,7 @@ async function handleInviteToken(token) {
         modal.show();
     } catch (err) {
         console.error(err);
-        alert('Hiba történt a meghívó betöltésekor');
+        showNotification('Hiba történt a meghívó betöltésekor', 'error');
     }
 }
 
@@ -237,7 +237,7 @@ function loginModal()
 
         } catch (err) {
             console.error(err);
-            alert('Hálózati hiba');
+            showNotification('Hálózati hiba', 'error');
         }
     });
 }
@@ -280,7 +280,7 @@ function registerModal()
 
         } catch (err) {
             console.error(err);
-            alert('Hálózati hiba');
+            showNotification('Hálózati hiba', 'error');
         }
     });
 }
@@ -361,11 +361,11 @@ async function profilButton(){
             if (res.ok) {
                 window.location.href = '/';
             } else {
-                alert('Hiba történt a kijelentkezés során');
+                showNotification(data.message || 'Hiba történt a kijelentkezés során', 'error');
             }
         } catch (err) {
             console.error(err);
-            alert('Hálózati hiba');
+            showNotification('Hálózati hiba', 'error');
         }
     });
 
@@ -413,7 +413,7 @@ function forgotPasswordModal() {
             }
         } catch (err) {
             console.error(err);
-            alert('Hálózati hiba');
+            showNotification('Hálózati hiba', 'error');
         }
     });
 }
@@ -473,7 +473,7 @@ function resetPasswordModal() {
             }
         } catch (err) {
             console.error(err);
-            alert('Hálózati hiba');
+            showNotification('Hálózati hiba', 'error');
         }
     });
 }

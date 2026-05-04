@@ -29,7 +29,7 @@ app.get('/api/images/:id', (req, res) => {
         }
     }
 
-    res.status(404).json({ error: 'Image not found' });
+    res.status(404).json({ error: 'Kép nem található' });
 });
 
 app.use('/api/categories', express.static(path.join(__dirname, 'uploads/categories')));
@@ -40,7 +40,7 @@ app.use('/api/devpictures', express.static(path.join(__dirname, 'uploads/devPict
 app.use(
     session({
         key: 'planit_session',
-        secret: 'titkos_kulcs', //?Ezt generálni kell a későbbiekben
+        secret: process.env.SESSION_SECRET,
         store: new MySQLStore({
             host: '127.0.0.1',
             port: 3306,
@@ -67,30 +67,37 @@ router.get('/reset-password', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/home.html'));
 });
 
+//?Profil oldal:
 router.get('/profile', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/profile.html'));
 });
-  
+
+//?Felfedezés oldal:
 router.get('/felfedezes', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/felfedezes.html'));
 });
 
+//?Eseményeim oldal:
 router.get('/esemenyeim', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/esemenyeim.html'));
 });
 
+//?Szervezo oldal hivatalos események kezeléséhez:
 router.get('/szervezo', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/szervezo.html'));
 });
 
+//?Rólunk oldal ahol bemutatkozik az oldal és a csapat:
 router.get('/rolunk', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/rolunk.html'));
  });
   
+//?ÁSZF oldal:
 router.get('/aszf', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/aszf.html'));
 });
 
+//?Admin oldal:
 router.get('/admin', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/admin.html'));
 });

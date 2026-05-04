@@ -1,4 +1,0 @@
---Jelenleg ismert hibák / tennivalók
-
-!Óra percet is írjon az eseményhez!
-!érdeklődők száma mindenhova a részletekbe!

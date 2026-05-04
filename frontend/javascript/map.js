@@ -367,7 +367,7 @@ async function handleInterested() {
         const countEl = document.getElementById('eventModalParticipantCount');
         if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
     } else {
-        alert(data.message);
+        showNotification(data.message, 'error');
     }
 }
 

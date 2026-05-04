@@ -67,7 +67,7 @@ router.get('/locations', async (request, response) => {
         const locations = await database.selectAllLocations(userId);
         return response.status(200).json({ locations });
     } catch (error) {
-        console.error('Error fetching locations:', error);
+        console.error('Hiba a helyszínek betöltése során:', error);
         return response.status(500).json({ message: 'Hiba a helyszínek betöltése során.' });
     }
 });
@@ -82,7 +82,7 @@ router.get('/userCreatedEvents', async (request, response) => {
         const events = await database.getUserCreatedEvents(request.session.user.id);
         return response.status(200).json({ events });
     } catch (error) {
-        console.error('Error fetching user created events:', error);
+        console.error('Hiba az események betöltése során:', error);
         return response.status(500).json({ message: 'Hiba az események betöltése során.' });
     }
 });
@@ -97,7 +97,7 @@ router.get('/userCreatedOfficialEvents', async (request, response) => {
         const events = await database.getUserCreatedOfficialEvents(request.session.user.id);
         return response.status(200).json({ events });
     } catch (error) {
-        console.error('Error fetching user created official events:', error);
+        console.error('Hiba az események betöltése során:', error);
         return response.status(500).json({ message: 'Hiba az események betöltése során.' });
     }
 });
@@ -443,8 +443,8 @@ router.get('/userEvents', async (request, response) => {
     try {
         const userId = request.session.user.id;
 
-        const communityEvents = await database.getUserCommunityEvents(userId);
-        const privateEvents = await database.getUserPrivateEvents(userId);
+        const communityEvents = await database.getUserOfficialEvents(userId);
+        const privateEvents = await database.getUserCommunityEvents(userId);
         const createdEvents = await database.getUserCreatedEvents(userId);
         const pastEvents = await database.getPastUserEvents(userId);
         const pastCreatedEvents = await database.getPastCreatedEvents(userId);
@@ -458,7 +458,7 @@ router.get('/userEvents', async (request, response) => {
         });
 
     } catch (error) {
-        console.error('Error getting user events:', error);
+        console.error('Hiba az események lekérése során:', error);
         return response.status(500).json({ message: 'Hiba az események lekérése során.' });
     }
 });
@@ -479,7 +479,7 @@ router.get('/events/:id', async (request, response) => {
         return response.status(200).json(event);
 
     } catch (error) {
-        console.error('Error getting event details:', error);
+        console.error('Hiba az esemény adatainak lekérése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény adatainak lekérése során.' });
     }
 });
@@ -501,7 +501,7 @@ router.get('/events/:id/participants', async (request, response) => {
         const participants = await database.getEventParticipants(eventId);
         return response.status(200).json(participants);
     } catch (error) {
-        console.error('Error fetching participants:', error);
+        console.error('Hiba a résztvevők lekérésekor:', error);
         return response.status(500).json({ message: 'Hiba a résztvevők lekérésekor' });
     }
 });
@@ -530,7 +530,7 @@ router.delete('/events/:id/participants/:userId', async (request, response) => {
         }
         return response.status(200).json({ message: 'Résztvevő eltávolítva' });
     } catch (error) {
-        console.error('Error removing participant:', error);
+        console.error('Hiba a résztvevő eltávolítása során:', error);
         return response.status(500).json({ message: 'Hiba a résztvevő eltávolításakor' });
     }
 });
@@ -565,7 +565,7 @@ router.post('/events/:id/leave', async (request, response) => {
         }
 
     } catch (error) {
-        console.error('Error leaving event:', error);
+        console.error('Hiba az esemény elhagyása során:', error);
         return response.status(500).json({ message: 'Hiba az esemény elhagyása során.' });
     }
 });
@@ -588,7 +588,7 @@ router.delete('/events/:id', async (request, response) => {
         if (!event || event.length === 0) {
             return response.status(404).json({ message: 'Esemény nem található' });
         }
-        console.log('Event details:', event[0]);
+        console.log('Esemény részletei:', event[0]);
         // Check if user is the creator of the event
         if (event[0].created_by !== userId) {
             return response.status(403).json({ message: 'Nincs jogosultságod ezt az eseményt törölni' });
@@ -598,7 +598,7 @@ router.delete('/events/:id', async (request, response) => {
         return response.status(200).json({ message: 'Az esemény sikeresen törölve lett' });
 
     } catch (error) {
-        console.error('Error deleting event:', error);
+        console.error('Hiba az esemény törlése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
     }
 });
@@ -675,12 +675,12 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
             try {
                 if (require('fs').existsSync(defaultImagePath)) {
                     require('fs').copyFileSync(defaultImagePath, newPath);
-                    console.log(`Default image copied for event ${eventId}: ${newPath}`);
+                    console.log(`Alapértelmezett kép másolva az eseményhez ${eventId}: ${newPath}`);
                 } else {
-                    console.warn(`Default image not found at ${defaultImagePath}`);
+                    console.warn(`Alapértelmezett kép nem található a következő helyen: ${defaultImagePath}`);
                 }
             } catch (copyError) {
-                console.error('Error copying default image:', copyError);
+                console.error('Hiba az alapértelmezett kép másolása során:', copyError);
             }
         }
 
@@ -690,7 +690,7 @@ router.post('/createOfficialEvent', upload.single('image'), async (request, resp
         });
 
     } catch (error) {
-        console.error('Error creating official event:', error);
+        console.error('Hiba az esemény létrehozása során:', error);
         return response.status(500).json({ message: 'Hiba az esemény létrehozása során.' });
     }
 });
@@ -772,7 +772,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
                 const newPath = path.join(imageDirPath, `${eventId}${ext}`);
                 require('fs').renameSync(oldPath, newPath);
             } catch (fileError) {
-                console.error('Error updating image:', fileError);
+                console.error('Hiba a kép frissítése során:', fileError);
             }
         }
 
@@ -782,7 +782,7 @@ router.put('/updateOfficialEvent/:eventId', upload.single('image'), async (reque
         });
 
     } catch (error) {
-        console.error('Error updating official event:', error);
+        console.error('Hiba az esemény frissítése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény frissítése során.' });
     }
 });
@@ -817,7 +817,7 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
                     console.log(`Image deleted: ${imagePath}`);
                 }
             } catch (fileError) {
-                console.error('Error deleting image:', fileError);
+                console.error('Hiba a kép törlése során:', fileError);
             }
         }
 
@@ -827,7 +827,7 @@ router.delete('/deleteOfficialEvent/:eventId', async (request, response) => {
         });
 
     } catch (error) {
-        console.error('Error deleting official event:', error);
+        console.error('Hiba az esemény törlése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
     }
 });
@@ -936,7 +936,7 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
                     require('fs').copyFileSync(defaultImagePath, newPath);
                 }
             } catch (copyError) {
-                console.error('Error copying default image:', copyError);
+                console.error('Hiba az alapértelmezett kép másolása során:', copyError);
             }
         }
 
@@ -946,7 +946,7 @@ router.post('/createCommunityEvent', upload.single('image'), async (request, res
         });
 
     } catch (error) {
-        console.error('Error creating community event:', error);
+        console.error('Hiba az esemény létrehozása során:', error);
         return response.status(500).json({ message: 'Hiba az esemény létrehozása során.' });
     }
 });
@@ -1033,7 +1033,7 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
             }
         }
 
-        await database.updateEventById(eventId, 'community', description, category, title, date, finalLocationId, link || null);
+        await database.updateEventById(eventId, 'community', description, category, title, date, finalLocationId, link || null, is_private);
 
         if (request.file) {
             try {
@@ -1042,14 +1042,14 @@ router.put('/updateCommunityEvent/:eventId', upload.single('image'), async (requ
                 if (!require('fs').existsSync(imageDirPath)) require('fs').mkdirSync(imageDirPath, { recursive: true });
                 require('fs').renameSync(request.file.path, path.join(imageDirPath, `${eventId}${ext}`));
             } catch (fileError) {
-                console.error('Error updating image:', fileError);
+                console.error('Hiba a kép frissítése során:', fileError);
             }
         }
 
         return response.status(200).json({ message: 'Esemény sikeresen frissítve', eventId });
 
     } catch (error) {
-        console.error('Error updating community event:', error);
+        console.error('Hiba az esemény frissítése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény frissítése során.' });
     }
 });
@@ -1080,19 +1080,18 @@ router.delete('/deleteCommunityEvent/:eventId', async (request, response) => {
             try {
                 if (require('fs').existsSync(imagePath)) require('fs').unlinkSync(imagePath);
             } catch (fileError) {
-                console.error('Error deleting image:', fileError);
+                console.error('Hiba a kép törlése során:', fileError);
             }
         }
 
         return response.status(200).json({ message: 'Esemény sikeresen törölve', eventId });
 
     } catch (error) {
-        console.error('Error deleting community event:', error);
+        console.error('Hiba az esemény törlése során:', error);
         return response.status(500).json({ message: 'Hiba az esemény törlése során.' });
     }
 });
 
-module.exports = router;
 // Admin middleware
 function requireAdmin(request, response, next) {
     if (!request.session || !request.session.user) {
@@ -1155,14 +1154,14 @@ router.put('/admin/users/:id/role', requireAdmin, async (request, response) => {
     const id = parseInt(request.params.id);
     const { role } = request.body;
     if (!role || !['user', 'szervezo', 'admin'].includes(role)) {
-        return response.status(400).json({ message: 'Érvénytelen szerepkör.' });
+        return response.status(400).json({ message: 'Érvénytelen jogosultság.' });
     }
     try {
         await database.updateUserRole(id, role);
-        return response.status(200).json({ message: 'Szerepkör frissítve.' });
+        return response.status(200).json({ message: 'Jogosultság frissítve.' });
     } catch (error) {
         console.error('Error updating role:', error);
-        return response.status(500).json({ message: 'Hiba a szerepkör frissítése során.' });
+        return response.status(500).json({ message: 'Hiba a jogosultság frissítése során.' });
     }
 });
 
@@ -1192,7 +1191,7 @@ router.delete('/admin/events/:id', requireAdmin, async (request, response) => {
 //?PUT /api/admin/events/:id
 router.put('/admin/events/:id', requireAdmin, async (request, response) => {
     const id = parseInt(request.params.id);
-    const { title, category, type, description, date, location_id, link } = request.body;
+    const { title, category, type, description, date, location_id, link, is_private } = request.body;
     if (!title || !date) {
         return response.status(400).json({ message: 'Cím és dátum kötelező.' });
     }
@@ -1200,7 +1199,7 @@ router.put('/admin/events/:id', requireAdmin, async (request, response) => {
         return response.status(400).json({ message: 'Érvénytelen típus.' });
     }
     try {
-        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null, link || null);
+        await database.updateEventById(id, type || 'official', description || null, category || null, title, date, location_id || null, link || null, is_private);
         return response.status(200).json({ message: 'Esemény frissítve.' });
     } catch (error) {
         console.error('Error updating event:', error);

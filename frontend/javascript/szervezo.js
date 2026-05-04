@@ -116,7 +116,7 @@ function displayCreatedEvents(events) {
         const badgeRow = document.createElement('div');
         badgeRow.className = 'events-item-badge-row';
         const typeBadge = document.createElement('span');
-        typeBadge.className = 'events-item-type';
+        typeBadge.className = 'events-item-type events-item-type-official';
         typeBadge.textContent = event.category;
         badgeRow.appendChild(typeBadge);
         body.appendChild(badgeRow);
