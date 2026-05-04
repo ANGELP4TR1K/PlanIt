@@ -1,17 +1,3 @@
-function groupEvents(data) {
-    const groups = {};
-    data.forEach(e => {
-        const key = `${e.title}_${e.location_id}`;
-        if (!groups[key]) {
-            groups[key] = { ...e, dates: [e.date], ids: [e.id] };
-        } else {
-            groups[key].dates.push(e.date);
-            groups[key].ids.push(e.id);
-        }
-    });
-    return Object.values(groups);
-}
-
 async function fetchHomeEvents() {
     try {
         const response = await fetch('/api/events');
